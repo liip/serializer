@@ -11,6 +11,9 @@ return PhpCsFixer\Config::create()
     ->setRules(
         [
             '@PhpCsFixer' => true,
+            '@PhpCsFixer:risky' => true,
+            '@Symfony' => true,
+            '@Symfony:risky' => true,
             'array_syntax' => ['syntax' => 'short'],
             'declare_strict_types' => true,
             'list_syntax' => ['syntax' => 'short'],
@@ -29,9 +32,6 @@ return PhpCsFixer\Config::create()
             'static_lambda' => true,
             'ternary_to_null_coalescing' => true,
             'void_return' => true,
-
-            // Doesn't work with multiple levels (used for Symfony Configuration)
-            'method_chaining_indentation' => false,
 
             // Don't mark tests as @internal
             'php_unit_internal_class' => false,
