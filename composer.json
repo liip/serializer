@@ -16,7 +16,7 @@
     "require": {
         "php": "^7.1",
         "doctrine/annotations": "^1.6",
-        "jms/serializer": "^2",
+        "jms/serializer": "^1.13 || ^2",
         "liip/metadata-parser": "dev-master",
         "pnz/json-exception": "^0.1.0",
         "psr/log": "^1",
@@ -44,7 +44,7 @@
         "fix-cs": "vendor/bin/php-cs-fixer fix -v",
         "cs-fixer": "vendor/bin/php-cs-fixer fix --dry-run --diff --diff-format udiff -v",
         "phpstan": "vendor/bin/phpstan analyse --no-progress --level 5 src/",
-        "phpstan-tests": "vendor/bin/phpstan analyse --no-progress --level 1 tests/",
+        "phpstan-tests": "vendor/bin/phpstan analyse --no-progress --level 1 -c phpstan.tests.neon tests/",
         "phpstan-all": [
             "@phpstan",
             "@phpstan-tests"

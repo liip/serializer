@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Liip\Serializer;
 
-use JMS\Serializer\TypeParser;
 use Liip\MetadataParser\Builder;
 use Liip\MetadataParser\Metadata\ClassMetadata;
 use Liip\MetadataParser\Metadata\PropertyMetadata;
@@ -52,11 +51,6 @@ class DeserializerGenerator
     private $cacheDirectory;
 
     /**
-     * @var TypeParser
-     */
-    private $typeParser;
-
-    /**
      * @param string[] $classesToGenerate
      */
     public function __construct(
@@ -68,7 +62,6 @@ class DeserializerGenerator
         $this->classesToGenerate = $classesToGenerate;
         $this->cacheDirectory = $cacheDirectory;
         $this->filesystem = new Filesystem();
-        $this->typeParser = new TypeParser();
     }
 
     public static function buildDeserializerFunctionName(string $className): string
