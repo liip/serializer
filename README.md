@@ -8,6 +8,9 @@ This serializer can convert JSON to PHP objects with Phpdoc and JMS annotations 
 # How it works
 The Liip serializer generates PHP code based on the PHP models that you specify. It has a pluggable system of parsers. A separate file is generated for every version and serializer groups combination to move all logic to the code generation step. This serializer is fast because the generated PHP code is very simplistic and specific to the usecase, and uses simple arrays rather than the complex object tree that JMS serializer does.
 
+Example of parser to use: 
+https://github.com/liip/metadata-parser
+
 # How to use it
 We plan to make this easier in the very near future, and if you use Symfony, we plan to create a bundle for this! Currently, you need to first generate your files, and then serialize/deserialize using those files with the serialize and deserialize functions created in them.
 
