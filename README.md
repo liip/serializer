@@ -73,14 +73,3 @@ $model = $functionName($data);
 ## Where do I go for help?
 
 If you need help, open an issue. 
-
-## Why an object serializer generator
-
-The first experiment was a Golang serializer. It is a lot faster than JMS serializer. However, integrating that with PHP
-is some pain, and we would either need some hybrid solution or move a lot application logic into Golang.
-
-We experimented and found that using the same concept but with PHP still brings a significant performance gain.
-
-The PoC gave the following results:
-* Overall performance gain: 55%, 390 ms => 175 ms
-* CPU and I/O wait both down by ~50%, Memory gain: 21%, 6.5 MB => 5.15 MB
