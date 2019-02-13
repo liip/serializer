@@ -41,19 +41,22 @@ The generated files follow the naming convention of `serialize_FQN_WITH_UNDERSCO
 This would serialize product class, version 2: 
 
 ```
+// There is a fallback to JMS; pass that in here as $originalSerializer. Along with the directory of your files, and a logger.
+$generatedSerializer = new GeneratedSerializer($originalSerializer, $cacheDirectory, $logger);
+
 // A model to serialize
 $productModel = new Product();
 
-// Specify the function name, this is typically dynamic based on class groups and version.
-$functionName = 'serialize_Namespace_Product_2';
-
 // Your serialized data
-$data = $functionName($productModel);
+$data = $generatedSerializer->serialize($productModel, 'json', SerializationContext::create()->setVersion(2));
 ```
 
 ## Deserialize using the generated code
 
 ```
+// There is a fallback to JMS; pass that in here. Along with the directory of your files, and a logger.
+$generatedSerializer = new GeneratedSerializer($originalSerializer, $cacheDirectory, $logger);
+
 // Data to deserialize
 $data = [
     'api_string' => 'api',
@@ -63,11 +66,8 @@ $data = [
     'date_immutable' => '2016-06-01T00:00:00+02:00',
 ];
 
-// Specify the function name, this is typically dynamic based on class groups and version.
-$functionName = 'deserialize_Namespace_Product';
-
 /** @var Product $model */
-$model = $functionName($data);
+$model = $generatedSerializer->deserialize($data, Product::class, 'json');
 ```
 
 ## Where do I go for help?
