@@ -1,6 +1,0 @@
-parameters:
-    ignoreErrors:
-        # Allow JMS parser version 1
-        - '#has unknown class JMS\\Serializer\\TypeParser as its type#'
-        - '#Instantiated class JMS\\Serializer\\TypeParser not found#'
-        - '#Call to method parse\(\) on an unknown class JMS\\Serializer\\TypeParser#'

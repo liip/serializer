@@ -7,7 +7,7 @@ namespace Liip\Serializer\Template;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
 
-class Serialization
+final class Serialization
 {
     private const TMPL_FUNCTION = <<<'EOT'
 <?php

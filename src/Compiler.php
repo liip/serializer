@@ -6,7 +6,7 @@ namespace Liip\Serializer;
 
 use Liip\MetadataParser\Builder;
 
-class Compiler
+final class Compiler
 {
     /**
      * @var Builder
