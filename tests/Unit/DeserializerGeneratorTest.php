@@ -2,12 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Tests\Liip\Serializer;
+namespace Tests\Liip\Serializer\Unit;
 
+use Doctrine\Common\Annotations\AnnotationReader;
 use Liip\MetadataParser\Builder;
+use Liip\MetadataParser\ModelParser\JMSParser;
 use Liip\Serializer\DeserializerGenerator;
 use Liip\Serializer\Template\Deserialization;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Tests\Liip\Serializer\Fixtures\ContainsNonEmptyConstructor;
 use Tests\Liip\Serializer\Fixtures\Inheritance;
 use Tests\Liip\Serializer\Fixtures\ListModel;
@@ -21,7 +22,7 @@ use Tests\Liip\Serializer\Fixtures\VirtualProperties;
 /**
  * @medium
  */
-class DeserializerGeneratorTest extends KernelTestCase
+class DeserializerGeneratorTest extends SerializerTestCase
 {
     /**
      * @var Builder
@@ -30,19 +31,15 @@ class DeserializerGeneratorTest extends KernelTestCase
 
     public static function setUpBeforeClass(): void
     {
-        static::bootKernel();
-        static::$metadataBuilder = static::$container->get(Builder::class);
-    }
-
-    public static function tearDownAfterClass(): void
-    {
-        static::ensureKernelShutdown();
+        static::$metadataBuilder = self::createMetadataBuilder([
+            new JMSParser(new AnnotationReader()),
+        ]);
     }
 
     public function testNested(): void
     {
         $functionName = 'deserialize_Tests_Liip_Serializer_Fixtures_Model';
-        $this->generateDeserializer(Model::class, $functionName);
+        self::generateDeserializer(self::$metadataBuilder, Model::class, $functionName);
 
         $input = [
             'api_string' => 'api',
@@ -69,7 +66,7 @@ class DeserializerGeneratorTest extends KernelTestCase
     public function testLists(): void
     {
         $functionName = 'deserialize_Tests_Liip_Serializer_Fixtures_ListModel';
-        $this->generateDeserializer(ListModel::class, $functionName);
+        self::generateDeserializer(self::$metadataBuilder, ListModel::class, $functionName);
 
         $input = [
             'array' => ['a', 'b'],
@@ -94,7 +91,7 @@ class DeserializerGeneratorTest extends KernelTestCase
     public function testPrivateProperty(): void
     {
         $functionName = 'deserialize_Tests_Liip_Serializer_Fixtures_PrivateProperty';
-        $this->generateDeserializer(PrivateProperty::class, $functionName);
+        self::generateDeserializer(self::$metadataBuilder, PrivateProperty::class, $functionName);
 
         $input = [
             'extra' => 'More Info',
@@ -111,7 +108,7 @@ class DeserializerGeneratorTest extends KernelTestCase
     public function testInheritance(): void
     {
         $functionName = 'deserialize_Tests_Liip_Serializer_Fixtures_Inheritance';
-        $this->generateDeserializer(Inheritance::class, $functionName);
+        self::generateDeserializer(self::$metadataBuilder, Inheritance::class, $functionName);
 
         $input = [
             'foo' => 'More Info',
@@ -137,7 +134,7 @@ class DeserializerGeneratorTest extends KernelTestCase
     public function testNonEmptyConstructor(): void
     {
         $functionName = 'deserialize_Tests_Liip_Serializer_Fixtures_ContainsNonEmptyConstructor';
-        $this->generateDeserializer(ContainsNonEmptyConstructor::class, $functionName);
+        self::generateDeserializer(self::$metadataBuilder, ContainsNonEmptyConstructor::class, $functionName);
 
         $input = [
             'child' => [
@@ -173,7 +170,7 @@ class DeserializerGeneratorTest extends KernelTestCase
     public function testVirtualProperties(): void
     {
         $functionName = 'deserialize_Tests_Liip_Serializer_Fixtures_VirtualProperties';
-        $this->generateDeserializer(VirtualProperties::class, $functionName);
+        self::generateDeserializer(self::$metadataBuilder, VirtualProperties::class, $functionName);
 
         $input = [
             'api_string' => 'apiString',
@@ -189,7 +186,7 @@ class DeserializerGeneratorTest extends KernelTestCase
     public function testPostDeserialize(): void
     {
         $functionName = 'deserialize_Tests_Liip_Serializer_Fixtures_PostDeserialize';
-        $this->generateDeserializer(PostDeserialize::class, $functionName);
+        self::generateDeserializer(self::$metadataBuilder, PostDeserialize::class, $functionName);
 
         $input = [
             'api_string' => 'apiString',
@@ -200,21 +197,5 @@ class DeserializerGeneratorTest extends KernelTestCase
         $this->assertInstanceOf(PostDeserialize::class, $model);
         $this->assertSame('apiString', $model->apiString);
         $this->assertSame('post has been called', $model->postCalled);
-    }
-
-    /**
-     * Generate the deserializer for the specified class and make sure the file and function exist.
-     */
-    private function generateDeserializer(string $classToGenerate, string $functionName): void
-    {
-        $templating = new Deserialization();
-        $deserializerGenerator = new DeserializerGenerator($templating, [$classToGenerate], '/tmp');
-
-        $deserializerGenerator->generate(static::$metadataBuilder);
-
-        $filePath = '/tmp/'.$functionName.'.php';
-        $this->assertFileExists($filePath);
-        require_once $filePath;
-        $this->assertTrue(\function_exists($functionName));
     }
 }

@@ -16,7 +16,7 @@
     "require": {
         "php": "^7.1",
         "doctrine/annotations": "^1.6",
-        "jms/serializer": "^1.13 || ^2",
+        "jms/serializer": "^1.13",
         "liip/metadata-parser": "dev-master",
         "pnz/json-exception": "^0.1.0",
         "psr/log": "^1",
