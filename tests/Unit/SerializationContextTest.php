@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Tests\Liip\Serializer;
+namespace Tests\Liip\Serializer\Unit;
 
 use Liip\Serializer\SerializationContext;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use PHPUnit\Framework\TestCase;
 use Tests\Liip\Serializer\Fixtures\PartialExclusionStrategy;
 
 /**
  * @small
  */
-class SerializationContextTest extends KernelTestCase
+class SerializationContextTest extends TestCase
 {
     public function testCustomExclusionStrategy(): void
     {

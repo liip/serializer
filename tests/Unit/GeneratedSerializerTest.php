@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Liip\Serializer;
+namespace Tests\Liip\Serializer\Unit;
 
 use JMS\Serializer\ArrayTransformerInterface;
 use JMS\Serializer\DeserializationContext;
