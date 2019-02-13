@@ -1,5 +1,7 @@
 # Liip Serializer 
 
+**This project is Open Sourced based on work that we did initially as closed source at Liip, it may be lacking some documentation. If there is anything that you need or have questions about we would love to see you open an issue! :)**
+
 The serializer generator produces simplistic PHP functions that handle the conversion between arrays and objects for a
 specific combination of serializer groups and one API version. To do this, the generator uses the JMS serializer
 annotations on the models. You need to specify which models should have such PHP functions. In the beginning, we do this
@@ -35,12 +37,7 @@ a constructor argument, they need no setter.
 
 ## Where do I go for help?
 
-At the moment of writing the people who worked on this are (alphabetic order): 
-- David Buchmann 
-- Martin Janser
-- Michelle Sanver. 
-
-You can always ask any of them in case you need help or have ideas on how to improve and would like some input. 
+If you need help, open an issue. 
 
 ## Why an object serializer generator
 
