@@ -40,7 +40,7 @@ class GeneratedSerializerTest extends TestCase
 
     public function testSerialize(): void
     {
-        $transform = new GeneratedSerializer($this->jms, __DIR__.'/Fixtures', new NullLogger());
+        $transform = new GeneratedSerializer($this->jms, __DIR__.'/../Fixtures', new NullLogger());
 
         $this->jms->expects($this->never())
             ->method('serialize')
@@ -58,7 +58,7 @@ class GeneratedSerializerTest extends TestCase
 
     public function testSerializeFallbackOnFormat(): void
     {
-        $transform = new GeneratedSerializer($this->jms, __DIR__.'/Fixtures', new NullLogger());
+        $transform = new GeneratedSerializer($this->jms, __DIR__.'/../Fixtures', new NullLogger());
         $model = new GeneratedSerializerModel();
         $context = new SerializationContext();
         $context->setVersion(2);
@@ -79,7 +79,7 @@ class GeneratedSerializerTest extends TestCase
 
     public function testSerializeFallbackOnExclusionStrategy(): void
     {
-        $transform = new GeneratedSerializer($this->jms, __DIR__.'/Fixtures', new NullLogger());
+        $transform = new GeneratedSerializer($this->jms, __DIR__.'/../Fixtures', new NullLogger());
         $model = new GeneratedSerializerModel();
         $context = new SerializationContext();
         $context->addExclusionStrategy(new PartialExclusionStrategy(['field1', 'field2']));
@@ -100,7 +100,7 @@ class GeneratedSerializerTest extends TestCase
 
     public function testSerializeEnabled(): void
     {
-        $transform = new GeneratedSerializer($this->jms, __DIR__.'/Fixtures', new NullLogger(), [GeneratedSerializerModel::class]);
+        $transform = new GeneratedSerializer($this->jms, __DIR__.'/../Fixtures', new NullLogger(), [GeneratedSerializerModel::class]);
 
         $this->jms->expects($this->never())
             ->method('serialize')
@@ -118,7 +118,7 @@ class GeneratedSerializerTest extends TestCase
 
     public function testSerializeNotEnabled(): void
     {
-        $transform = new GeneratedSerializer($this->jms, __DIR__.'/Fixtures', new NullLogger(), []);
+        $transform = new GeneratedSerializer($this->jms, __DIR__.'/../Fixtures', new NullLogger(), []);
         $model = new GeneratedSerializerModel();
         $context = new SerializationContext();
 
@@ -158,7 +158,7 @@ class GeneratedSerializerTest extends TestCase
 
     public function testSerializeFallbackOnError(): void
     {
-        $transform = new GeneratedSerializer($this->jms, __DIR__.'/Fixtures', new NullLogger());
+        $transform = new GeneratedSerializer($this->jms, __DIR__.'/../Fixtures', new NullLogger());
         $model = new GeneratedSerializerFailureModel();
         $context = new SerializationContext();
         $context->setVersion(2);
@@ -179,7 +179,7 @@ class GeneratedSerializerTest extends TestCase
 
     public function testToArray(): void
     {
-        $transform = new GeneratedSerializer($this->jms, __DIR__.'/Fixtures', new NullLogger());
+        $transform = new GeneratedSerializer($this->jms, __DIR__.'/../Fixtures', new NullLogger());
 
         $this->jms->expects($this->never())
             ->method('toArray')
@@ -194,7 +194,7 @@ class GeneratedSerializerTest extends TestCase
 
     public function testToArrayNotEnabled(): void
     {
-        $transform = new GeneratedSerializer($this->jms, __DIR__.'/Fixtures', new NullLogger(), []);
+        $transform = new GeneratedSerializer($this->jms, __DIR__.'/../Fixtures', new NullLogger(), []);
         $model = new GeneratedSerializerModel();
         $context = new SerializationContext();
 
@@ -210,7 +210,7 @@ class GeneratedSerializerTest extends TestCase
 
     public function testToArrayNoContext(): void
     {
-        $transform = new GeneratedSerializer($this->jms, __DIR__.'/Fixtures', new NullLogger());
+        $transform = new GeneratedSerializer($this->jms, __DIR__.'/../Fixtures', new NullLogger());
 
         $this->jms->expects($this->never())
             ->method('toArray')
@@ -222,7 +222,7 @@ class GeneratedSerializerTest extends TestCase
 
     public function testDeserialize(): void
     {
-        $transform = new GeneratedSerializer($this->jms, __DIR__.'/Fixtures', new NullLogger());
+        $transform = new GeneratedSerializer($this->jms, __DIR__.'/../Fixtures', new NullLogger());
 
         $this->jms->expects($this->never())
             ->method('deserialize')
@@ -238,7 +238,7 @@ class GeneratedSerializerTest extends TestCase
 
     public function testDeserializeFallbackOnFormat(): void
     {
-        $transform = new GeneratedSerializer($this->jms, __DIR__.'/Fixtures', new NullLogger());
+        $transform = new GeneratedSerializer($this->jms, __DIR__.'/../Fixtures', new NullLogger());
         $model = new GeneratedSerializerModel();
 
         $this->jms->expects($this->once())
@@ -256,7 +256,7 @@ class GeneratedSerializerTest extends TestCase
 
     public function testDeserializeNotEnabled(): void
     {
-        $transform = new GeneratedSerializer($this->jms, __DIR__.'/Fixtures', new NullLogger(), []);
+        $transform = new GeneratedSerializer($this->jms, __DIR__.'/../Fixtures', new NullLogger(), []);
         $model = new GeneratedSerializerModel();
 
         $this->jms->expects($this->once())
@@ -293,7 +293,7 @@ class GeneratedSerializerTest extends TestCase
 
     public function testDeserializeFallbackOnError(): void
     {
-        $transform = new GeneratedSerializer($this->jms, __DIR__.'/Fixtures', new NullLogger());
+        $transform = new GeneratedSerializer($this->jms, __DIR__.'/../Fixtures', new NullLogger());
         $model = new GeneratedSerializerFailureModel();
         $context = new DeserializationContext();
 
@@ -309,7 +309,7 @@ class GeneratedSerializerTest extends TestCase
 
     public function testFromArrayFallbackOnVersion(): void
     {
-        $transform = new GeneratedSerializer($this->jms, __DIR__.'/Fixtures', new NullLogger());
+        $transform = new GeneratedSerializer($this->jms, __DIR__.'/../Fixtures', new NullLogger());
         $model = new GeneratedSerializerModel();
         $context = new DeserializationContext();
         $context->setVersion(2);
@@ -327,7 +327,7 @@ class GeneratedSerializerTest extends TestCase
 
     public function testFromArrayNotEnabled(): void
     {
-        $transform = new GeneratedSerializer($this->jms, __DIR__.'/Fixtures', new NullLogger(), []);
+        $transform = new GeneratedSerializer($this->jms, __DIR__.'/../Fixtures', new NullLogger(), []);
         $model = new GeneratedSerializerModel();
         $context = new DeserializationContext();
 
@@ -343,7 +343,7 @@ class GeneratedSerializerTest extends TestCase
 
     public function testFromArrayNoContext(): void
     {
-        $transform = new GeneratedSerializer($this->jms, __DIR__.'/Fixtures', new NullLogger());
+        $transform = new GeneratedSerializer($this->jms, __DIR__.'/../Fixtures', new NullLogger());
 
         $this->jms->expects($this->never())
             ->method('fromArray')
