@@ -7,6 +7,8 @@ namespace Tests\Liip\Serializer\Unit;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Liip\MetadataParser\Builder;
 use Liip\MetadataParser\ModelParser\JMSParser;
+use Liip\MetadataParser\ModelParser\PhpDocParser;
+use Liip\MetadataParser\ModelParser\ReflectionParser;
 use Tests\Liip\Serializer\Fixtures\AccessorOrder;
 use Tests\Liip\Serializer\Fixtures\AccessorOrderInherit;
 use Tests\Liip\Serializer\Fixtures\ContainsPrivateProperty;
@@ -33,6 +35,8 @@ class SerializerGeneratorTest extends SerializerTestCase
     public static function setUpBeforeClass(): void
     {
         static::$metadataBuilder = self::createMetadataBuilder([
+            new ReflectionParser(),
+            new PhpDocParser(),
             new JMSParser(new AnnotationReader()),
         ]);
     }
