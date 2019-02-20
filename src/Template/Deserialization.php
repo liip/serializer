@@ -6,7 +6,7 @@ namespace Liip\Serializer\Template;
 
 use Twig_Environment;
 
-class Deserialization
+final class Deserialization
 {
     private const TMPL_FUNCTION = <<<'EOT'
 <?php

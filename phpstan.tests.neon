@@ -1,1 +1,3 @@
-# empty file to not use config for src that has ignore statements
+parameters:
+	excludes_analyse:
+		- *serialize_Tests_Liip_Serializer_Fixtures_*

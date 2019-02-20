@@ -4,37 +4,33 @@ declare(strict_types=1);
 
 namespace Tests\Liip\Serializer\Unit;
 
-use Liip\Serializer\SerializationContext;
+use Liip\Serializer\Context;
 use PHPUnit\Framework\TestCase;
-use Tests\Liip\Serializer\Fixtures\PartialExclusionStrategy;
 
 /**
  * @small
  */
 class SerializationContextTest extends TestCase
 {
-    public function testCustomExclusionStrategy(): void
+    public function testEmpty(): void
     {
-        $context = SerializationContext::create();
-
-        $context->addExclusionStrategy(new PartialExclusionStrategy(['field1']));
-
-        $this->assertTrue($context->hasCustomExclusionStrategy());
+        $context = new Context();
+        $this->assertNull($context->getVersion());
+        $this->assertCount(0, $context->getGroups());
     }
 
-    public function testNoCustomExclusionStrategy(): void
+    public function testSetVersion(): void
     {
-        $context = SerializationContext::create();
-
-        $context->setVersion(3);
-
-        $this->assertFalse($context->hasCustomExclusionStrategy());
+        $context = new Context();
+        $context->setVersion('3');
+        $this->assertSame('3', $context->getVersion());
     }
 
-    public function testNoExclusionStrategy(): void
+    public function testSetGroups(): void
     {
-        $context = SerializationContext::create();
+        $context = new Context();
+        $context->setGroups(['a', 'b', 'c']);
 
-        $this->assertFalse($context->hasCustomExclusionStrategy());
+        $this->assertSame(['a', 'b', 'c'], $context->getGroups());
     }
 }

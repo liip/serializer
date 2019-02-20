@@ -18,7 +18,7 @@ use Liip\Serializer\Path\ModelPath;
 use Liip\Serializer\Template\Deserialization;
 use Symfony\Component\Filesystem\Filesystem;
 
-class DeserializerGenerator
+final class DeserializerGenerator
 {
     private const FILENAME_PREFIX = 'deserialize';
 

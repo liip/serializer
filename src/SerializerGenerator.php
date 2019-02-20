@@ -20,7 +20,7 @@ use Liip\MetadataParser\Reducer\VersionReducer;
 use Liip\Serializer\Template\Serialization;
 use Symfony\Component\Filesystem\Filesystem;
 
-class SerializerGenerator
+final class SerializerGenerator
 {
     private const FILENAME_PREFIX = 'serialize';
 
