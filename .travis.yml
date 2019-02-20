@@ -31,10 +31,10 @@ matrix:
       env:
       - PHPSTAN=true
 
-    - php: 'nightly'
+    - php: '7.4snapshot'
 
     allow_failures:
-    - php: nightly
+    - php: '7.4snapshot'
 
 install:
 # To be removed when this issue will be resolved: https://github.com/composer/composer/issues/5355
