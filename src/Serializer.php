@@ -16,7 +16,7 @@ use Pnz\JsonException\Json;
  *
  * The code generation is - at least for now - only implemented for JSON.
  */
-final class Serializer
+final class Serializer implements SerializerInterface
 {
     /**
      * @var string
@@ -29,10 +29,10 @@ final class Serializer
     }
 
     /**
-     * @throws \JsonException
-     * @throws Exception
-     * @throws UnsupportedFormatException
-     * @throws UnsupportedTypeException
+     * {@inheritdoc}
+     *
+     * Serializing primitive types is not currently implemented and will lead
+     * to an UnsupportedTypeException.
      */
     public function serialize($data, string $format, ?Context $context = null): string
     {
@@ -40,14 +40,18 @@ final class Serializer
             throw new UnsupportedFormatException('Liip serializer only supports JSON for now');
         }
 
-        return Json::encode($this->objectToArray($data, true, $context), \JSON_UNESCAPED_SLASHES);
+        try {
+            return Json::encode($this->objectToArray($data, true, $context), \JSON_UNESCAPED_SLASHES);
+        } catch (\JsonException $e) {
+            throw new Exception(sprintf('Failed to JSON encode data for %s. This is not supposed to happen.', \is_object($data) ? \get_class($data) : \gettype($data)), 0, $e);
+        }
     }
 
     /**
-     * @throws \JsonException
-     * @throws Exception
-     * @throws UnsupportedFormatException
-     * @throws UnsupportedTypeException
+     * {@inheritdoc}
+     *
+     * Version or groups are currently not implemented for deserialization and
+     * passing a context with one of those values set will lead to an Exception.
      */
     public function deserialize(string $data, string $type, string $format, ?Context $context = null)
     {
@@ -55,23 +59,31 @@ final class Serializer
             throw new UnsupportedFormatException('Liip serializer only supports JSON for now');
         }
 
-        return $this->arrayToObject(Json::decode($data, true), $type, $context);
+        try {
+            $array = Json::decode($data, true);
+        } catch (\JsonException $e) {
+            throw new Exception('Failed to JSON decode data. This is not supposed to happen.', 0, $e);
+        }
+
+        return $this->arrayToObject($array, $type, $context);
     }
 
     /**
-     * @throws \JsonException
-     * @throws Exception
-     * @throws UnsupportedTypeException
+     * {@inheritdoc}
+     *
+     * Serializing primitive types is not currently implemented and will lead
+     * to an UnsupportedTypeException.
      */
-    public function toArray($data, ?Context $context = null)
+    public function toArray($data, ?Context $context = null): array
     {
         return $this->objectToArray($data, false, $context);
     }
 
     /**
-     * @throws \JsonException
-     * @throws Exception
-     * @throws UnsupportedTypeException
+     * {@inheritdoc}
+     *
+     * Version or groups are currently not implemented for deserialization and
+     * passing a context with one of those values set will lead to an Exception.
      */
     public function fromArray(array $data, string $type, ?Context $context = null)
     {
