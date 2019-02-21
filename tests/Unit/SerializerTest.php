@@ -10,8 +10,8 @@ use Liip\Serializer\Exception\UnsupportedFormatException;
 use Liip\Serializer\Exception\UnsupportedTypeException;
 use Liip\Serializer\Serializer;
 use PHPUnit\Framework\TestCase;
-use Tests\Liip\Serializer\Fixtures\GeneratedSerializerFailureModel;
-use Tests\Liip\Serializer\Fixtures\GeneratedSerializerModel;
+use Tests\Liip\Serializer\Fixtures\SerializerFailureModel;
+use Tests\Liip\Serializer\Fixtures\SerializerModel;
 
 /**
  * @small
@@ -25,14 +25,14 @@ class SerializerTest extends TestCase
         $context = new Context();
         $context->setVersion('2');
         $context->setGroups(['api']);
-        $json = $transform->serialize(new GeneratedSerializerModel(), 'json', $context);
+        $json = $transform->serialize(new SerializerModel(), 'json', $context);
         $this->assertSame('{"seen":true}', $json);
     }
 
     public function testSerializeFailOnFormat(): void
     {
         $transform = new Serializer(__DIR__.'/../Fixtures');
-        $model = new GeneratedSerializerModel();
+        $model = new SerializerModel();
         $context = new Context();
         $context->setVersion('2');
         $context->setGroups(['api']);
@@ -44,7 +44,7 @@ class SerializerTest extends TestCase
     public function testSerializeFailOnFileNotExists(): void
     {
         $transform = new Serializer('/tmp/foo');
-        $model = new GeneratedSerializerModel();
+        $model = new SerializerModel();
         $context = new Context();
         $context->setVersion('2');
         $context->setGroups(['api']);
@@ -56,7 +56,7 @@ class SerializerTest extends TestCase
     public function testSerializeFailOnError(): void
     {
         $transform = new Serializer(__DIR__.'/../Fixtures');
-        $model = new GeneratedSerializerFailureModel();
+        $model = new SerializerFailureModel();
         $context = new Context();
         $context->setVersion('2');
         $context->setGroups(['api']);
@@ -73,7 +73,7 @@ class SerializerTest extends TestCase
         $context = new Context();
         $context->setVersion('2');
         $context->setGroups(['api']);
-        $json = $transform->toArray(new GeneratedSerializerModel(), $context);
+        $json = $transform->toArray(new SerializerModel(), $context);
         $this->assertSame(['seen' => true], $json);
     }
 
@@ -81,7 +81,7 @@ class SerializerTest extends TestCase
     {
         $transform = new Serializer(__DIR__.'/../Fixtures');
 
-        $json = $transform->toArray(new GeneratedSerializerModel());
+        $json = $transform->toArray(new SerializerModel());
         $this->assertSame(['all' => true], $json);
     }
 
@@ -89,8 +89,8 @@ class SerializerTest extends TestCase
     {
         $transform = new Serializer(__DIR__.'/../Fixtures');
 
-        $data = $transform->deserialize('[]', GeneratedSerializerModel::class, 'json');
-        $this->assertInstanceOf(GeneratedSerializerModel::class, $data);
+        $data = $transform->deserialize('[]', SerializerModel::class, 'json');
+        $this->assertInstanceOf(SerializerModel::class, $data);
         $this->assertSame('deserializer', $data->field);
     }
 
@@ -99,7 +99,7 @@ class SerializerTest extends TestCase
         $transform = new Serializer(__DIR__.'/../Fixtures');
 
         $this->expectException(UnsupportedFormatException::class);
-        $transform->deserialize('<xml-data/>', GeneratedSerializerModel::class, 'xml');
+        $transform->deserialize('<xml-data/>', SerializerModel::class, 'xml');
     }
 
     public function testDeserializeFailOnFileNotExists(): void
@@ -107,7 +107,7 @@ class SerializerTest extends TestCase
         $transform = new Serializer('/tmp/foo');
 
         $this->expectException(UnsupportedTypeException::class);
-        $transform->deserialize('{"it":"works"}', GeneratedSerializerModel::class, 'json');
+        $transform->deserialize('{"it":"works"}', SerializerModel::class, 'json');
     }
 
     public function testDeserializeFailOnError(): void
@@ -116,7 +116,7 @@ class SerializerTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Error during deserialization');
-        $transform->deserialize('{"it":"fails horribly"}', GeneratedSerializerFailureModel::class, 'json');
+        $transform->deserialize('{"it":"fails horribly"}', SerializerFailureModel::class, 'json');
     }
 
     public function testFromArrayFailOnVersion(): void
@@ -128,15 +128,15 @@ class SerializerTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Version and group support is not implemented for deserialization');
-        $transform->fromArray(['it' => 'works'], GeneratedSerializerModel::class, $context);
+        $transform->fromArray(['it' => 'works'], SerializerModel::class, $context);
     }
 
     public function testFromArrayNoContext(): void
     {
         $transform = new Serializer(__DIR__.'/../Fixtures');
 
-        $data = $transform->fromArray([], GeneratedSerializerModel::class);
-        $this->assertInstanceOf(GeneratedSerializerModel::class, $data);
+        $data = $transform->fromArray([], SerializerModel::class);
+        $this->assertInstanceOf(SerializerModel::class, $data);
         $this->assertSame('deserializer', $data->field);
     }
 }
