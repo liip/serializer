@@ -31,6 +31,21 @@ This step needs to be executed during the deployment phase and whenever your
 models change.
 
 ```php
+use Doctrine\Common\Annotations\AnnotationReader;
+use Liip\MetadataParser\Builder;
+use Liip\MetadataParser\Parser;
+use Liip\MetadataParser\RecursionChecker;
+use Liip\MetadataParser\ModelParser\JMSParser;
+use Liip\MetadataParser\ModelParser\LiipMetadataAnnotationParser;
+use Liip\MetadataParser\ModelParser\PhpDocParser;
+use Liip\MetadataParser\ModelParser\ReflectionParser;
+use Liip\Serializer\DeserializerGenerator;
+use Liip\Serializer\Serializer;
+use Liip\Serializer\SerializerGenerator;
+use Liip\Serializer\Template\Deserialization;
+use Liip\Serializer\Template\Serialization;
+
+
 $classMetaData = [
     Product::class => [
         ['api'],
@@ -43,11 +58,16 @@ $classMetaData = [
 
 $versions = ['1', '2', '4'];
 
+$parsers = [
+    new ReflectionParser(),
+    new PhpDocParser(),
+    new JMSParser(new AnnotationReader()),
+    new LiipMetadataAnnotationParser(new AnnotationReader()),
+];
 $builder = new Builder(new Parser($parsers), new RecursionChecker(null, []));
-$templating = new Serialization();
 
-$serializerGenerator = new SerializerGenerator($templating, $versions, $classMetaData, $cacheDirectory);
-$deserializerGenerator = new DeserializerGenerator($templating, [Product::class, User::class], $cacheDirectory);
+$serializerGenerator = new SerializerGenerator( new Serialization(), $versions, $classMetaData, $cacheDirectory);
+$deserializerGenerator = new DeserializerGenerator(new Deserialization(), [Product::class, User::class], $cacheDirectory);
 $serializerGenerator->generate($builder);
 $deserializerGenerator->generate($builder);
 ```
