@@ -12,6 +12,7 @@ use Liip\MetadataParser\ModelParser\ReflectionParser;
 use Liip\Serializer\DeserializerGenerator;
 use Liip\Serializer\Template\Deserialization;
 use Tests\Liip\Serializer\Fixtures\ContainsNonEmptyConstructor;
+use Tests\Liip\Serializer\Fixtures\FloatProperty;
 use Tests\Liip\Serializer\Fixtures\Inheritance;
 use Tests\Liip\Serializer\Fixtures\ListModel;
 use Tests\Liip\Serializer\Fixtures\Model;
@@ -90,6 +91,24 @@ class DeserializerGeneratorTest extends SerializerTestCase
             $this->assertInstanceOf(Nested::class, $nested);
             $this->assertSame('nested'.($index + 1), $nested->nestedString);
         }
+    }
+
+    /**
+     * JSON has no type information and if no .0 is used, integers and floats can be confused.
+     */
+    public function testFloatProperty(): void
+    {
+        $functionName = 'deserialize_Tests_Liip_Serializer_Fixtures_FloatProperty';
+        self::generateDeserializer(self::$metadataBuilder, FloatProperty::class, $functionName);
+
+        $input = [
+            'number' => 1,
+        ];
+
+        /** @var FloatProperty $model */
+        $model = $functionName($input);
+        $this->assertInstanceOf(FloatProperty::class, $model);
+        $this->assertSame(1.0, $model->number);
     }
 
     public function testPrivateProperty(): void
