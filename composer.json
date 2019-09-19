@@ -21,7 +21,7 @@
         "pnz/json-exception": "^0.1.0",
         "symfony/filesystem": "^4",
         "symfony/finder": "^4",
-        "twig/twig": "^2.6"
+        "twig/twig": "^2.7"
     },
     "require-dev": {
         "phpstan/phpstan-shim": "^0.11.0",
