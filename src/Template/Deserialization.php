@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Liip\Serializer\Template;
 
-use Twig_Environment;
+use Twig\Environment;
+use Twig\Loader\ArrayLoader;
 
 final class Deserialization
 {
@@ -102,13 +103,13 @@ EOT;
     private const TMPL_CREATE_OBJECT = 'new {{className}}({{arguments|join(\', \')}})';
 
     /**
-     * @var Twig_Environment
+     * @var Environment
      */
     private $twig;
 
     public function __construct()
     {
-        $this->twig = new \Twig_Environment(new \Twig_Loader_Array(), ['autoescape' => false]);
+        $this->twig = new Environment(new ArrayLoader(), ['autoescape' => false]);
     }
 
     public function renderFunction(string $name, string $className, string $jsonPath, string $code): string
