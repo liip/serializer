@@ -19,15 +19,15 @@
         "doctrine/annotations": "^1.6",
         "liip/metadata-parser": "^0.2",
         "pnz/json-exception": "^0.1.0",
-        "symfony/filesystem": "^4",
-        "symfony/finder": "^4",
+        "symfony/filesystem": "^4.4 || ^5.0",
+        "symfony/finder": "^4.4 || ^5.0",
         "twig/twig": "^2.7"
     },
     "require-dev": {
-        "phpstan/phpstan-shim": "^0.11.0",
-        "phpstan/phpstan-phpunit": "^0.11",
-        "phpunit/phpunit": "^7.5",
-        "friendsofphp/php-cs-fixer": "v2.14.0",
+        "phpstan/phpstan": "^0.12.0",
+        "phpstan/phpstan-phpunit": "^0.12",
+        "phpunit/phpunit": "^8.0",
+        "friendsofphp/php-cs-fixer": "^2.14",
         "jms/serializer": "^1.13 || ^2"
     },
     "autoload": {

@@ -56,16 +56,16 @@ class DeserializerGeneratorTest extends SerializerTestCase
 
         /** @var Model $model */
         $model = $functionName($input);
-        $this->assertInstanceOf(Model::class, $model);
-        $this->assertSame('api', $model->apiString);
-        $this->assertSame('details', $model->detailString);
-        $this->assertNull($model->unAnnotated);
-        $this->assertInstanceOf(Nested::class, $model->nestedField);
-        $this->assertSame('nested', $model->nestedField->nestedString);
-        $this->assertInstanceOf(\DateTime::class, $model->date);
-        $this->assertSame('2018-08-03', $model->date->format('Y-m-d'));
-        $this->assertInstanceOf(\DateTimeImmutable::class, $model->dateImmutable);
-        $this->assertSame('2016-06-01', $model->dateImmutable->format('Y-m-d'));
+        static::assertInstanceOf(Model::class, $model);
+        static::assertSame('api', $model->apiString);
+        static::assertSame('details', $model->detailString);
+        static::assertNull($model->unAnnotated);
+        static::assertInstanceOf(Nested::class, $model->nestedField);
+        static::assertSame('nested', $model->nestedField->nestedString);
+        static::assertInstanceOf(\DateTime::class, $model->date);
+        static::assertSame('2018-08-03', $model->date->format('Y-m-d'));
+        static::assertInstanceOf(\DateTimeImmutable::class, $model->dateImmutable);
+        static::assertSame('2016-06-01', $model->dateImmutable->format('Y-m-d'));
     }
 
     public function testLists(): void
@@ -83,13 +83,13 @@ class DeserializerGeneratorTest extends SerializerTestCase
 
         /** @var ListModel $model */
         $model = $functionName($input);
-        $this->assertInstanceOf(ListModel::class, $model);
-        $this->assertSame(['a', 'b'], $model->array);
-        $this->assertInternalType('array', $model->listNested);
-        $this->assertCount(2, $model->listNested);
+        static::assertInstanceOf(ListModel::class, $model);
+        static::assertSame(['a', 'b'], $model->array);
+        static::assertIsArray($model->listNested);
+        static::assertCount(2, $model->listNested);
         foreach ($model->listNested as $index => $nested) {
-            $this->assertInstanceOf(Nested::class, $nested);
-            $this->assertSame('nested'.($index + 1), $nested->nestedString);
+            static::assertInstanceOf(Nested::class, $nested);
+            static::assertSame('nested'.($index + 1), $nested->nestedString);
         }
     }
 
@@ -107,8 +107,8 @@ class DeserializerGeneratorTest extends SerializerTestCase
 
         /** @var FloatProperty $model */
         $model = $functionName($input);
-        $this->assertInstanceOf(FloatProperty::class, $model);
-        $this->assertSame(1.0, $model->number);
+        static::assertInstanceOf(FloatProperty::class, $model);
+        static::assertSame(1.0, $model->number);
     }
 
     public function testPrivateProperty(): void
@@ -123,9 +123,9 @@ class DeserializerGeneratorTest extends SerializerTestCase
 
         /** @var PrivateProperty $model */
         $model = $functionName($input);
-        $this->assertInstanceOf(PrivateProperty::class, $model);
-        $this->assertSame('apiString_setter', $model->getApiString());
-        $this->assertSame('More Info', $model->getExtra());
+        static::assertInstanceOf(PrivateProperty::class, $model);
+        static::assertSame('apiString_setter', $model->getApiString());
+        static::assertSame('More Info', $model->getExtra());
     }
 
     public function testInheritance(): void
@@ -140,9 +140,9 @@ class DeserializerGeneratorTest extends SerializerTestCase
 
         /** @var Inheritance $model */
         $model = $functionName($input);
-        $this->assertInstanceOf(Inheritance::class, $model);
-        $this->assertSame('apiString_setter', $model->getApiString());
-        $this->assertSame('More Info', $model->getExtra());
+        static::assertInstanceOf(Inheritance::class, $model);
+        static::assertSame('apiString_setter', $model->getApiString());
+        static::assertSame('More Info', $model->getExtra());
     }
 
     public function testNonEmptyConstructorRoot(): void
@@ -167,12 +167,12 @@ class DeserializerGeneratorTest extends SerializerTestCase
 
         /** @var ContainsNonEmptyConstructor $model */
         $model = $functionName($input);
-        $this->assertInstanceOf(ContainsNonEmptyConstructor::class, $model);
+        static::assertInstanceOf(ContainsNonEmptyConstructor::class, $model);
         $child = $model->child;
-        $this->assertInstanceOf(NonEmptyConstructor::class, $child);
-        $this->assertSame('apiString', $child->getApiString());
-        $this->assertSame('optional', $child->getOptional());
-        $this->assertSame(['foo', 'bar'], $child->getOnlyArgument());
+        static::assertInstanceOf(NonEmptyConstructor::class, $child);
+        static::assertSame('apiString', $child->getApiString());
+        static::assertSame('optional', $child->getOptional());
+        static::assertSame(['foo', 'bar'], $child->getOnlyArgument());
 
         $input = [
             'child' => [
@@ -182,12 +182,12 @@ class DeserializerGeneratorTest extends SerializerTestCase
         ];
         /** @var ContainsNonEmptyConstructor $model */
         $model = $functionName($input);
-        $this->assertInstanceOf(ContainsNonEmptyConstructor::class, $model);
+        static::assertInstanceOf(ContainsNonEmptyConstructor::class, $model);
         $child = $model->child;
-        $this->assertInstanceOf(NonEmptyConstructor::class, $child);
-        $this->assertSame('apiString', $child->getApiString());
-        $this->assertSame('custom', $child->getOptional());
-        $this->assertSame(['foo', 'bar'], $child->getOnlyArgument());
+        static::assertInstanceOf(NonEmptyConstructor::class, $child);
+        static::assertSame('apiString', $child->getApiString());
+        static::assertSame('custom', $child->getOptional());
+        static::assertSame(['foo', 'bar'], $child->getOnlyArgument());
     }
 
     public function testVirtualProperties(): void
@@ -202,8 +202,8 @@ class DeserializerGeneratorTest extends SerializerTestCase
 
         /** @var VirtualProperties $model */
         $model = $functionName($input);
-        $this->assertInstanceOf(VirtualProperties::class, $model);
-        $this->assertSame('apiString', $model->apiString);
+        static::assertInstanceOf(VirtualProperties::class, $model);
+        static::assertSame('apiString', $model->apiString);
     }
 
     public function testPostDeserialize(): void
@@ -217,8 +217,8 @@ class DeserializerGeneratorTest extends SerializerTestCase
 
         /** @var PostDeserialize $model */
         $model = $functionName($input);
-        $this->assertInstanceOf(PostDeserialize::class, $model);
-        $this->assertSame('apiString', $model->apiString);
-        $this->assertSame('post has been called', $model->postCalled);
+        static::assertInstanceOf(PostDeserialize::class, $model);
+        static::assertSame('apiString', $model->apiString);
+        static::assertSame('post has been called', $model->postCalled);
     }
 }

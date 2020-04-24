@@ -69,20 +69,20 @@ class SerializerGeneratorTest extends SerializerTestCase
             'date_immutable' => '2016-06-01T00:00:00+0200',
         ];
         $data = $functionNoGroups($model);
-        $this->assertSame($expected, $data, 'no groups specified');
+        static::assertSame($expected, $data, 'no groups specified');
 
         $expected = [
             'api_string' => 'api',
         ];
         $data = $functionApi($model);
-        $this->assertSame($expected, $data, 'group api');
+        static::assertSame($expected, $data, 'group api');
 
         $expected = [
             'api_string' => 'api',
             'detail_string' => 'details',
         ];
         $data = $functionApiDetails($model);
-        $this->assertSame($expected, $data, 'groups api and details');
+        static::assertSame($expected, $data, 'groups api and details');
     }
 
     public function testArrays(): void
@@ -114,7 +114,7 @@ class SerializerGeneratorTest extends SerializerTestCase
         ];
 
         $data = $functionName($list);
-        $this->assertSame($expected, $data);
+        static::assertSame($expected, $data);
     }
 
     public function testEmptyModel(): void
@@ -125,8 +125,8 @@ class SerializerGeneratorTest extends SerializerTestCase
         $model = new Model();
         $data = $functionName($model);
 
-        $this->assertInstanceOf(\stdClass::class, $data);
-        $this->assertCount(0, get_object_vars($data));
+        static::assertInstanceOf(\stdClass::class, $data);
+        static::assertCount(0, get_object_vars($data));
     }
 
     public function testEmptyModelNotUsingStdClass(): void
@@ -137,7 +137,7 @@ class SerializerGeneratorTest extends SerializerTestCase
         $model = new Model();
         $data = $functionName($model, false);
 
-        $this->assertSame([], $data);
+        static::assertSame([], $data);
     }
 
     /**
@@ -154,14 +154,14 @@ class SerializerGeneratorTest extends SerializerTestCase
         $list->listNested = [];
         $data = $functionName($list);
 
-        $this->assertInternalType('array', $data);
-        $this->assertArrayHasKey('array', $data);
-        $this->assertSame([], $data['array']);
-        $this->assertArrayHasKey('list_nested', $data);
-        $this->assertSame([], $data['list_nested']);
-        $this->assertArrayHasKey('hashmap', $data);
-        $this->assertInstanceOf(\stdClass::class, $data['hashmap']);
-        $this->assertCount(0, get_object_vars($data['hashmap']));
+        static::assertIsArray($data);
+        static::assertArrayHasKey('array', $data);
+        static::assertSame([], $data['array']);
+        static::assertArrayHasKey('list_nested', $data);
+        static::assertSame([], $data['list_nested']);
+        static::assertArrayHasKey('hashmap', $data);
+        static::assertInstanceOf(\stdClass::class, $data['hashmap']);
+        static::assertCount(0, get_object_vars($data['hashmap']));
     }
 
     public function testEmptyArrayNotUsingStdClass(): void
@@ -175,13 +175,13 @@ class SerializerGeneratorTest extends SerializerTestCase
         $list->listNested = [];
         $data = $functionName($list, false);
 
-        $this->assertInternalType('array', $data);
-        $this->assertArrayHasKey('array', $data);
-        $this->assertSame([], $data['array']);
-        $this->assertArrayHasKey('list_nested', $data);
-        $this->assertSame([], $data['list_nested']);
-        $this->assertArrayHasKey('hashmap', $data);
-        $this->assertSame([], $data['hashmap']);
+        static::assertIsArray($data);
+        static::assertArrayHasKey('array', $data);
+        static::assertSame([], $data['array']);
+        static::assertArrayHasKey('list_nested', $data);
+        static::assertSame([], $data['list_nested']);
+        static::assertArrayHasKey('hashmap', $data);
+        static::assertSame([], $data['hashmap']);
     }
 
     public function testPrivateProperty(): void
@@ -198,7 +198,7 @@ class SerializerGeneratorTest extends SerializerTestCase
             'api_string' => 'apiString_setter',
         ];
         $data = $functionName($model);
-        $this->assertSame($expected, $data);
+        static::assertSame($expected, $data);
     }
 
     public function testInheritance(): void
@@ -215,7 +215,7 @@ class SerializerGeneratorTest extends SerializerTestCase
             'api_string' => 'apiString_setter',
         ];
         $data = $functionName($model);
-        $this->assertSame($expected, $data);
+        static::assertSame($expected, $data);
     }
 
     public function testNullFieldWithGetter(): void
@@ -230,7 +230,7 @@ class SerializerGeneratorTest extends SerializerTestCase
             'api_string' => 'api string',
         ];
         $data = $functionName($model);
-        $this->assertSame($expected, $data);
+        static::assertSame($expected, $data);
     }
 
     public function testVirtualProperties(): void
@@ -247,7 +247,7 @@ class SerializerGeneratorTest extends SerializerTestCase
         ];
         $data = $functionName($model);
 
-        $this->assertSame($expected, $data);
+        static::assertSame($expected, $data);
     }
 
     /**
@@ -266,8 +266,8 @@ class SerializerGeneratorTest extends SerializerTestCase
         ];
         $data = $functionName($model);
 
-        $this->assertSame($expected, $data);
-        $this->assertNull($model->postCalled);
+        static::assertSame($expected, $data);
+        static::assertNull($model->postCalled);
     }
 
     public function testAccessorOrder(): void
@@ -285,7 +285,7 @@ class SerializerGeneratorTest extends SerializerTestCase
             'api_string1' => 'apiString1',
         ];
 
-        $this->assertSame($expected, $data);
+        static::assertSame($expected, $data);
     }
 
     public function testAccessorOrderInherit(): void
@@ -304,7 +304,7 @@ class SerializerGeneratorTest extends SerializerTestCase
             'api_string0' => 'apiString0',
         ];
 
-        $this->assertSame($expected, $data);
+        static::assertSame($expected, $data);
     }
 
     public function testVersioning(): void
@@ -327,28 +327,28 @@ class SerializerGeneratorTest extends SerializerTestCase
             'changed' => 'changed',
         ];
         $data = $functionV1($model);
-        $this->assertSame($expected, $data, 'version 1');
+        static::assertSame($expected, $data, 'version 1');
 
         $expected = [
             'old' => 'old',
             'changed' => 'changed',
         ];
         $data = $functionV2($model);
-        $this->assertSame($expected, $data, 'version 2');
+        static::assertSame($expected, $data, 'version 2');
 
         $expected = [
             'changed' => 'CHANGED',
             'new' => 'new',
         ];
         $data = $functionV3($model);
-        $this->assertSame($expected, $data, 'version 3');
+        static::assertSame($expected, $data, 'version 3');
 
         $expected = [
             'changed' => 'CHANGED',
             'new' => 'new',
         ];
         $data = $functionV4($model);
-        $this->assertSame($expected, $data, 'version 4');
+        static::assertSame($expected, $data, 'version 4');
 
         $expected = [
             'old' => 'old',
@@ -356,7 +356,7 @@ class SerializerGeneratorTest extends SerializerTestCase
             'new' => 'new',
         ];
         $data = $function($model);
-        $this->assertSame($expected, $data, 'no version');
+        static::assertSame($expected, $data, 'no version');
     }
 
     public function testInaccessibleProperty(): void
