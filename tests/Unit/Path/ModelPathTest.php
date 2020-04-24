@@ -16,7 +16,7 @@ class ModelPathTest extends TestCase
     {
         $path = new ModelPath('model');
 
-        $this->assertSame('$model', (string) $path);
+        static::assertSame('$model', (string) $path);
     }
 
     public function testNested(): void
@@ -25,7 +25,7 @@ class ModelPathTest extends TestCase
         $path = $path->withPath('property1');
         $path = $path->withPath('property2');
 
-        $this->assertSame('$model->property1->property2', (string) $path);
+        static::assertSame('$model->property1->property2', (string) $path);
     }
 
     public function testArrayWithString(): void
@@ -34,7 +34,7 @@ class ModelPathTest extends TestCase
         $path = $path->withPath('property1');
         $path = $path->withArray('\'property2\'');
 
-        $this->assertSame('$model->property1[\'property2\']', (string) $path);
+        static::assertSame('$model->property1[\'property2\']', (string) $path);
     }
 
     public function testArrayWithVariable(): void
@@ -43,7 +43,7 @@ class ModelPathTest extends TestCase
         $path = $path->withPath('property1');
         $path = $path->withArray('$index');
 
-        $this->assertSame('$model->property1[$index]', (string) $path);
+        static::assertSame('$model->property1[$index]', (string) $path);
     }
 
     public function testArrayNested(): void
@@ -54,6 +54,6 @@ class ModelPathTest extends TestCase
         $path = $path->withArray('\'property3\'');
         $path = $path->withPath('property4');
 
-        $this->assertSame('$model->property1[\'property2\'][\'property3\']->property4', (string) $path);
+        static::assertSame('$model->property1[\'property2\'][\'property3\']->property4', (string) $path);
     }
 }
