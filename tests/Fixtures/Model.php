@@ -37,6 +37,13 @@ class Model
     public $date;
 
     /**
+     * @Serializer\Type("DateTime<'Y-m-d'>")
+     *
+     * @var \DateTime
+     */
+    public $dateWithFormat;
+
+    /**
      * @Serializer\Type("DateTimeImmutable")
      *
      * @var \DateTimeImmutable
