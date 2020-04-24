@@ -140,6 +140,18 @@ class SerializerGeneratorTest extends SerializerTestCase
         static::assertSame([], $data);
     }
 
+    public function testDateTimeWithFormat(): void
+    {
+        $functionName = 'serialize_Tests_Liip_Serializer_Fixtures_Model';
+        self::generateSerializers(self::$metadataBuilder, Model::class, [$functionName]);
+
+        $model = new Model();
+        $model->dateWithFormat = new \DateTime('2020-04-22 10:11:12');
+        $data = $functionName($model);
+
+        static::assertSame(['date_with_format' => '2020-04-22'], $data);
+    }
+
     /**
      * An empty array must be serialized, only null must not show up.
      */
