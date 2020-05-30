@@ -18,7 +18,7 @@
         "ext-json": "*",
         "doctrine/annotations": "^1.6",
         "liip/metadata-parser": "^0.2",
-        "pnz/json-exception": "^0.1.0",
+        "pnz/json-exception": "^1.0",
         "symfony/filesystem": "^4.4 || ^5.0",
         "symfony/finder": "^4.4 || ^5.0",
         "twig/twig": "^2.7"
@@ -58,7 +58,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "1.1.x-dev"
+            "dev-master": "1.0.x-dev"
         }
     },
     "config": {
