@@ -15,15 +15,9 @@ matrix:
     fast_finish: true
 
     include:
-    - php: 7.1
-      env:
-      - COMPOSER_FLAGS="--prefer-stable --prefer-lowest"
-
     - php: 7.2
       env:
       - COMPOSER_FLAGS="--prefer-stable --prefer-lowest"
-
-    - php: '7.1'
 
     - php: '7.2'
 
@@ -31,14 +25,9 @@ matrix:
       env:
       - PHPSTAN=true
 
-    - php: '7.4snapshot'
-
-    allow_failures:
-    - php: '7.4snapshot'
+    - php: '7.4'
 
 install:
-# To be removed when this issue will be resolved: https://github.com/composer/composer/issues/5355
-- if [[ "$COMPOSER_FLAGS" == *"--prefer-lowest"* ]]; then composer update --prefer-dist --no-interaction --prefer-stable --quiet; fi
 - composer update ${COMPOSER_FLAGS} --prefer-dist --no-interaction
 
 script:

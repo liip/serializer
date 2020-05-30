@@ -16,7 +16,7 @@ class ArrayPathTest extends TestCase
     {
         $path = new ArrayPath('data');
 
-        $this->assertSame('$data', (string) $path);
+        static::assertSame('$data', (string) $path);
     }
 
     public function testNested(): void
@@ -25,7 +25,7 @@ class ArrayPathTest extends TestCase
         $path = $path->withFieldName('property1');
         $path = $path->withFieldName('property2');
 
-        $this->assertSame('$data[\'property1\'][\'property2\']', (string) $path);
+        static::assertSame('$data[\'property1\'][\'property2\']', (string) $path);
     }
 
     public function testNestedAsVariable(): void
@@ -34,6 +34,6 @@ class ArrayPathTest extends TestCase
         $path = $path->withVariable('$property1');
         $path = $path->withVariable('$property2');
 
-        $this->assertSame('$data[$property1][$property2]', (string) $path);
+        static::assertSame('$data[$property1][$property2]', (string) $path);
     }
 }
