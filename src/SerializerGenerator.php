@@ -17,6 +17,7 @@ use Liip\MetadataParser\Reducer\GroupReducer;
 use Liip\MetadataParser\Reducer\PreferredReducer;
 use Liip\MetadataParser\Reducer\TakeBestReducer;
 use Liip\MetadataParser\Reducer\VersionReducer;
+use Liip\Serializer\Configuration\GeneratorConfiguration;
 use Liip\Serializer\Template\Serialization;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -30,25 +31,9 @@ final class SerializerGenerator
     private $templating;
 
     /**
-     * This is a hashmap of fqn classname to a list of list of serializer groups
-     *
-     * I.e.
-     *
-     * [
-     *    Product::class => [
-     *        ['api'],
-     *        ['api', 'product-details'],
-     *    ],
-     * ];
-     *
-     * @var string[][][]
+     * @var GeneratorConfiguration
      */
-    private $classesToGenerate;
-
-    /**
-     * @var string[]
-     */
-    private $apiVersions;
+    private $configuration;
 
     /**
      * @var string
@@ -60,18 +45,13 @@ final class SerializerGenerator
      */
     private $filesystem;
 
-    /**
-     * @param string[] $apiVersions
-     */
     public function __construct(
         Serialization $templating,
-        array $apiVersions,
-        array $classesToGenerate,
+        GeneratorConfiguration $configuration,
         string $cacheDirectory
     ) {
         $this->templating = $templating;
-        $this->apiVersions = array_map('strval', $apiVersions);
-        $this->classesToGenerate = $classesToGenerate;
+        $this->configuration = $configuration;
         $this->cacheDirectory = $cacheDirectory;
 
         $this->filesystem = new Filesystem();
@@ -94,25 +74,24 @@ final class SerializerGenerator
     {
         $this->filesystem->mkdir($this->cacheDirectory);
 
-        foreach ($this->classesToGenerate as $className => $groupCombinations) {
-            $metadata = $metadataBuilder->build($className, [
-                new PreferredReducer(),
-                new TakeBestReducer(),
-            ]);
-            $this->writeFile($className, null, [], $metadata);
-            foreach ($this->apiVersions as $version) {
-                $metadata = $metadataBuilder->build($className, [
-                    new VersionReducer($version),
-                    new TakeBestReducer(),
-                ]);
-                $this->writeFile($className, $version, [], $metadata);
-                foreach ($groupCombinations as $serializerGroups) {
-                    $metadata = $metadataBuilder->build($className, [
-                        new VersionReducer($version),
-                        new GroupReducer($serializerGroups),
-                        new TakeBestReducer(),
-                    ]);
-                    $this->writeFile($className, $version, $serializerGroups, $metadata);
+        foreach ($this->configuration as $classToGenerate) {
+            foreach ($classToGenerate as $groupCombination) {
+                $className = $classToGenerate->getClassName();
+                foreach ($groupCombination->getVersions() as $version) {
+                    if ('' === $version) {
+                        $metadata = $metadataBuilder->build($className, [
+                            new PreferredReducer(),
+                            new TakeBestReducer(),
+                        ]);
+                        $this->writeFile($className, null, $groupCombination->getGroups(), $metadata);
+                    } else {
+                        $metadata = $metadataBuilder->build($className, [
+                            new VersionReducer($version),
+                            new GroupReducer($groupCombination->getGroups()),
+                            new TakeBestReducer(),
+                        ]);
+                        $this->writeFile($className, $version, $groupCombination->getGroups(), $metadata);
+                    }
                 }
             }
         }

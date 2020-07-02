@@ -47,6 +47,7 @@ class SerializerGeneratorTest extends SerializerTestCase
         $functionApi = 'serialize_Tests_Liip_Serializer_Fixtures_Model_api_2';
         $functionApiDetails = 'serialize_Tests_Liip_Serializer_Fixtures_Model_api_details_2';
         $groups = [
+            [],
             ['api'],
             ['api', 'details'],
         ];
@@ -88,7 +89,7 @@ class SerializerGeneratorTest extends SerializerTestCase
     public function testArrays(): void
     {
         $functionName = 'serialize_Tests_Liip_Serializer_Fixtures_ListModel';
-        self::generateSerializers(self::$metadataBuilder, ListModel::class, [$functionName]);
+        self::generateSerializers(self::$metadataBuilder, ListModel::class, [$functionName], ['']);
 
         $list = new ListModel();
         $list->array = ['a', 'b'];
@@ -120,7 +121,7 @@ class SerializerGeneratorTest extends SerializerTestCase
     public function testEmptyModel(): void
     {
         $functionName = 'serialize_Tests_Liip_Serializer_Fixtures_Model';
-        self::generateSerializers(self::$metadataBuilder, Model::class, [$functionName]);
+        self::generateSerializers(self::$metadataBuilder, Model::class, [$functionName], ['']);
 
         $model = new Model();
         $data = $functionName($model);
@@ -327,7 +328,7 @@ class SerializerGeneratorTest extends SerializerTestCase
         $functionV3 = 'serialize_Tests_Liip_Serializer_Fixtures_Versions_3';
         $functionV4 = 'serialize_Tests_Liip_Serializer_Fixtures_Versions_4';
 
-        self::generateSerializers(self::$metadataBuilder, Versions::class, [$function, $functionV1, $functionV2, $functionV3, $functionV4], ['1', '2', '3', '4']);
+        self::generateSerializers(self::$metadataBuilder, Versions::class, [$function, $functionV1, $functionV2, $functionV3, $functionV4], ['', '1', '2', '3', '4']);
 
         $model = new Versions();
         $model->changed = 'changed';

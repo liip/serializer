@@ -45,18 +45,28 @@ use Liip\Serializer\SerializerGenerator;
 use Liip\Serializer\Template\Deserialization;
 use Liip\Serializer\Template\Serialization;
 
-
-$classMetaData = [
-    Product::class => [
-        ['api'],
-        ['api', 'product-details'],
-    ],
-    User::class => [
-        ['api'],
-    ],
-];
-
-$versions = ['1', '2', '4'];
+$configuration = GeneratorConfiguration::createFomArray([
+    'default_group_combinations' => ['api'],
+    'default_versions' => ['', '1', '2'],
+    'classes' => [
+         Product::class => [
+             'default_versions' => ['1', '2'], // optional, falls back to global list
+             'group_combinations' => [ // optional, falls back to global default_group_combinations
+                 [
+                     'groups' => [], // generate without groups
+                 ],
+                 [
+                     'groups' => ['api'], // global groups are overwritten, not merged. versions are taken from class default
+                 ],
+                 [
+                     'groups' => ['api', 'detail'],
+                     'versions' => ['2'], // only generate the combination of api and detail for version 2
+                 ],
+             ],
+         ],
+         Other::class => [], // generate this class with default groups and versions
+    ]
+]);
 
 $parsers = [
     new ReflectionParser(),
@@ -66,11 +76,32 @@ $parsers = [
 ];
 $builder = new Builder(new Parser($parsers), new RecursionChecker(null, []));
 
-$serializerGenerator = new SerializerGenerator( new Serialization(), $versions, $classMetaData, $cacheDirectory);
+$serializerGenerator = new SerializerGenerator( new Serialization(), $configuration, $cacheDirectory);
 $deserializerGenerator = new DeserializerGenerator(new Deserialization(), [Product::class, User::class], $cacheDirectory);
 $serializerGenerator->generate($builder);
 $deserializerGenerator->generate($builder);
 ```
+
+### Configuration format
+
+Specify global defaults for the versions to be generated, and the group 
+combinations.
+
+Then specify for which classes to generate the serializer and deserializer.
+
+For each class, you can overwrite which versions to generate. If you specify 
+no group combinations, the global default group combinations are used. If you
+specify group combinations, you can again overwrite the versions to generate.
+
+Note that defaults are not merged - the most specific list is used exclusively.
+
+#### Version
+
+To generate a file without version, specify version `''` in the list of versions.
+
+#### Groups
+
+To generate a serializer without groups, specify an empty group combination `[]`.
 
 ## Serialize using the generated code
 In this example, we serialize an object of class `Product` for version 2:

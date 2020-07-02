@@ -8,6 +8,7 @@ use Liip\MetadataParser\Builder;
 use Liip\MetadataParser\ModelParser\ModelParserInterface;
 use Liip\MetadataParser\Parser;
 use Liip\MetadataParser\RecursionChecker;
+use Liip\Serializer\Configuration\GeneratorConfiguration;
 use Liip\Serializer\DeserializerGenerator;
 use Liip\Serializer\SerializerGenerator;
 use Liip\Serializer\Template\Deserialization;
@@ -43,7 +44,14 @@ class SerializerTestCase extends TestCase
     protected static function generateSerializers(Builder $metadataBuilder, string $classToGenerate, array $functionNames, array $versions = ['2'], array $groups = []): void
     {
         $templating = new Serialization();
-        $serializerGenerator = new SerializerGenerator($templating, $versions, [$classToGenerate => $groups], '/tmp');
+        $configuration = GeneratorConfiguration::createFomArray([
+            'default_group_combinations' => $groups,
+            'default_versions' => $versions,
+            'classes' => [
+                $classToGenerate => [],
+            ],
+        ]);
+        $serializerGenerator = new SerializerGenerator($templating, $configuration, '/tmp');
 
         $serializerGenerator->generate($metadataBuilder);
 
