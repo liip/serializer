@@ -62,7 +62,7 @@ EOT;
 EOT;
 
     private const TMPL_ASSIGN_DATETIME_FROM_FORMAT = <<<'EOT'
-{{modelPath}} = \DateTime::createFromFormat({{format}}, {{jsonPath}});
+{{modelPath}} = \DateTime::createFromFormat('{{format}}', {{jsonPath}});
 
 EOT;
 
@@ -72,7 +72,7 @@ EOT;
 EOT;
 
     private const TMPL_ASSIGN_DATETIME_IMMUTABLE_FROM_FORMAT = <<<'EOT'
-{{modelPath}} = \DateTimeImmutable::createFromFormat({{format}}, {{jsonPath}});
+{{modelPath}} = \DateTimeImmutable::createFromFormat('{{format}}', {{jsonPath}});
 
 EOT;
 
