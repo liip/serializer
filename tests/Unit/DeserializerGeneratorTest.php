@@ -51,6 +51,7 @@ class DeserializerGeneratorTest extends SerializerTestCase
             'detail_string' => 'details',
             'nested_field' => ['nested_string' => 'nested'],
             'date' => '2018-08-03T00:00:00+02:00',
+            'date_with_format' => '2018-08-04',
             'date_immutable' => '2016-06-01T00:00:00+02:00',
         ];
 
@@ -64,6 +65,8 @@ class DeserializerGeneratorTest extends SerializerTestCase
         static::assertSame('nested', $model->nestedField->nestedString);
         static::assertInstanceOf(\DateTime::class, $model->date);
         static::assertSame('2018-08-03', $model->date->format('Y-m-d'));
+        static::assertInstanceOf(\DateTime::class, $model->dateWithFormat);
+        static::assertSame('2018-08-04', $model->dateWithFormat->format('Y-m-d'));
         static::assertInstanceOf(\DateTimeImmutable::class, $model->dateImmutable);
         static::assertSame('2016-06-01', $model->dateImmutable->format('Y-m-d'));
     }
