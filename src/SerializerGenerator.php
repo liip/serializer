@@ -78,19 +78,29 @@ final class SerializerGenerator
             foreach ($classToGenerate as $groupCombination) {
                 $className = $classToGenerate->getClassName();
                 foreach ($groupCombination->getVersions() as $version) {
+                    $groups = $groupCombination->getGroups();
                     if ('' === $version) {
-                        $metadata = $metadataBuilder->build($className, [
-                            new PreferredReducer(),
-                            new TakeBestReducer(),
-                        ]);
-                        $this->writeFile($className, null, $groupCombination->getGroups(), $metadata);
+                        if ([] === $groups) {
+                            $metadata = $metadataBuilder->build($className, [
+                                new PreferredReducer(),
+                                new TakeBestReducer(),
+                            ]);
+                            $this->writeFile($className, null, [], $metadata);
+                        } else {
+                            $metadata = $metadataBuilder->build($className, [
+                                new GroupReducer($groups),
+                                new PreferredReducer(),
+                                new TakeBestReducer(),
+                            ]);
+                            $this->writeFile($className, null, $groups, $metadata);
+                        }
                     } else {
                         $metadata = $metadataBuilder->build($className, [
                             new VersionReducer($version),
-                            new GroupReducer($groupCombination->getGroups()),
+                            new GroupReducer($groups),
                             new TakeBestReducer(),
                         ]);
-                        $this->writeFile($className, $version, $groupCombination->getGroups(), $metadata);
+                        $this->writeFile($className, $version, $groups, $metadata);
                     }
                 }
             }
