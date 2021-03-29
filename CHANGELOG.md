@@ -1,5 +1,9 @@
 # Changelog
 
+# 2.0.1
+
+* [Bugfix]: Respect group configuration when no version is specified.
+
 # 2.0.0
 
 * [BC Break]: Configuration of the serializer generator changed to configuration model.
