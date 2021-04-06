@@ -111,6 +111,7 @@ final class DeserializerGenerator
         $stack[$classMetadata->getClassName()] = ($stack[$classMetadata->getClassName()] ?? 0) + 1;
 
         $constructorArgumentNames = [];
+        $overwrittenNames = [];
         $initCode = '';
         $code = '';
         foreach ($classMetadata->getProperties() as $propertyMetadata) {
@@ -120,6 +121,9 @@ final class DeserializerGenerator
                 $argument = $classMetadata->getConstructorParameter($propertyMetadata->getName());
                 $default = var_export($argument->isRequired() ? null : $argument->getDefaultValue(), true);
                 $tempVariable = ModelPath::tempVariable([(string) $modelPath, $propertyMetadata->getName()]);
+                if (\array_key_exists($propertyMetadata->getName(), $constructorArgumentNames)) {
+                    $overwrittenNames[$propertyMetadata->getName()] = true;
+                }
                 $constructorArgumentNames[$propertyMetadata->getName()] = (string) $tempVariable;
 
                 $initCode .= $this->templating->renderArgument(
@@ -143,7 +147,11 @@ final class DeserializerGenerator
                 continue;
             }
             if ($definition->isRequired()) {
-                throw new \Exception(sprintf('Unknown constructor argument "%s" in "%s(%s)"', $definition->getName(), $classMetadata->getClassName(), implode(', ', array_keys($constructorArgumentNames))));
+                $msg = sprintf('Unknown constructor argument "%s". Class %s only has properties that tell how to handle %s.', $definition->getName(), $classMetadata->getClassName(), implode(', ', array_keys($constructorArgumentNames)));
+                if ($overwrittenNames) {
+                    $msg .= sprintf(' Multiple definitions for fields %s seen - the last one overwrites previous ones.', implode(', ', array_keys($overwrittenNames)));
+                }
+                throw new \Exception($msg);
             }
             $constructorArguments[] = var_export($definition->getDefaultValue(), true);
         }
