@@ -36,7 +36,7 @@ final class Context
      */
     public function setGroups(array $groups): self
     {
-        $this->groups = $groups;
+        $this->groups = array_unique($groups);
 
         return $this;
     }

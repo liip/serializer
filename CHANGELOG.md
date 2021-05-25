@@ -1,5 +1,10 @@
 # Changelog
 
+# 2.0.3
+
+* [DX]: Context now removes duplicates in groups.
+* [DX]: Better exception message for unknown constructor argument.
+
 # 2.0.2
 
 * [Bugfix]: Respect group configuration when no version is specified.
