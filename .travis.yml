@@ -25,6 +25,7 @@ matrix:
       - PHPSTAN=true
 
     - php: '7.4'
+    - php: '8.0'
 
 install:
 - composer update ${COMPOSER_FLAGS} --prefer-dist --no-interaction
