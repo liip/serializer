@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Liip\Serializer\Unit\Path;
+namespace Tests\Liip\Serializer\Unit;
 
 use Liip\Serializer\Context;
 use PHPUnit\Framework\TestCase;

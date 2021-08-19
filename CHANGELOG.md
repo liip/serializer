@@ -1,5 +1,10 @@
 # Changelog
 
+# 2.0.4
+
+* Support PHP 8
+* Allow installation with liip/metadata-parser 0.3 and jms/serializer 3
+
 # 2.0.3
 
 * [DX]: Context now removes duplicates in groups.
