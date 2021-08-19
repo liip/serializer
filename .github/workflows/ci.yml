@@ -16,7 +16,7 @@ jobs:
       matrix:
         php-version: ['7.2', '7.3', '7.4', '8.0']
         include:
-          - php-version: '7.3'
+          - php-version: '7.2'
             composer-flags: '--prefer-stable --prefer-lowest'
     steps:
       - name: Check out code into the workspace
