@@ -1,5 +1,10 @@
 # Changelog
 
+# 2.0.6
+
+* Allow installation with liip/metadata-parser 0.5
+* Test with PHP 8.1
+
 # 2.0.5
 
 * Allow installation with liip/metadata-parser 0.4 and Symfony 6
