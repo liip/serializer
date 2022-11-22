@@ -121,8 +121,10 @@ EOT;
         ]);
     }
 
-    public function renderLoopArray(string $jsonPath, string $propertyAccessor, string $indexVariable, string $code): string
+    public function renderLoopArray(string $jsonPath, string $propertyAccessor, string $indexVariable, string $code, bool $isCollection): string
     {
+        $propertyAccessor = $isCollection ? $propertyAccessor . '->toArray()' : $propertyAccessor;
+
         return $this->render(self::TMPL_LOOP_ARRAY, [
             'jsonPath' => $jsonPath,
             'propertyAccessor' => $propertyAccessor,
@@ -138,8 +140,10 @@ EOT;
         ]);
     }
 
-    public function renderLoopHashmap(string $jsonPath, string $propertyAccessor, string $indexVariable, string $code): string
+    public function renderLoopHashmap(string $jsonPath, string $propertyAccessor, string $indexVariable, string $code, bool $isCollection): string
     {
+        $propertyAccessor = $isCollection ? $propertyAccessor . '->toArray()' : $propertyAccessor;
+
         return $this->render(self::TMPL_LOOP_HASHMAP, [
             'jsonPath' => $jsonPath,
             'propertyAccessor' => $propertyAccessor,

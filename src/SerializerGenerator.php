@@ -186,6 +186,7 @@ final class SerializerGenerator
     ): string {
         if ($type instanceof PropertyTypeArray) {
             if ($type->getSubType() instanceof PropertyTypePrimitive) {
+                $modelPropertyPath = $type->isCollection() ? $modelPropertyPath . '->toArray()' : $modelPropertyPath;
                 // for arrays of scalars, copy the field even when its an empty array
                 return $this->templating->renderAssign($fieldPath, $modelPropertyPath);
             }
@@ -253,9 +254,9 @@ final class SerializerGenerator
         }
 
         if ($type->isHashmap()) {
-            return $this->templating->renderLoopHashmap($arrayPath, $modelPath, $index, $innerCode);
+            return $this->templating->renderLoopHashmap($arrayPath, $modelPath, $index, $innerCode, $type->isCollection());
         }
 
-        return $this->templating->renderLoopArray($arrayPath, $modelPath, $index, $innerCode);
+        return $this->templating->renderLoopArray($arrayPath, $modelPath, $index, $innerCode, $type->isCollection());
     }
 }

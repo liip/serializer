@@ -93,6 +93,11 @@ foreach (array_keys({{jsonPath}}) as {{indexVariable}}) {
 
 EOT;
 
+    private const TMPL_ARRAY_COLLECTION = <<<'EOT'
+{{modelPath}} = new \Doctrine\Common\Collections\ArrayCollection({{tmpVariable}});
+
+EOT;
+
     private const TMPL_UNSET = <<<'EOT'
 unset({{variableNames|join(', ')}});
 
@@ -234,6 +239,14 @@ EOT;
             'jsonPath' => $jsonPath,
             'indexVariable' => $indexVariable,
             'code' => $code,
+        ]);
+    }
+
+    public function renderArrayCollection(string $modelPath, string $tmpVariable): string
+    {
+        return $this->render(self::TMPL_ARRAY_COLLECTION, [
+            'modelPath' => $modelPath,
+            'tmpVariable' => $tmpVariable,
         ]);
     }
 

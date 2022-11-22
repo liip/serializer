@@ -213,18 +213,14 @@ final class DeserializerGenerator
     ): string {
         $type = $propertyMetadata->getType();
 
-        if ($type instanceof PropertyTypeArray) {
-            if ($type->getSubType() instanceof PropertyTypePrimitive) {
-                // for arrays of scalars, copy the field even when its an empty array
-                return $this->templating->renderAssignJsonDataToField((string) $modelPropertyPath, (string) $arrayPath);
-            }
-
-            // either array or hashmap with second param the type of values
-            // the index works the same whether its numeric or hashmap
-            return $this->generateCodeForArray($type, $arrayPath, $modelPropertyPath, $stack);
-        }
-
         switch ($type) {
+            case $type instanceof PropertyTypeArray:
+                if ($type->isCollection()) {
+                    return $this->generateCodeForArrayCollection($propertyMetadata, $type, $arrayPath, $modelPropertyPath, $stack);
+                }
+
+                return $this->generateCodeForArray($type, $arrayPath, $modelPropertyPath, $stack);
+
             case $type instanceof PropertyTypeDateTime:
                 if (null !== $type->getZone()) {
                     throw new \RuntimeException('Timezone support is not implemented');
@@ -257,6 +253,11 @@ final class DeserializerGenerator
         ModelPath $modelPath,
         array $stack
     ): string {
+        if ($type->getSubType() instanceof PropertyTypePrimitive) {
+            // for arrays of scalars, copy the field even when its an empty array
+            return $this->templating->renderAssignJsonDataToField((string) $modelPath, (string) $arrayPath);
+        }
+
         $index = ModelPath::indexVariable((string) $arrayPath);
         $arrayPropertyPath = $arrayPath->withVariable((string) $index);
         $modelPropertyPath = $modelPath->withArray((string) $index);
@@ -281,6 +282,25 @@ final class DeserializerGenerator
 
         $code = $this->templating->renderInitArray((string) $modelPath);
         $code .= $this->templating->renderLoop((string) $arrayPath, (string) $index, $innerCode);
+
+        return $code;
+    }
+
+    private function generateCodeForArrayCollection(
+        PropertyMetadata $propertyMetadata,
+        PropertyTypeArray $type,
+        ArrayPath $arrayPath,
+        ModelPath $modelPath,
+        array $stack
+    ): string {
+        $tmpVariable = ModelPath::tempVariable([(string) $modelPath, $propertyMetadata->getName()]);
+        $innerCode = $this->generateCodeForArray($type, $arrayPath, $tmpVariable, $stack);
+
+        if ('' === $innerCode) {
+            return '';
+        }
+
+        $code = $innerCode . $this->templating->renderArrayCollection((string) $modelPath, (string) $tmpVariable);
 
         return $code;
     }
