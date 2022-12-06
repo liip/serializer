@@ -4,6 +4,7 @@
 
 * Add support for generating recursive code up to a specified maximum depth
   that can be defined via the `@MaxDepth` annotation/attribute from JMS
+* Add support for (de-)serializing doctrine collections
 
 # 2.0.6
 
