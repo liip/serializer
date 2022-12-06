@@ -62,6 +62,7 @@ class ClassToGenerate implements \IteratorAggregate
         $this->groupCombinations[] = $groupCombination;
     }
 
+    #[\ReturnTypeWillChange]
     public function getIterator()
     {
         if ($this->groupCombinations) {

@@ -107,6 +107,7 @@ class GeneratorConfiguration implements \IteratorAggregate
         }, $this->defaultGroupCombinations);
     }
 
+    #[\ReturnTypeWillChange]
     public function getIterator()
     {
         return new \ArrayIterator($this->classesToGenerate);
