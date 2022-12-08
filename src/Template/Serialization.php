@@ -44,9 +44,22 @@ EOT;
 $jsonData{{jsonPath}} = {{propertyAccessor}};
 EOT;
 
+    private const TMPL_ARRAY_ASSIGN = <<<'EOT'
+if ({{propertyAccessor}} instanceof \Doctrine\Common\Collections\Collection) {
+    $jsonData{{jsonPath}} = {{propertyAccessor}}->toArray();
+} else {
+    $jsonData{{jsonPath}} = {{propertyAccessor}};
+}
+EOT;
+
     private const TMPL_LOOP_ARRAY = <<<'EOT'
+{{indexVariable}}Array = {{propertyAccessor}};
+if ({{propertyAccessor}} instanceof \Doctrine\Common\Collections\Collection) {
+    {{indexVariable}}Array = {{propertyAccessor}}->toArray();
+}
+    
 $jsonData{{jsonPath}} = [];
-foreach (array_keys({{propertyAccessor}}) as {{indexVariable}}) {
+foreach (array_keys({{indexVariable}}Array) as {{indexVariable}}) {
     {{code}}
 }
 
@@ -61,7 +74,12 @@ EOT;
 if (0 === \count({{propertyAccessor}})) {
     $jsonData{{jsonPath}} = $emptyHashmap;
 } else {
-    foreach (array_keys({{propertyAccessor}}) as {{indexVariable}}) {
+    {{indexVariable}}Array = {{propertyAccessor}};
+    if ({{propertyAccessor}} instanceof \Doctrine\Common\Collections\Collection) {
+        {{indexVariable}}Array = {{propertyAccessor}}->toArray();
+    }
+    
+    foreach (array_keys({{indexVariable}}Array) as {{indexVariable}}) {
         {{code}}
     }
 }
@@ -121,10 +139,16 @@ EOT;
         ]);
     }
 
-    public function renderLoopArray(string $jsonPath, string $propertyAccessor, string $indexVariable, string $code, bool $isCollection): string
+    public function renderArrayAssign(string $jsonPath, string $propertyAccessor): string
     {
-        $propertyAccessor = $isCollection ? $propertyAccessor . '->toArray()' : $propertyAccessor;
+        return $this->render(self::TMPL_ARRAY_ASSIGN, [
+            'jsonPath' => $jsonPath,
+            'propertyAccessor' => $propertyAccessor,
+        ]);
+    }
 
+    public function renderLoopArray(string $jsonPath, string $propertyAccessor, string $indexVariable, string $code): string
+    {
         return $this->render(self::TMPL_LOOP_ARRAY, [
             'jsonPath' => $jsonPath,
             'propertyAccessor' => $propertyAccessor,
@@ -140,10 +164,8 @@ EOT;
         ]);
     }
 
-    public function renderLoopHashmap(string $jsonPath, string $propertyAccessor, string $indexVariable, string $code, bool $isCollection): string
+    public function renderLoopHashmap(string $jsonPath, string $propertyAccessor, string $indexVariable, string $code): string
     {
-        $propertyAccessor = $isCollection ? $propertyAccessor . '->toArray()' : $propertyAccessor;
-
         return $this->render(self::TMPL_LOOP_HASHMAP, [
             'jsonPath' => $jsonPath,
             'propertyAccessor' => $propertyAccessor,
