@@ -20,6 +20,7 @@ use Tests\Liip\Serializer\Fixtures\Nested;
 use Tests\Liip\Serializer\Fixtures\NonEmptyConstructor;
 use Tests\Liip\Serializer\Fixtures\PostDeserialize;
 use Tests\Liip\Serializer\Fixtures\PrivateProperty;
+use Tests\Liip\Serializer\Fixtures\RecursionModel;
 use Tests\Liip\Serializer\Fixtures\VirtualProperties;
 
 /**
@@ -94,6 +95,37 @@ class DeserializerGeneratorTest extends SerializerTestCase
             static::assertInstanceOf(Nested::class, $nested);
             static::assertSame('nested'.($index + 1), $nested->nestedString);
         }
+    }
+
+    public function testRecursion(): void
+    {
+        $functionName = 'deserialize_Tests_Liip_Serializer_Fixtures_RecursionModel';
+        self::generateDeserializer(self::$metadataBuilder, RecursionModel::class, $functionName);
+
+        $input = [
+            'property'=> 'property',
+            'recursion' => [
+                'property' => 'recursive property',
+                'recursion' => [
+                    'property' => 'recursive recursive property',
+                    'recursion' => [
+                        'property' => 'recursive recursive recursive property',
+                    ],
+                ],
+            ],
+        ];
+
+        /** @var RecursionModel $model */
+        $model = $functionName($input);
+        static::assertInstanceOf(RecursionModel::class, $model);
+        static::assertSame('property', $model->property);
+        static::assertInstanceOf(RecursionModel::class, $model->recursion);
+
+        static::assertSame('recursive property', $model->recursion->property);
+        static::assertInstanceOf(RecursionModel::class, $model->recursion->recursion);
+
+        static::assertSame('recursive recursive property', $model->recursion->recursion->property);
+        static::assertNull($model->recursion->recursion->recursion);
     }
 
     /**

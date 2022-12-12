@@ -151,6 +151,10 @@ final class SerializerGenerator
         string $modelPath,
         array $stack
     ): string {
+        if (Recursion::hasMaxDepthReached($propertyMetadata, $stack)) {
+            return '';
+        }
+
         $modelPropertyPath = $modelPath.'->'.$propertyMetadata->getName();
         $fieldPath = $arrayPath.'["'.$propertyMetadata->getSerializedName().'"]';
 

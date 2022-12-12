@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Liip\Serializer;
 
+use Liip\MetadataParser\Metadata\PropertyMetadata;
+use Liip\MetadataParser\Metadata\PropertyTypeArray;
+use Liip\MetadataParser\Metadata\PropertyTypeClass;
+
 abstract class Recursion
 {
     public static function check(string $className, array $stack, string $modelPath): bool
@@ -13,5 +17,36 @@ abstract class Recursion
         }
 
         return false;
+    }
+
+
+    public static function hasMaxDepthReached(PropertyMetadata $propertyMetadata, array $stack): bool
+    {
+        $className = self::getClassNameFromProperty($propertyMetadata);
+        if (null === $className) {
+            return false;
+        }
+
+        if (null === $propertyMetadata->getMaxDepth()) {
+            return false;
+        }
+
+        $classStackCount = $stack[$className] ?? 0;
+
+        return $classStackCount > $propertyMetadata->getMaxDepth();
+    }
+
+    private static function getClassNameFromProperty(PropertyMetadata $propertyMetadata): ?string
+    {
+        $type = $propertyMetadata->getType();
+        if ($type instanceof PropertyTypeArray) {
+            $type = $type->getLeafType();
+        }
+
+        if (!($type instanceof PropertyTypeClass)) {
+            return null;
+        }
+
+        return $type->getClassName();
     }
 }

@@ -19,6 +19,7 @@ use Tests\Liip\Serializer\Fixtures\Model;
 use Tests\Liip\Serializer\Fixtures\Nested;
 use Tests\Liip\Serializer\Fixtures\PostDeserialize;
 use Tests\Liip\Serializer\Fixtures\PrivateProperty;
+use Tests\Liip\Serializer\Fixtures\RecursionModel;
 use Tests\Liip\Serializer\Fixtures\Versions;
 use Tests\Liip\Serializer\Fixtures\VirtualProperties;
 
@@ -115,6 +116,34 @@ class SerializerGeneratorTest extends SerializerTestCase
         ];
 
         $data = $functionName($list);
+        static::assertSame($expected, $data);
+    }
+
+    public function testRecursions(): void
+    {
+        $functionName = 'serialize_Tests_Liip_Serializer_Fixtures_RecursionModel';
+        self::generateSerializers(self::$metadataBuilder, RecursionModel::class, [$functionName], ['']);
+
+        $model = new RecursionModel();
+        $model->property = 'property';
+        $model->recursion = new RecursionModel();
+        $model->recursion->property = 'recursive property';
+        $model->recursion->recursion = new RecursionModel();
+        $model->recursion->recursion->property = 'recursive recursive property';
+        $model->recursion->recursion->recursion = new RecursionModel();
+        $model->recursion->recursion->recursion->property = 'recursive recursive recursive property';
+
+        $expected = [
+            'property'=> 'property',
+            'recursion' => [
+                'property' => 'recursive property',
+                'recursion' => [
+                    'property' => 'recursive recursive property',
+                ],
+            ],
+        ];
+
+        $data = $functionName($model);
         static::assertSame($expected, $data);
     }
 
