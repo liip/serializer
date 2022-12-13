@@ -22,12 +22,12 @@ abstract class Recursion
 
     public static function hasMaxDepthReached(PropertyMetadata $propertyMetadata, array $stack): bool
     {
-        $className = self::getClassNameFromProperty($propertyMetadata);
-        if (null === $className) {
+        if (null === $propertyMetadata->getMaxDepth()) {
             return false;
         }
 
-        if (null === $propertyMetadata->getMaxDepth()) {
+        $className = self::getClassNameFromProperty($propertyMetadata);
+        if (null === $className) {
             return false;
         }
 
