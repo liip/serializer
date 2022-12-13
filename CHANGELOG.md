@@ -1,6 +1,6 @@
 # Changelog
 
-# 2.1.0 (unreleased)
+# 2.1.0
 
 * Add support for generating recursive code up to a specified maximum depth
   that can be defined via the `@MaxDepth` annotation/attribute from JMS
