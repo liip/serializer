@@ -171,6 +171,10 @@ final class DeserializerGenerator
         if ($propertyMetadata->isReadOnly()) {
             return '';
         }
+        
+        if (Recursion::hasMaxDepthReached($propertyMetadata, $stack)) {
+            return '';
+        }
 
         if ($propertyMetadata->getAccessor()->hasSetterMethod()) {
             $tempVariable = ModelPath::tempVariable([(string) $modelPath, $propertyMetadata->getName()]);

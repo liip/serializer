@@ -1,5 +1,10 @@
 # Changelog
 
+# 2.1.0 (unreleased)
+
+* Add support for generating recursive code up to a specified maximum depth
+  that can be defined via the `@MaxDepth` annotation/attribute from JMS
+
 # 2.0.6
 
 * Allow installation with liip/metadata-parser 0.5
