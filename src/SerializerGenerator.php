@@ -187,7 +187,7 @@ final class SerializerGenerator
         if ($type instanceof PropertyTypeArray) {
             if ($type->getSubType() instanceof PropertyTypePrimitive) {
                 // for arrays of scalars, copy the field even when its an empty array
-                return $this->templating->renderAssign($fieldPath, $modelPropertyPath);
+                return $this->templating->renderArrayAssign($fieldPath, $modelPropertyPath);
             }
 
             // either array or hashmap with second param the type of values

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Liip\Serializer\Unit;
 
 use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Common\Collections\ArrayCollection;
 use Liip\MetadataParser\Builder;
 use Liip\MetadataParser\ModelParser\JMSParser;
 use Liip\MetadataParser\ModelParser\PhpDocParser;
@@ -83,6 +84,11 @@ class DeserializerGeneratorTest extends SerializerTestCase
                 ['nested_string' => 'nested1'],
                 ['nested_string' => 'nested2'],
             ],
+            'collection' => ['entry', 'second entry'],
+            'collection_nested' => [
+                'first' => ['nested_string' => 'nested3'],
+                'second' => ['nested_string' => 'nested4'],
+            ],
         ];
 
         /** @var ListModel $model */
@@ -91,10 +97,24 @@ class DeserializerGeneratorTest extends SerializerTestCase
         static::assertSame(['a', 'b'], $model->array);
         static::assertIsArray($model->listNested);
         static::assertCount(2, $model->listNested);
+
         foreach ($model->listNested as $index => $nested) {
             static::assertInstanceOf(Nested::class, $nested);
             static::assertSame('nested'.($index + 1), $nested->nestedString);
         }
+
+        static::assertInstanceOf(ArrayCollection::class, $model->collection);
+        static::assertCount(2, $model->collection);
+        static::assertSame(['entry', 'second entry'], $model->collection->toArray());
+
+        static::assertInstanceOf(ArrayCollection::class, $model->collectionNested);
+        static::assertCount(2, $model->collectionNested);
+        static::assertArrayHasKey('first', $model->collectionNested);
+        static::assertSame('nested3', $model->collectionNested['first']->nestedString);
+
+        static::assertArrayHasKey('second', $model->collectionNested);
+        static::assertSame('nested4', $model->collectionNested['second']->nestedString);
+
     }
 
     public function testRecursion(): void

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Liip\Serializer\Unit;
 
 use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Common\Collections\ArrayCollection;
 use Liip\MetadataParser\Builder;
 use Liip\MetadataParser\ModelParser\JMSParser;
 use Liip\MetadataParser\ModelParser\PhpDocParser;
@@ -102,6 +103,8 @@ class SerializerGeneratorTest extends SerializerTestCase
             new Nested('opt1'),
             new Nested('opt2'),
         ];
+        $list->collection = new ArrayCollection(['a', 'b']);
+        $list->collectionNested = new ArrayCollection(['a' => new Nested('nested1'), 'b' => new Nested('nested2')]);
 
         $expected = [
             'array' => ['a', 'b'],
@@ -112,6 +115,11 @@ class SerializerGeneratorTest extends SerializerTestCase
             'optional_list' => [
                 ['nested_string' => 'opt1'],
                 ['nested_string' => 'opt2'],
+            ],
+            'collection' => ['a', 'b'],
+            'collection_nested' => [
+                'a' => ['nested_string' => 'nested1'],
+                'b' => ['nested_string' => 'nested2'],
             ],
         ];
 
