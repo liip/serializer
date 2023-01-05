@@ -36,16 +36,23 @@ class GeneratorConfiguration implements \IteratorAggregate
      */
     private $classesToGenerate = [];
 
-    public function __construct(array $defaultGroupCombinations, array $defaultVersions)
+    /**
+     * @var bool
+     */
+    private $assignUnknownArrays;
+
+    public function __construct(array $defaultGroupCombinations, array $defaultVersions, bool $assignUnknownArrays = false)
     {
         $this->defaultGroupCombinations = $defaultGroupCombinations ?: [[]];
         $this->defaultVersions = array_map('strval', $defaultVersions) ?: [''];
+        $this->assignUnknownArrays = $assignUnknownArrays;
     }
 
     /**
      * Create configuration from array definition
      *
      * [
+     *     'assign_unknown_arrays' => true,
      *     'default_group_combinations' => ['api'],
      *     'default_versions' => ['', '1', '2'],
      *     'classes' => [
@@ -73,7 +80,9 @@ class GeneratorConfiguration implements \IteratorAggregate
         if (!\array_key_exists('classes', $config) || \count($config['classes']) < 1) {
             throw new \InvalidArgumentException('You need to specify the classes to generate');
         }
-        $instance = new self($config['default_group_combinations'] ?? [], $config['default_versions'] ?? []);
+
+        $assignUnknownArrays = $config['assign_unknown_arrays'] ?? false;
+        $instance = new self($config['default_group_combinations'] ?? [], $config['default_versions'] ?? [], $assignUnknownArrays);
         foreach ($config['classes'] as $className => $classConfig) {
             $classToGenerate = new ClassToGenerate($instance, $className, $classConfig['default_versions'] ?? null);
             foreach ($classConfig['group_combinations'] ?? [] as $groupCombination) {
@@ -105,6 +114,11 @@ class GeneratorConfiguration implements \IteratorAggregate
         return array_map(static function (array $combination) use ($classToGenerate) {
             return new GroupCombination($classToGenerate, $combination);
         }, $this->defaultGroupCombinations);
+    }
+
+    public function shouldAssignUnknownArrays(): bool
+    {
+        return $this->assignUnknownArrays;
     }
 
     #[\ReturnTypeWillChange]
