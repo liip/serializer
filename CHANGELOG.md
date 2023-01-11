@@ -1,5 +1,11 @@
 # Changelog
 
+# 2.2.0 (unreleased)
+
+* Add new parameter `$options` to the `GenerateConfiguration` class
+* Support (de)serializing unknown arrays by setting the `assign_unknown_arrays`
+  option to `true`.
+
 # 2.1.0
 
 * Add support for generating recursive code up to a specified maximum depth
