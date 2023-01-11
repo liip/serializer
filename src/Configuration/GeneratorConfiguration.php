@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Liip\Serializer\Configuration;
 
+use Symfony\Component\OptionsResolver\OptionsResolver;
+
 /**
  * Configuration for the serializer generator.
  *
@@ -37,22 +39,24 @@ class GeneratorConfiguration implements \IteratorAggregate
     private $classesToGenerate = [];
 
     /**
-     * @var bool
+     * @var array
      */
-    private $assignUnknownArrays;
+    private $options;
 
-    public function __construct(array $defaultGroupCombinations, array $defaultVersions, bool $assignUnknownArrays = false)
+    public function __construct(array $defaultGroupCombinations, array $defaultVersions, array $options = [])
     {
         $this->defaultGroupCombinations = $defaultGroupCombinations ?: [[]];
         $this->defaultVersions = array_map('strval', $defaultVersions) ?: [''];
-        $this->assignUnknownArrays = $assignUnknownArrays;
+        $this->options = $this->resolveOptions($options);
     }
 
     /**
      * Create configuration from array definition
      *
      * [
-     *     'assign_unknown_arrays' => true,
+     *     'options' => [
+     *         'assign_unknown_arrays' => true,
+     *     ],
      *     'default_group_combinations' => ['api'],
      *     'default_versions' => ['', '1', '2'],
      *     'classes' => [
@@ -81,8 +85,8 @@ class GeneratorConfiguration implements \IteratorAggregate
             throw new \InvalidArgumentException('You need to specify the classes to generate');
         }
 
-        $assignUnknownArrays = $config['assign_unknown_arrays'] ?? false;
-        $instance = new self($config['default_group_combinations'] ?? [], $config['default_versions'] ?? [], $assignUnknownArrays);
+        $options = $config['options'] ?? [];
+        $instance = new self($config['default_group_combinations'] ?? [], $config['default_versions'] ?? [], $options);
         foreach ($config['classes'] as $className => $classConfig) {
             $classToGenerate = new ClassToGenerate($instance, $className, $classConfig['default_versions'] ?? null);
             foreach ($classConfig['group_combinations'] ?? [] as $groupCombination) {
@@ -118,12 +122,24 @@ class GeneratorConfiguration implements \IteratorAggregate
 
     public function shouldAssignUnknownArrays(): bool
     {
-        return $this->assignUnknownArrays;
+        return $this->options['assign_unknown_arrays'];
     }
 
     #[\ReturnTypeWillChange]
     public function getIterator()
     {
         return new \ArrayIterator($this->classesToGenerate);
+    }
+
+    private function resolveOptions(array $options): array
+    {
+        $resolver = new OptionsResolver();
+        $resolver->setDefaults([
+            'assign_unknown_arrays' => false
+        ]);
+
+        $resolver->setAllowedTypes('assign_unknown_arrays', 'boolean');
+
+        return $resolver->resolve($options);
     }
 }

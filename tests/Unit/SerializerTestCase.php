@@ -41,7 +41,7 @@ class SerializerTestCase extends TestCase
         static::assertTrue(\function_exists($functionName));
     }
 
-    protected static function generateSerializers(Builder $metadataBuilder, string $classToGenerate, array $functionNames, array $versions = ['2'], array $groups = [], bool $assignUnknownArrays = false): void
+    protected static function generateSerializers(Builder $metadataBuilder, string $classToGenerate, array $functionNames, array $versions = ['2'], array $groups = [], array $options = []): void
     {
         $templating = new Serialization();
         $configuration = GeneratorConfiguration::createFomArray([
@@ -50,7 +50,7 @@ class SerializerTestCase extends TestCase
             'classes' => [
                 $classToGenerate => [],
             ],
-            'assign_unknown_arrays' => $assignUnknownArrays,
+            'options' => $options,
         ]);
         $serializerGenerator = new SerializerGenerator($templating, $configuration, '/tmp');
 
