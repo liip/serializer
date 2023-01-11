@@ -22,6 +22,7 @@ use Tests\Liip\Serializer\Fixtures\NonEmptyConstructor;
 use Tests\Liip\Serializer\Fixtures\PostDeserialize;
 use Tests\Liip\Serializer\Fixtures\PrivateProperty;
 use Tests\Liip\Serializer\Fixtures\RecursionModel;
+use Tests\Liip\Serializer\Fixtures\UnknownArraySubType;
 use Tests\Liip\Serializer\Fixtures\VirtualProperties;
 
 /**
@@ -275,5 +276,23 @@ class DeserializerGeneratorTest extends SerializerTestCase
         static::assertInstanceOf(PostDeserialize::class, $model);
         static::assertSame('apiString', $model->apiString);
         static::assertSame('post has been called', $model->postCalled);
+    }
+
+    public function testArraysWithUnknownSubType(): void
+    {
+        $functionName = 'deserialize_Tests_Liip_Serializer_Fixtures_UnknownArraySubType';
+        self::generateDeserializer(self::$metadataBuilder, UnknownArraySubType::class, $functionName, ['assign_unknown_arrays' => true]);
+
+        $unknownSubtype = ['unknown' => 'type', 'nested' => ['unknown' => 'subtype']];
+        $input = [
+            'unknown_sub_type' => $unknownSubtype,
+        ];
+
+        $list = new UnknownArraySubType();
+        $list->unknownSubType = $unknownSubtype;
+
+        $model = $functionName($input);
+        static::assertInstanceOf(UnknownArraySubType::class, $model);
+        static::assertSame($unknownSubtype, $list->unknownSubType);
     }
 }

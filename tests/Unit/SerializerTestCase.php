@@ -28,10 +28,11 @@ class SerializerTestCase extends TestCase
     /**
      * Generate the deserializer for the specified class and make sure the file and function exist.
      */
-    protected static function generateDeserializer(Builder $metadataBuilder, string $classToGenerate, string $functionName): void
+    protected static function generateDeserializer(Builder $metadataBuilder, string $classToGenerate, string $functionName, array $options = []): void
     {
         $templating = new Deserialization();
-        $deserializerGenerator = new DeserializerGenerator($templating, [$classToGenerate], '/tmp');
+        $configuration = GeneratorConfiguration::createFomArray(['classes' => [$classToGenerate => []], 'options' => $options]);
+        $deserializerGenerator = new DeserializerGenerator($templating, [], '/tmp', $configuration);
 
         $deserializerGenerator->generate($metadataBuilder);
 

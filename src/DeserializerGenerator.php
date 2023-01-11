@@ -282,6 +282,9 @@ final class DeserializerGenerator
                 $innerCode = $this->generateCodeForClass($subType->getClassMetadata(), $arrayPropertyPath, $modelPropertyPath, $stack);
                 break;
 
+            case $subType instanceof PropertyTypeUnknown && $this->configuration->shouldAssignUnknownArrays():
+                return $this->templating->renderAssignJsonDataToField((string) $modelPath, (string) $arrayPath);
+
             default:
                 throw new \Exception('Unexpected array subtype '.\get_class($subType));
         }
