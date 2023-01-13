@@ -85,8 +85,7 @@ class GeneratorConfiguration implements \IteratorAggregate
             throw new \InvalidArgumentException('You need to specify the classes to generate');
         }
 
-        $options = $config['options'] ?? [];
-        $instance = new self($config['default_group_combinations'] ?? [], $config['default_versions'] ?? [], $options);
+        $instance = new self($config['default_group_combinations'] ?? [], $config['default_versions'] ?? [], $config['options'] ?? []);
         foreach ($config['classes'] as $className => $classConfig) {
             $classToGenerate = new ClassToGenerate($instance, $className, $classConfig['default_versions'] ?? null);
             foreach ($classConfig['group_combinations'] ?? [] as $groupCombination) {
