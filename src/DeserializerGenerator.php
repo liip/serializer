@@ -13,6 +13,8 @@ use Liip\MetadataParser\Metadata\PropertyTypeDateTime;
 use Liip\MetadataParser\Metadata\PropertyTypePrimitive;
 use Liip\MetadataParser\Metadata\PropertyTypeUnknown;
 use Liip\MetadataParser\Reducer\TakeBestReducer;
+use Liip\Serializer\Configuration\ClassToGenerate;
+use Liip\Serializer\Configuration\GeneratorConfiguration;
 use Liip\Serializer\Path\ArrayPath;
 use Liip\Serializer\Path\ModelPath;
 use Liip\Serializer\Template\Deserialization;
@@ -51,17 +53,24 @@ final class DeserializerGenerator
     private $cacheDirectory;
 
     /**
+     * @var GeneratorConfiguration
+     */
+    private $configuration;
+
+    /**
      * @param string[] $classesToGenerate
      */
     public function __construct(
         Deserialization $templating,
         array $classesToGenerate,
-        string $cacheDirectory
+        string $cacheDirectory,
+        GeneratorConfiguration $configuration = null
     ) {
+
         $this->templating = $templating;
-        $this->classesToGenerate = $classesToGenerate;
         $this->cacheDirectory = $cacheDirectory;
         $this->filesystem = new Filesystem();
+        $this->configuration = $this->createGeneratorConfiguration($configuration, $classesToGenerate);
     }
 
     public static function buildDeserializerFunctionName(string $className): string
@@ -73,10 +82,11 @@ final class DeserializerGenerator
     {
         $this->filesystem->mkdir($this->cacheDirectory);
 
-        foreach ($this->classesToGenerate as $className) {
+        /** @var ClassToGenerate $classToGenerate */
+        foreach ($this->configuration as $classToGenerate) {
             // we do not use the oldest version reducer here and hope for the best
             // otherwise we end up with generated property names for accessor methods
-            $classMetadata = $metadataBuilder->build($className, [
+            $classMetadata = $metadataBuilder->build($classToGenerate->getClassName(), [
                 new TakeBestReducer(),
             ]);
             $this->writeFile($classMetadata);
@@ -272,6 +282,9 @@ final class DeserializerGenerator
                 $innerCode = $this->generateCodeForClass($subType->getClassMetadata(), $arrayPropertyPath, $modelPropertyPath, $stack);
                 break;
 
+            case $subType instanceof PropertyTypeUnknown && $this->configuration->shouldAllowGenericArrays():
+                return $this->templating->renderAssignJsonDataToField((string) $modelPath, (string) $arrayPath);
+
             default:
                 throw new \Exception('Unexpected array subtype '.\get_class($subType));
         }
@@ -303,5 +316,18 @@ final class DeserializerGenerator
         $code = $innerCode . $this->templating->renderArrayCollection((string) $modelPath, (string) $tmpVariable);
 
         return $code;
+    }
+
+    private function createGeneratorConfiguration(?GeneratorConfiguration $configuration, array $classesToGenerate): GeneratorConfiguration
+    {
+        if (null === $configuration) {
+            $configuration = new GeneratorConfiguration([], []);
+        }
+
+        foreach ($classesToGenerate as $className) {
+            $configuration->addClassToGenerate(new ClassToGenerate($configuration, $className));
+        }
+
+        return $configuration;
     }
 }

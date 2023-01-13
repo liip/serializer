@@ -28,10 +28,11 @@ class SerializerTestCase extends TestCase
     /**
      * Generate the deserializer for the specified class and make sure the file and function exist.
      */
-    protected static function generateDeserializer(Builder $metadataBuilder, string $classToGenerate, string $functionName): void
+    protected static function generateDeserializer(Builder $metadataBuilder, string $classToGenerate, string $functionName, array $options = []): void
     {
         $templating = new Deserialization();
-        $deserializerGenerator = new DeserializerGenerator($templating, [$classToGenerate], '/tmp');
+        $configuration = GeneratorConfiguration::createFomArray(['classes' => [$classToGenerate => []], 'options' => $options]);
+        $deserializerGenerator = new DeserializerGenerator($templating, [], '/tmp', $configuration);
 
         $deserializerGenerator->generate($metadataBuilder);
 
@@ -41,7 +42,7 @@ class SerializerTestCase extends TestCase
         static::assertTrue(\function_exists($functionName));
     }
 
-    protected static function generateSerializers(Builder $metadataBuilder, string $classToGenerate, array $functionNames, array $versions = ['2'], array $groups = []): void
+    protected static function generateSerializers(Builder $metadataBuilder, string $classToGenerate, array $functionNames, array $versions = ['2'], array $groups = [], array $options = []): void
     {
         $templating = new Serialization();
         $configuration = GeneratorConfiguration::createFomArray([
@@ -50,6 +51,7 @@ class SerializerTestCase extends TestCase
             'classes' => [
                 $classToGenerate => [],
             ],
+            'options' => $options,
         ]);
         $serializerGenerator = new SerializerGenerator($templating, $configuration, '/tmp');
 

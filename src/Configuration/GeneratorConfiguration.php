@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Liip\Serializer\Configuration;
 
+use Symfony\Component\OptionsResolver\OptionsResolver;
+
 /**
  * Configuration for the serializer generator.
  *
@@ -36,16 +38,25 @@ class GeneratorConfiguration implements \IteratorAggregate
      */
     private $classesToGenerate = [];
 
-    public function __construct(array $defaultGroupCombinations, array $defaultVersions)
+    /**
+     * @var array
+     */
+    private $options;
+
+    public function __construct(array $defaultGroupCombinations, array $defaultVersions, array $options = [])
     {
         $this->defaultGroupCombinations = $defaultGroupCombinations ?: [[]];
         $this->defaultVersions = array_map('strval', $defaultVersions) ?: [''];
+        $this->options = $this->resolveOptions($options);
     }
 
     /**
      * Create configuration from array definition
      *
      * [
+     *     'options' => [
+     *         'allow_generic_arrays' => true,
+     *     ],
      *     'default_group_combinations' => ['api'],
      *     'default_versions' => ['', '1', '2'],
      *     'classes' => [
@@ -73,7 +84,8 @@ class GeneratorConfiguration implements \IteratorAggregate
         if (!\array_key_exists('classes', $config) || \count($config['classes']) < 1) {
             throw new \InvalidArgumentException('You need to specify the classes to generate');
         }
-        $instance = new self($config['default_group_combinations'] ?? [], $config['default_versions'] ?? []);
+
+        $instance = new self($config['default_group_combinations'] ?? [], $config['default_versions'] ?? [], $config['options'] ?? []);
         foreach ($config['classes'] as $className => $classConfig) {
             $classToGenerate = new ClassToGenerate($instance, $className, $classConfig['default_versions'] ?? null);
             foreach ($classConfig['group_combinations'] ?? [] as $groupCombination) {
@@ -107,9 +119,30 @@ class GeneratorConfiguration implements \IteratorAggregate
         }, $this->defaultGroupCombinations);
     }
 
+    /**
+     * If this is false, arrays with sub type PropertyTypeUnknown are treated as error.
+     * If this is true, deserialize assigns the raw array and serialize just takes the raw content of the field.
+     */
+    public function shouldAllowGenericArrays(): bool
+    {
+        return $this->options['allow_generic_arrays'];
+    }
+
     #[\ReturnTypeWillChange]
     public function getIterator()
     {
         return new \ArrayIterator($this->classesToGenerate);
+    }
+
+    private function resolveOptions(array $options): array
+    {
+        $resolver = new OptionsResolver();
+        $resolver->setDefaults([
+            'allow_generic_arrays' => false
+        ]);
+
+        $resolver->setAllowedTypes('allow_generic_arrays', 'boolean');
+
+        return $resolver->resolve($options);
     }
 }

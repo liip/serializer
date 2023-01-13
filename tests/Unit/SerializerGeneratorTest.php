@@ -21,6 +21,7 @@ use Tests\Liip\Serializer\Fixtures\Nested;
 use Tests\Liip\Serializer\Fixtures\PostDeserialize;
 use Tests\Liip\Serializer\Fixtures\PrivateProperty;
 use Tests\Liip\Serializer\Fixtures\RecursionModel;
+use Tests\Liip\Serializer\Fixtures\UnknownArraySubType;
 use Tests\Liip\Serializer\Fixtures\Versions;
 use Tests\Liip\Serializer\Fixtures\VirtualProperties;
 
@@ -121,6 +122,23 @@ class SerializerGeneratorTest extends SerializerTestCase
                 'a' => ['nested_string' => 'nested1'],
                 'b' => ['nested_string' => 'nested2'],
             ],
+        ];
+
+        $data = $functionName($list);
+        static::assertSame($expected, $data);
+    }
+
+    public function testArraysWithUnknownSubType(): void
+    {
+        $functionName = 'serialize_Tests_Liip_Serializer_Fixtures_UnknownArraySubType';
+        self::generateSerializers(self::$metadataBuilder, UnknownArraySubType::class, [$functionName], [''], [], ['allow_generic_arrays' => true]);
+
+        $list = new UnknownArraySubType();
+        $unknownSubtype = ['unknown' => 'type', 'nested' => ['unknown' => 'subtype']];
+        $list->unknownSubType = $unknownSubtype;
+
+        $expected = [
+            'unknown_sub_type' => $unknownSubtype,
         ];
 
         $data = $functionName($list);

@@ -46,6 +46,9 @@ use Liip\Serializer\Template\Deserialization;
 use Liip\Serializer\Template\Serialization;
 
 $configuration = GeneratorConfiguration::createFomArray([
+    'options' => [
+        'allow_generic_arrays' => false,
+    ],
     'default_group_combinations' => ['api'],
     'default_versions' => ['', '1', '2'],
     'classes' => [
@@ -102,6 +105,14 @@ To generate a file without version, specify version `''` in the list of versions
 #### Groups
 
 To generate a serializer without groups, specify an empty group combination `[]`.
+
+### Arrays with an unknown type
+
+If you want to (de)serialize arrays with undefined content, you can do that by
+setting the `allow_generic_arrays` value to `true` via the `options` argument.
+
+Note: This will only work if the contents of that array are only primitive
+types (string, int, float, boolean and nested arrays with only these types).
 
 ## Serialize using the generated code
 In this example, we serialize an object of class `Product` for version 2:
