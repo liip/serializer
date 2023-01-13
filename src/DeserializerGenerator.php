@@ -282,7 +282,7 @@ final class DeserializerGenerator
                 $innerCode = $this->generateCodeForClass($subType->getClassMetadata(), $arrayPropertyPath, $modelPropertyPath, $stack);
                 break;
 
-            case $subType instanceof PropertyTypeUnknown && $this->configuration->shouldAssignUnknownArrays():
+            case $subType instanceof PropertyTypeUnknown && $this->configuration->shouldAllowGenericArrays():
                 return $this->templating->renderAssignJsonDataToField((string) $modelPath, (string) $arrayPath);
 
             default:

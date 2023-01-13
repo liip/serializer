@@ -55,7 +55,7 @@ class GeneratorConfiguration implements \IteratorAggregate
      *
      * [
      *     'options' => [
-     *         'assign_unknown_arrays' => true,
+     *         'allow_generic_arrays' => true,
      *     ],
      *     'default_group_combinations' => ['api'],
      *     'default_versions' => ['', '1', '2'],
@@ -120,9 +120,9 @@ class GeneratorConfiguration implements \IteratorAggregate
         }, $this->defaultGroupCombinations);
     }
 
-    public function shouldAssignUnknownArrays(): bool
+    public function shouldAllowGenericArrays(): bool
     {
-        return $this->options['assign_unknown_arrays'];
+        return $this->options['allow_generic_arrays'];
     }
 
     #[\ReturnTypeWillChange]
@@ -135,10 +135,10 @@ class GeneratorConfiguration implements \IteratorAggregate
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults([
-            'assign_unknown_arrays' => false
+            'allow_generic_arrays' => false
         ]);
 
-        $resolver->setAllowedTypes('assign_unknown_arrays', 'boolean');
+        $resolver->setAllowedTypes('allow_generic_arrays', 'boolean');
 
         return $resolver->resolve($options);
     }

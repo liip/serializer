@@ -281,7 +281,7 @@ class DeserializerGeneratorTest extends SerializerTestCase
     public function testArraysWithUnknownSubType(): void
     {
         $functionName = 'deserialize_Tests_Liip_Serializer_Fixtures_UnknownArraySubType';
-        self::generateDeserializer(self::$metadataBuilder, UnknownArraySubType::class, $functionName, ['assign_unknown_arrays' => true]);
+        self::generateDeserializer(self::$metadataBuilder, UnknownArraySubType::class, $functionName, ['allow_generic_arrays' => true]);
 
         $unknownSubtype = ['unknown' => 'type', 'nested' => ['unknown' => 'subtype']];
         $input = [

@@ -3,7 +3,7 @@
 # 2.2.0 (unreleased)
 
 * Add new parameter `$options` to the `GenerateConfiguration` class
-* Support (de)serializing unknown arrays by setting the `assign_unknown_arrays`
+* Support (de)serializing unknown arrays by setting the `allow_generic_arrays`
   option to `true`.
 
 # 2.1.0
