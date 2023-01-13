@@ -108,8 +108,11 @@ To generate a serializer without groups, specify an empty group combination `[]`
 
 ### Arrays with an unknown type
 
-If you want to directly assign arrays with an unknown type, you can do that by 
+If you want to (de)serialize arrays with undefined content, you can do that by
 setting the `allow_generic_arrays` value to `true` via the `options` argument.
+
+Note: This will only work if the contents of that array are only primitive
+types (string, int, float, boolean and nested arrays with only these types).
 
 ## Serialize using the generated code
 In this example, we serialize an object of class `Product` for version 2:

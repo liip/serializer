@@ -120,6 +120,10 @@ class GeneratorConfiguration implements \IteratorAggregate
         }, $this->defaultGroupCombinations);
     }
 
+    /**
+     * If this is false, arrays with sub type PropertyTypeUnknown are treated as error.
+     * If this is true, deserialize assigns the raw array and serialize just takes the raw content of the field.
+     */
     public function shouldAllowGenericArrays(): bool
     {
         return $this->options['allow_generic_arrays'];
