@@ -8,6 +8,7 @@
 * Fix fallback to JMS serializer when the order of configured groups were
   not ordered as the ones in the generated PHP filenames.
   Keep consistent sorting on both Context and GroupCombination classes.
+* Fix bug when serializing a multidimensional array with a primitive type.
 
 # 2.4.0
 
