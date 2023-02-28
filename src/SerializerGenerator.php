@@ -184,17 +184,6 @@ final class SerializerGenerator
         string $modelPropertyPath,
         array $stack
     ): string {
-        if ($type instanceof PropertyTypeArray) {
-            if ($type->getSubType() instanceof PropertyTypePrimitive) {
-                // for arrays of scalars, copy the field even when its an empty array
-                return $this->templating->renderArrayAssign($fieldPath, $modelPropertyPath);
-            }
-
-            // either array or hashmap with second param the type of values
-            // the index works the same whether its numeric or hashmap
-            return $this->generateCodeForArray($type, $apiVersion, $serializerGroups, $fieldPath, $modelPropertyPath, $stack);
-        }
-
         switch ($type) {
             case $type instanceof PropertyTypeDateTime:
                 if (null !== $type->getZone()) {
@@ -214,6 +203,9 @@ final class SerializerGenerator
 
             case $type instanceof PropertyTypeClass:
                 return $this->generateCodeForClass($type->getClassMetadata(), $apiVersion, $serializerGroups, $fieldPath, $modelPropertyPath, $stack);
+
+            case $type instanceof PropertyTypeArray:
+                return $this->generateCodeForArray($type, $apiVersion, $serializerGroups, $fieldPath, $modelPropertyPath, $stack);
 
             default:
                 throw new \Exception('Unexpected type '.\get_class($type).' at '.$modelPropertyPath);
@@ -240,6 +232,7 @@ final class SerializerGenerator
                 $innerCode = $this->generateCodeForClass($subType->getClassMetadata(), $apiVersion, $serializerGroups, $arrayPath.'['.$index.']', $modelPath.'['.$index.']', $stack);
                 break;
 
+            case $subType instanceof PropertyTypePrimitive:
             case $subType instanceof PropertyTypeUnknown && $this->configuration->shouldAllowGenericArrays():
                 return $this->templating->renderArrayAssign($arrayPath, $modelPath);
 
