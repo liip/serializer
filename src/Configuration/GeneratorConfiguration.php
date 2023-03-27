@@ -128,8 +128,7 @@ class GeneratorConfiguration implements \IteratorAggregate
         return $this->options['allow_generic_arrays'];
     }
 
-    #[\ReturnTypeWillChange]
-    public function getIterator()
+    public function getIterator(): \Traversable
     {
         return new \ArrayIterator($this->classesToGenerate);
     }

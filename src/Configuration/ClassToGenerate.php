@@ -62,8 +62,7 @@ class ClassToGenerate implements \IteratorAggregate
         $this->groupCombinations[] = $groupCombination;
     }
 
-    #[\ReturnTypeWillChange]
-    public function getIterator()
+    public function getIterator(): \Traversable
     {
         if ($this->groupCombinations) {
             return new \ArrayIterator($this->groupCombinations);
