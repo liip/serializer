@@ -1,6 +1,11 @@
 # Changelog
 
-# 2.2.0 (unreleased)
+# 2.3.0
+
+* Fixed deprecation warnings for PHP 8
+* Dropped support for PHP 7
+
+# 2.2.0
 
 * Add new parameter `$options` to the `GenerateConfiguration` class
 * Support (de)serializing arrays with undefined content by setting the
