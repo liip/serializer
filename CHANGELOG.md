@@ -1,5 +1,9 @@
 # Changelog
 
+# 2.3.1
+
+* Allow installation with liip/metadata 1.x in addition to 0.6
+
 # 2.3.0
 
 * Fixed deprecation warnings for PHP 8
