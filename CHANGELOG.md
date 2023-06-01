@@ -1,5 +1,9 @@
 # Changelog
 
+# 2.4.0 (unreleased)
+
+* Increase liip/metadata to `1.1` and drop support for `0.6`
+
 # 2.3.1
 
 * Allow installation with liip/metadata 1.x in addition to 0.6
