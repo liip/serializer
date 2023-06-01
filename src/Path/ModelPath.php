@@ -25,7 +25,7 @@ final class ModelPath
     }
 
     /**
-     * @var string[]
+     * @param string[] $components
      */
     public static function tempVariable(array $components): self
     {

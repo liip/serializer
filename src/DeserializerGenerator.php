@@ -35,19 +35,6 @@ final class DeserializerGenerator
     private $filesystem;
 
     /**
-     * This is a list of fqn classnames
-     *
-     * I.e.
-     *
-     * [
-     *    Product::class,
-     * ];
-     *
-     * @var array
-     */
-    private $classesToGenerate;
-
-    /**
      * @var string
      */
     private $cacheDirectory;
@@ -58,7 +45,7 @@ final class DeserializerGenerator
     private $configuration;
 
     /**
-     * @param string[] $classesToGenerate
+     * @param string[] $classesToGenerate This is a list of fqn classnames
      */
     public function __construct(
         Deserialization $templating,

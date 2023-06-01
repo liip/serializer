@@ -85,10 +85,6 @@ if (0 === \count({{propertyAccessor}})) {
 }
 
 EOT;
-    private const TMPL_LOOP_HASHMAP_EMPTY = <<<'EOT'
-$jsonData{{jsonPath}} = $emptyHashmap;
-
-EOT;
 
     private const TMPL_GETTER = '{{modelPath}}->{{method}}()';
 
