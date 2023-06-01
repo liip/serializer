@@ -57,7 +57,7 @@ EOT;
 if ({{propertyAccessor}} instanceof \Doctrine\Common\Collections\Collection) {
     {{indexVariable}}Array = {{propertyAccessor}}->toArray();
 }
-    
+
 $jsonData{{jsonPath}} = [];
 foreach (array_keys({{indexVariable}}Array) as {{indexVariable}}) {
     {{code}}
@@ -78,7 +78,7 @@ if (0 === \count({{propertyAccessor}})) {
     if ({{propertyAccessor}} instanceof \Doctrine\Common\Collections\Collection) {
         {{indexVariable}}Array = {{propertyAccessor}}->toArray();
     }
-    
+
     foreach (array_keys({{indexVariable}}Array) as {{indexVariable}}) {
         {{code}}
     }

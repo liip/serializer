@@ -19,7 +19,6 @@ abstract class Recursion
         return false;
     }
 
-
     public static function hasMaxDepthReached(PropertyMetadata $propertyMetadata, array $stack): bool
     {
         if (null === $propertyMetadata->getMaxDepth()) {

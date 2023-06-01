@@ -26,7 +26,7 @@ class SerializerTest extends TestCase
         $context->setVersion('2');
         $context->setGroups(['api']);
         $json = $transform->serialize(new SerializerModel(), 'json', $context);
-        static::assertSame('{"seen":true}', $json);
+        self::assertSame('{"seen":true}', $json);
     }
 
     public function testSerializeFailOnFormat(): void
@@ -74,7 +74,7 @@ class SerializerTest extends TestCase
         $context->setVersion('2');
         $context->setGroups(['api']);
         $json = $transform->toArray(new SerializerModel(), $context);
-        static::assertSame(['seen' => true], $json);
+        self::assertSame(['seen' => true], $json);
     }
 
     public function testToArrayNoContext(): void
@@ -82,7 +82,7 @@ class SerializerTest extends TestCase
         $transform = new Serializer(__DIR__.'/../Fixtures');
 
         $json = $transform->toArray(new SerializerModel());
-        static::assertSame(['all' => true], $json);
+        self::assertSame(['all' => true], $json);
     }
 
     public function testDeserialize(): void
@@ -90,8 +90,8 @@ class SerializerTest extends TestCase
         $transform = new Serializer(__DIR__.'/../Fixtures');
 
         $data = $transform->deserialize('[]', SerializerModel::class, 'json');
-        static::assertInstanceOf(SerializerModel::class, $data);
-        static::assertSame('deserializer', $data->field);
+        self::assertInstanceOf(SerializerModel::class, $data);
+        self::assertSame('deserializer', $data->field);
     }
 
     public function testDeserializeFailOnFormat(): void
@@ -136,7 +136,7 @@ class SerializerTest extends TestCase
         $transform = new Serializer(__DIR__.'/../Fixtures');
 
         $data = $transform->fromArray([], SerializerModel::class);
-        static::assertInstanceOf(SerializerModel::class, $data);
-        static::assertSame('deserializer', $data->field);
+        self::assertInstanceOf(SerializerModel::class, $data);
+        self::assertSame('deserializer', $data->field);
     }
 }

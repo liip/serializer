@@ -30,6 +30,7 @@ class ListModel
      * @var Nested[]
      *
      * @Serializer\Type("array<Tests\Liip\Serializer\Fixtures\Nested>")
+     *
      * @Serializer\Accessor("getOptionalList")
      */
     public $optionalList;

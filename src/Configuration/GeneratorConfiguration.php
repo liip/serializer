@@ -137,7 +137,7 @@ class GeneratorConfiguration implements \IteratorAggregate
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults([
-            'allow_generic_arrays' => false
+            'allow_generic_arrays' => false,
         ]);
 
         $resolver->setAllowedTypes('allow_generic_arrays', 'boolean');

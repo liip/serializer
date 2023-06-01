@@ -73,20 +73,20 @@ class SerializerGeneratorTest extends SerializerTestCase
             'date_immutable' => '2016-06-01T00:00:00+0200',
         ];
         $data = $functionNoGroups($model);
-        static::assertSame($expected, $data, 'no groups specified');
+        self::assertSame($expected, $data, 'no groups specified');
 
         $expected = [
             'api_string' => 'api',
         ];
         $data = $functionApi($model);
-        static::assertSame($expected, $data, 'group api');
+        self::assertSame($expected, $data, 'group api');
 
         $expected = [
             'api_string' => 'api',
             'detail_string' => 'details',
         ];
         $data = $functionApiDetails($model);
-        static::assertSame($expected, $data, 'groups api and details');
+        self::assertSame($expected, $data, 'groups api and details');
     }
 
     public function testArrays(): void
@@ -125,7 +125,7 @@ class SerializerGeneratorTest extends SerializerTestCase
         ];
 
         $data = $functionName($list);
-        static::assertSame($expected, $data);
+        self::assertSame($expected, $data);
     }
 
     public function testArraysWithUnknownSubType(): void
@@ -142,7 +142,7 @@ class SerializerGeneratorTest extends SerializerTestCase
         ];
 
         $data = $functionName($list);
-        static::assertSame($expected, $data);
+        self::assertSame($expected, $data);
     }
 
     public function testRecursions(): void
@@ -160,7 +160,7 @@ class SerializerGeneratorTest extends SerializerTestCase
         $model->recursion->recursion->recursion->property = 'recursive recursive recursive property';
 
         $expected = [
-            'property'=> 'property',
+            'property' => 'property',
             'recursion' => [
                 'property' => 'recursive property',
                 'recursion' => [
@@ -170,7 +170,7 @@ class SerializerGeneratorTest extends SerializerTestCase
         ];
 
         $data = $functionName($model);
-        static::assertSame($expected, $data);
+        self::assertSame($expected, $data);
     }
 
     public function testEmptyModel(): void
@@ -181,8 +181,8 @@ class SerializerGeneratorTest extends SerializerTestCase
         $model = new Model();
         $data = $functionName($model);
 
-        static::assertInstanceOf(\stdClass::class, $data);
-        static::assertCount(0, get_object_vars($data));
+        self::assertInstanceOf(\stdClass::class, $data);
+        self::assertCount(0, get_object_vars($data));
     }
 
     public function testEmptyModelNotUsingStdClass(): void
@@ -193,7 +193,7 @@ class SerializerGeneratorTest extends SerializerTestCase
         $model = new Model();
         $data = $functionName($model, false);
 
-        static::assertSame([], $data);
+        self::assertSame([], $data);
     }
 
     public function testDateTimeWithFormat(): void
@@ -205,7 +205,7 @@ class SerializerGeneratorTest extends SerializerTestCase
         $model->dateWithFormat = new \DateTime('2020-04-22 10:11:12');
         $data = $functionName($model);
 
-        static::assertSame(['date_with_format' => '2020-04-22'], $data);
+        self::assertSame(['date_with_format' => '2020-04-22'], $data);
     }
 
     /**
@@ -222,14 +222,14 @@ class SerializerGeneratorTest extends SerializerTestCase
         $list->listNested = [];
         $data = $functionName($list);
 
-        static::assertIsArray($data);
-        static::assertArrayHasKey('array', $data);
-        static::assertSame([], $data['array']);
-        static::assertArrayHasKey('list_nested', $data);
-        static::assertSame([], $data['list_nested']);
-        static::assertArrayHasKey('hashmap', $data);
-        static::assertInstanceOf(\stdClass::class, $data['hashmap']);
-        static::assertCount(0, get_object_vars($data['hashmap']));
+        self::assertIsArray($data);
+        self::assertArrayHasKey('array', $data);
+        self::assertSame([], $data['array']);
+        self::assertArrayHasKey('list_nested', $data);
+        self::assertSame([], $data['list_nested']);
+        self::assertArrayHasKey('hashmap', $data);
+        self::assertInstanceOf(\stdClass::class, $data['hashmap']);
+        self::assertCount(0, get_object_vars($data['hashmap']));
     }
 
     public function testEmptyArrayNotUsingStdClass(): void
@@ -243,13 +243,13 @@ class SerializerGeneratorTest extends SerializerTestCase
         $list->listNested = [];
         $data = $functionName($list, false);
 
-        static::assertIsArray($data);
-        static::assertArrayHasKey('array', $data);
-        static::assertSame([], $data['array']);
-        static::assertArrayHasKey('list_nested', $data);
-        static::assertSame([], $data['list_nested']);
-        static::assertArrayHasKey('hashmap', $data);
-        static::assertSame([], $data['hashmap']);
+        self::assertIsArray($data);
+        self::assertArrayHasKey('array', $data);
+        self::assertSame([], $data['array']);
+        self::assertArrayHasKey('list_nested', $data);
+        self::assertSame([], $data['list_nested']);
+        self::assertArrayHasKey('hashmap', $data);
+        self::assertSame([], $data['hashmap']);
     }
 
     public function testPrivateProperty(): void
@@ -266,7 +266,7 @@ class SerializerGeneratorTest extends SerializerTestCase
             'api_string' => 'apiString_setter',
         ];
         $data = $functionName($model);
-        static::assertSame($expected, $data);
+        self::assertSame($expected, $data);
     }
 
     public function testInheritance(): void
@@ -283,7 +283,7 @@ class SerializerGeneratorTest extends SerializerTestCase
             'api_string' => 'apiString_setter',
         ];
         $data = $functionName($model);
-        static::assertSame($expected, $data);
+        self::assertSame($expected, $data);
     }
 
     public function testNullFieldWithGetter(): void
@@ -298,7 +298,7 @@ class SerializerGeneratorTest extends SerializerTestCase
             'api_string' => 'api string',
         ];
         $data = $functionName($model);
-        static::assertSame($expected, $data);
+        self::assertSame($expected, $data);
     }
 
     public function testVirtualProperties(): void
@@ -315,7 +315,7 @@ class SerializerGeneratorTest extends SerializerTestCase
         ];
         $data = $functionName($model);
 
-        static::assertSame($expected, $data);
+        self::assertSame($expected, $data);
     }
 
     /**
@@ -334,8 +334,8 @@ class SerializerGeneratorTest extends SerializerTestCase
         ];
         $data = $functionName($model);
 
-        static::assertSame($expected, $data);
-        static::assertNull($model->postCalled);
+        self::assertSame($expected, $data);
+        self::assertNull($model->postCalled);
     }
 
     public function testAccessorOrder(): void
@@ -353,7 +353,7 @@ class SerializerGeneratorTest extends SerializerTestCase
             'api_string1' => 'apiString1',
         ];
 
-        static::assertSame($expected, $data);
+        self::assertSame($expected, $data);
     }
 
     public function testAccessorOrderInherit(): void
@@ -372,7 +372,7 @@ class SerializerGeneratorTest extends SerializerTestCase
             'api_string0' => 'apiString0',
         ];
 
-        static::assertSame($expected, $data);
+        self::assertSame($expected, $data);
     }
 
     public function testVersioning(): void
@@ -395,28 +395,28 @@ class SerializerGeneratorTest extends SerializerTestCase
             'changed' => 'changed',
         ];
         $data = $functionV1($model);
-        static::assertSame($expected, $data, 'version 1');
+        self::assertSame($expected, $data, 'version 1');
 
         $expected = [
             'old' => 'old',
             'changed' => 'changed',
         ];
         $data = $functionV2($model);
-        static::assertSame($expected, $data, 'version 2');
+        self::assertSame($expected, $data, 'version 2');
 
         $expected = [
             'changed' => 'CHANGED',
             'new' => 'new',
         ];
         $data = $functionV3($model);
-        static::assertSame($expected, $data, 'version 3');
+        self::assertSame($expected, $data, 'version 3');
 
         $expected = [
             'changed' => 'CHANGED',
             'new' => 'new',
         ];
         $data = $functionV4($model);
-        static::assertSame($expected, $data, 'version 4');
+        self::assertSame($expected, $data, 'version 4');
 
         $expected = [
             'old' => 'old',
@@ -424,7 +424,7 @@ class SerializerGeneratorTest extends SerializerTestCase
             'new' => 'new',
         ];
         $data = $function($model);
-        static::assertSame($expected, $data, 'no version');
+        self::assertSame($expected, $data, 'no version');
     }
 
     public function testInaccessibleProperty(): void

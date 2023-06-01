@@ -34,7 +34,7 @@ class GroupCombination
      */
     private $versions;
 
-    public function __construct(ClassToGenerate $containingClass, array $groups, ?array $versions = null)
+    public function __construct(ClassToGenerate $containingClass, array $groups, array $versions = null)
     {
         $this->containingClass = $containingClass;
         $this->groups = $groups;

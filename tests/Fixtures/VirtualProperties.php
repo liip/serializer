@@ -15,7 +15,9 @@ class VirtualProperties
 
     /**
      * @Serializer\Type("string")
+     *
      * @Serializer\VirtualProperty
+     *
      * @Serializer\SerializedName("api_string_virtual")
      */
     public function getApiString()

@@ -53,7 +53,6 @@ final class DeserializerGenerator
         string $cacheDirectory,
         GeneratorConfiguration $configuration = null
     ) {
-
         $this->templating = $templating;
         $this->cacheDirectory = $cacheDirectory;
         $this->filesystem = new Filesystem();
@@ -62,7 +61,7 @@ final class DeserializerGenerator
 
     public static function buildDeserializerFunctionName(string $className): string
     {
-        return static::FILENAME_PREFIX.'_'.str_replace('\\', '_', $className);
+        return self::FILENAME_PREFIX.'_'.str_replace('\\', '_', $className);
     }
 
     public function generate(Builder $metadataBuilder): void
@@ -86,7 +85,7 @@ final class DeserializerGenerator
             throw new \Exception(sprintf('We currently do not support deserializing when the root class has a non-empty constructor. Class %s', $classMetadata->getClassName()));
         }
 
-        $functionName = static::buildDeserializerFunctionName($classMetadata->getClassName());
+        $functionName = self::buildDeserializerFunctionName($classMetadata->getClassName());
         $arrayPath = new ArrayPath('jsonData');
 
         $code = $this->templating->renderFunction(
@@ -168,7 +167,7 @@ final class DeserializerGenerator
         if ($propertyMetadata->isReadOnly()) {
             return '';
         }
-        
+
         if (Recursion::hasMaxDepthReached($propertyMetadata, $stack)) {
             return '';
         }
@@ -240,7 +239,7 @@ final class DeserializerGenerator
                 return $this->generateCodeForClass($type->getClassMetadata(), $arrayPath, $modelPropertyPath, $stack);
 
             default:
-                throw new \Exception('Unexpected type '.\get_class($type).' at '.$modelPropertyPath);
+                throw new \Exception('Unexpected type '.$type::class.' at '.$modelPropertyPath);
         }
     }
 
@@ -273,7 +272,7 @@ final class DeserializerGenerator
                 return $this->templating->renderAssignJsonDataToField((string) $modelPath, (string) $arrayPath);
 
             default:
-                throw new \Exception('Unexpected array subtype '.\get_class($subType));
+                throw new \Exception('Unexpected array subtype '.$subType::class);
         }
 
         if ('' === $innerCode) {
@@ -300,9 +299,7 @@ final class DeserializerGenerator
             return '';
         }
 
-        $code = $innerCode . $this->templating->renderArrayCollection((string) $modelPath, (string) $tmpVariable);
-
-        return $code;
+        return $innerCode.$this->templating->renderArrayCollection((string) $modelPath, (string) $tmpVariable);
     }
 
     private function createGeneratorConfiguration(?GeneratorConfiguration $configuration, array $classesToGenerate): GeneratorConfiguration
