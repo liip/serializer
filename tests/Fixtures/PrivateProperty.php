@@ -10,12 +10,14 @@ class PrivateProperty
 {
     /**
      * @Serializer\Type("string")
+     *
      * @Serializer\Accessor(getter="getExtra", setter="setExtra")
      */
     protected $extra;
 
     /**
      * @Serializer\Type("string")
+     *
      * @Serializer\Accessor(getter="getApiString", setter="setApiString")
      */
     private $apiString;

@@ -36,7 +36,7 @@ class ClassToGenerate implements \IteratorAggregate
      */
     private $defaultVersions;
 
-    public function __construct(GeneratorConfiguration $configuration, string $className, ?array $defaultVersions = null)
+    public function __construct(GeneratorConfiguration $configuration, string $className, array $defaultVersions = null)
     {
         $this->configuration = $configuration;
         $this->className = $className;

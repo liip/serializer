@@ -13,6 +13,7 @@ class AccessorOrderInherit extends AccessorOrder
 {
     /**
      * @var string
+     *
      * @Serializer\Type("string")
      */
     public $apiString0;

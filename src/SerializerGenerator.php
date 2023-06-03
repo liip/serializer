@@ -59,7 +59,7 @@ final class SerializerGenerator
 
     public static function buildSerializerFunctionName(string $className, ?string $apiVersion, array $serializerGroups): string
     {
-        $functionName = static::FILENAME_PREFIX.'_'.$className;
+        $functionName = self::FILENAME_PREFIX.'_'.$className;
         if (\count($serializerGroups)) {
             $functionName .= '_'.implode('_', $serializerGroups);
         }
@@ -114,7 +114,7 @@ final class SerializerGenerator
         ClassMetadata $classMetadata
     ): void {
         sort($serializerGroups);
-        $functionName = static::buildSerializerFunctionName($className, $apiVersion, $serializerGroups);
+        $functionName = self::buildSerializerFunctionName($className, $apiVersion, $serializerGroups);
 
         $code = $this->templating->renderFunction(
             $functionName,
@@ -216,7 +216,7 @@ final class SerializerGenerator
                 return $this->generateCodeForClass($type->getClassMetadata(), $apiVersion, $serializerGroups, $fieldPath, $modelPropertyPath, $stack);
 
             default:
-                throw new \Exception('Unexpected type '.\get_class($type).' at '.$modelPropertyPath);
+                throw new \Exception('Unexpected type '.$type::class.' at '.$modelPropertyPath);
         }
     }
 
@@ -228,7 +228,7 @@ final class SerializerGenerator
         string $modelPath,
         array $stack
     ): string {
-        $index = '$index'.\mb_strlen($arrayPath);
+        $index = '$index'.mb_strlen($arrayPath);
         $subType = $type->getSubType();
 
         switch ($subType) {
@@ -244,7 +244,7 @@ final class SerializerGenerator
                 return $this->templating->renderArrayAssign($arrayPath, $modelPath);
 
             default:
-                throw new \Exception('Unexpected array subtype '.\get_class($subType));
+                throw new \Exception('Unexpected array subtype '.$subType::class);
         }
 
         if ('' === $innerCode) {

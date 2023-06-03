@@ -17,6 +17,7 @@ class AccessorOrder
 {
     /**
      * @Serializer\Type("string")
+     *
      * @Serializer\Until("1")
      */
     public $apiString2;
@@ -28,7 +29,9 @@ class AccessorOrder
 
     /**
      * @var int
+     *
      * @Serializer\Type("integer")
+     *
      * @Serializer\Until("1")
      */
     public $totalHits;
@@ -42,8 +45,11 @@ class AccessorOrder
 
     /**
      * @Serializer\Type("string")
+     *
      * @Serializer\VirtualProperty
+     *
      * @Serializer\SerializedName("api_string2")
+     *
      * @Serializer\Since("2")
      */
     public function getApiString2(): string
@@ -53,8 +59,11 @@ class AccessorOrder
 
     /**
      * @Serializer\Type("integer")
+     *
      * @Serializer\VirtualProperty
+     *
      * @Serializer\SerializedName("total_hits")
+     *
      * @Serializer\Since("2")
      */
     public function getTotalHits(): int

@@ -25,7 +25,7 @@ final class ModelPath
     }
 
     /**
-     * @var string[]
+     * @param string[] $components
      */
     public static function tempVariable(array $components): self
     {
@@ -41,7 +41,7 @@ final class ModelPath
 
     public static function indexVariable(string $path): self
     {
-        return new self('index'.\mb_strlen($path));
+        return new self('index'.mb_strlen($path));
     }
 
     public function withPath(string $component): self

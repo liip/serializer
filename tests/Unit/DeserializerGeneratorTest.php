@@ -60,18 +60,18 @@ class DeserializerGeneratorTest extends SerializerTestCase
 
         /** @var Model $model */
         $model = $functionName($input);
-        static::assertInstanceOf(Model::class, $model);
-        static::assertSame('api', $model->apiString);
-        static::assertSame('details', $model->detailString);
-        static::assertNull($model->unAnnotated);
-        static::assertInstanceOf(Nested::class, $model->nestedField);
-        static::assertSame('nested', $model->nestedField->nestedString);
-        static::assertInstanceOf(\DateTime::class, $model->date);
-        static::assertSame('2018-08-03', $model->date->format('Y-m-d'));
-        static::assertInstanceOf(\DateTime::class, $model->dateWithFormat);
-        static::assertSame('2018-08-04', $model->dateWithFormat->format('Y-m-d'));
-        static::assertInstanceOf(\DateTimeImmutable::class, $model->dateImmutable);
-        static::assertSame('2016-06-01', $model->dateImmutable->format('Y-m-d'));
+        self::assertInstanceOf(Model::class, $model);
+        self::assertSame('api', $model->apiString);
+        self::assertSame('details', $model->detailString);
+        self::assertNull($model->unAnnotated);
+        self::assertInstanceOf(Nested::class, $model->nestedField);
+        self::assertSame('nested', $model->nestedField->nestedString);
+        self::assertInstanceOf(\DateTime::class, $model->date);
+        self::assertSame('2018-08-03', $model->date->format('Y-m-d'));
+        self::assertInstanceOf(\DateTime::class, $model->dateWithFormat);
+        self::assertSame('2018-08-04', $model->dateWithFormat->format('Y-m-d'));
+        self::assertInstanceOf(\DateTimeImmutable::class, $model->dateImmutable);
+        self::assertSame('2016-06-01', $model->dateImmutable->format('Y-m-d'));
     }
 
     public function testLists(): void
@@ -94,28 +94,27 @@ class DeserializerGeneratorTest extends SerializerTestCase
 
         /** @var ListModel $model */
         $model = $functionName($input);
-        static::assertInstanceOf(ListModel::class, $model);
-        static::assertSame(['a', 'b'], $model->array);
-        static::assertIsArray($model->listNested);
-        static::assertCount(2, $model->listNested);
+        self::assertInstanceOf(ListModel::class, $model);
+        self::assertSame(['a', 'b'], $model->array);
+        self::assertIsArray($model->listNested);
+        self::assertCount(2, $model->listNested);
 
         foreach ($model->listNested as $index => $nested) {
-            static::assertInstanceOf(Nested::class, $nested);
-            static::assertSame('nested'.($index + 1), $nested->nestedString);
+            self::assertInstanceOf(Nested::class, $nested);
+            self::assertSame('nested'.($index + 1), $nested->nestedString);
         }
 
-        static::assertInstanceOf(ArrayCollection::class, $model->collection);
-        static::assertCount(2, $model->collection);
-        static::assertSame(['entry', 'second entry'], $model->collection->toArray());
+        self::assertInstanceOf(ArrayCollection::class, $model->collection);
+        self::assertCount(2, $model->collection);
+        self::assertSame(['entry', 'second entry'], $model->collection->toArray());
 
-        static::assertInstanceOf(ArrayCollection::class, $model->collectionNested);
-        static::assertCount(2, $model->collectionNested);
-        static::assertArrayHasKey('first', $model->collectionNested);
-        static::assertSame('nested3', $model->collectionNested['first']->nestedString);
+        self::assertInstanceOf(ArrayCollection::class, $model->collectionNested);
+        self::assertCount(2, $model->collectionNested);
+        self::assertArrayHasKey('first', $model->collectionNested);
+        self::assertSame('nested3', $model->collectionNested['first']->nestedString);
 
-        static::assertArrayHasKey('second', $model->collectionNested);
-        static::assertSame('nested4', $model->collectionNested['second']->nestedString);
-
+        self::assertArrayHasKey('second', $model->collectionNested);
+        self::assertSame('nested4', $model->collectionNested['second']->nestedString);
     }
 
     public function testRecursion(): void
@@ -124,7 +123,7 @@ class DeserializerGeneratorTest extends SerializerTestCase
         self::generateDeserializer(self::$metadataBuilder, RecursionModel::class, $functionName);
 
         $input = [
-            'property'=> 'property',
+            'property' => 'property',
             'recursion' => [
                 'property' => 'recursive property',
                 'recursion' => [
@@ -138,15 +137,15 @@ class DeserializerGeneratorTest extends SerializerTestCase
 
         /** @var RecursionModel $model */
         $model = $functionName($input);
-        static::assertInstanceOf(RecursionModel::class, $model);
-        static::assertSame('property', $model->property);
-        static::assertInstanceOf(RecursionModel::class, $model->recursion);
+        self::assertInstanceOf(RecursionModel::class, $model);
+        self::assertSame('property', $model->property);
+        self::assertInstanceOf(RecursionModel::class, $model->recursion);
 
-        static::assertSame('recursive property', $model->recursion->property);
-        static::assertInstanceOf(RecursionModel::class, $model->recursion->recursion);
+        self::assertSame('recursive property', $model->recursion->property);
+        self::assertInstanceOf(RecursionModel::class, $model->recursion->recursion);
 
-        static::assertSame('recursive recursive property', $model->recursion->recursion->property);
-        static::assertNull($model->recursion->recursion->recursion);
+        self::assertSame('recursive recursive property', $model->recursion->recursion->property);
+        self::assertNull($model->recursion->recursion->recursion);
     }
 
     /**
@@ -163,8 +162,8 @@ class DeserializerGeneratorTest extends SerializerTestCase
 
         /** @var FloatProperty $model */
         $model = $functionName($input);
-        static::assertInstanceOf(FloatProperty::class, $model);
-        static::assertSame(1.0, $model->number);
+        self::assertInstanceOf(FloatProperty::class, $model);
+        self::assertSame(1.0, $model->number);
     }
 
     public function testPrivateProperty(): void
@@ -179,9 +178,9 @@ class DeserializerGeneratorTest extends SerializerTestCase
 
         /** @var PrivateProperty $model */
         $model = $functionName($input);
-        static::assertInstanceOf(PrivateProperty::class, $model);
-        static::assertSame('apiString_setter', $model->getApiString());
-        static::assertSame('More Info', $model->getExtra());
+        self::assertInstanceOf(PrivateProperty::class, $model);
+        self::assertSame('apiString_setter', $model->getApiString());
+        self::assertSame('More Info', $model->getExtra());
     }
 
     public function testInheritance(): void
@@ -196,9 +195,9 @@ class DeserializerGeneratorTest extends SerializerTestCase
 
         /** @var Inheritance $model */
         $model = $functionName($input);
-        static::assertInstanceOf(Inheritance::class, $model);
-        static::assertSame('apiString_setter', $model->getApiString());
-        static::assertSame('More Info', $model->getExtra());
+        self::assertInstanceOf(Inheritance::class, $model);
+        self::assertSame('apiString_setter', $model->getApiString());
+        self::assertSame('More Info', $model->getExtra());
     }
 
     public function testNonEmptyConstructorRoot(): void
@@ -223,12 +222,12 @@ class DeserializerGeneratorTest extends SerializerTestCase
 
         /** @var ContainsNonEmptyConstructor $model */
         $model = $functionName($input);
-        static::assertInstanceOf(ContainsNonEmptyConstructor::class, $model);
+        self::assertInstanceOf(ContainsNonEmptyConstructor::class, $model);
         $child = $model->child;
-        static::assertInstanceOf(NonEmptyConstructor::class, $child);
-        static::assertSame('apiString', $child->getApiString());
-        static::assertSame('optional', $child->getOptional());
-        static::assertSame(['foo', 'bar'], $child->getOnlyArgument());
+        self::assertInstanceOf(NonEmptyConstructor::class, $child);
+        self::assertSame('apiString', $child->getApiString());
+        self::assertSame('optional', $child->getOptional());
+        self::assertSame(['foo', 'bar'], $child->getOnlyArgument());
 
         $input = [
             'child' => [
@@ -238,12 +237,12 @@ class DeserializerGeneratorTest extends SerializerTestCase
         ];
         /** @var ContainsNonEmptyConstructor $model */
         $model = $functionName($input);
-        static::assertInstanceOf(ContainsNonEmptyConstructor::class, $model);
+        self::assertInstanceOf(ContainsNonEmptyConstructor::class, $model);
         $child = $model->child;
-        static::assertInstanceOf(NonEmptyConstructor::class, $child);
-        static::assertSame('apiString', $child->getApiString());
-        static::assertSame('custom', $child->getOptional());
-        static::assertSame(['foo', 'bar'], $child->getOnlyArgument());
+        self::assertInstanceOf(NonEmptyConstructor::class, $child);
+        self::assertSame('apiString', $child->getApiString());
+        self::assertSame('custom', $child->getOptional());
+        self::assertSame(['foo', 'bar'], $child->getOnlyArgument());
     }
 
     public function testVirtualProperties(): void
@@ -258,8 +257,8 @@ class DeserializerGeneratorTest extends SerializerTestCase
 
         /** @var VirtualProperties $model */
         $model = $functionName($input);
-        static::assertInstanceOf(VirtualProperties::class, $model);
-        static::assertSame('apiString', $model->apiString);
+        self::assertInstanceOf(VirtualProperties::class, $model);
+        self::assertSame('apiString', $model->apiString);
     }
 
     public function testPostDeserialize(): void
@@ -273,9 +272,9 @@ class DeserializerGeneratorTest extends SerializerTestCase
 
         /** @var PostDeserialize $model */
         $model = $functionName($input);
-        static::assertInstanceOf(PostDeserialize::class, $model);
-        static::assertSame('apiString', $model->apiString);
-        static::assertSame('post has been called', $model->postCalled);
+        self::assertInstanceOf(PostDeserialize::class, $model);
+        self::assertSame('apiString', $model->apiString);
+        self::assertSame('post has been called', $model->postCalled);
     }
 
     public function testArraysWithUnknownSubType(): void
@@ -292,7 +291,7 @@ class DeserializerGeneratorTest extends SerializerTestCase
         $list->unknownSubType = $unknownSubtype;
 
         $model = $functionName($input);
-        static::assertInstanceOf(UnknownArraySubType::class, $model);
-        static::assertSame($unknownSubtype, $list->unknownSubType);
+        self::assertInstanceOf(UnknownArraySubType::class, $model);
+        self::assertSame($unknownSubtype, $list->unknownSubType);
     }
 }

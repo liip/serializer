@@ -10,13 +10,16 @@ class Nested
 {
     /**
      * @Serializer\Type("string")
+     *
      * @Serializer\Groups({"api"})
      */
     public $nestedString;
 
     /**
      * @Serializer\Type("array<string>")
+     *
      * @Serializer\Groups({"api"})
+     *
      * @Serializer\Accessor(getter="getArray")
      */
     public $array;

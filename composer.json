@@ -16,8 +16,7 @@
     "require": {
         "php": "^8.0",
         "ext-json": "*",
-        "doctrine/annotations": "^1.10.2",
-        "liip/metadata-parser": "^0.6 || ^1.0",
+        "liip/metadata-parser": "^1.1",
         "pnz/json-exception": "^1.0",
         "symfony/filesystem": "^4.4 || ^5.0 || ^6.0",
         "symfony/finder": "^4.4 || ^5.0 || ^6.0",
@@ -26,11 +25,11 @@
     },
     "require-dev": {
         "doctrine/collections": "^1.6",
-        "friendsofphp/php-cs-fixer": "^2.14",
+        "friendsofphp/php-cs-fixer": "^3.17.0",
         "jms/serializer": "^1.13 || ^2 || ^3",
-        "phpstan/phpstan": "^0.12.0",
-        "phpstan/phpstan-phpunit": "^0.12",
-        "phpunit/phpunit": "^8.0"
+        "phpstan/phpstan": "^1.0",
+        "phpstan/phpstan-phpunit": "^1.0",
+        "phpunit/phpunit": "^9.6.8"
     },
     "autoload": {
         "psr-4": {
@@ -44,7 +43,7 @@
     },
     "scripts": {
         "fix-cs": "vendor/bin/php-cs-fixer fix -v",
-        "cs-fixer": "vendor/bin/php-cs-fixer fix --dry-run --diff --diff-format udiff -v",
+        "cs-fixer": "vendor/bin/php-cs-fixer fix --dry-run --diff -v",
         "phpstan": "vendor/bin/phpstan analyse --no-progress --level 5 src/",
         "phpstan-tests": "vendor/bin/phpstan analyse --no-progress --level 1 -c phpstan.tests.neon tests/",
         "phpstan-all": [
