@@ -1,8 +1,9 @@
 # Changelog
 
-# 2.4.0 (unreleased)
+# 2.4.0
 
 * Increase liip/metadata to `1.1` and drop support for `0.6`
+* Clean up build process
 
 # 2.3.1
 
