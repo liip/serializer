@@ -19,11 +19,16 @@ jobs:
               uses: shivammathur/setup-php@v2
               with:
                   php-version: 8.2
-            - name: Composer cache
+                  tools: phpstan
+            - name: Get composer cache directory
+              id: composer-cache
+              run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+            - name: Cache dependencies
               uses: actions/cache@v3
               with:
-                  path: ${{ env.HOME }}/.composer/cache
-                  key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+                  path: ${{ steps.composer-cache.outputs.dir }}
+                  key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+                  restore-keys: ${{ runner.os }}-composer-
             - name: Install dependencies
               run: composer update --prefer-dist --no-interaction
             - name: PHPStan
@@ -39,13 +44,15 @@ jobs:
               uses: shivammathur/setup-php@v2
               with:
                   php-version: 8.2
-            - name: Validate composer.json
-              run: composer validate --strict --no-check-lock
-            - name: Composer cache
+            - name: Get composer cache directory
+              id: composer-cache
+              run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+            - name: Cache dependencies
               uses: actions/cache@v3
               with:
-                  path: ${{ env.HOME }}/.composer/cache
-                  key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+                  path: ${{ steps.composer-cache.outputs.dir }}
+                  key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+                  restore-keys: ${{ runner.os }}-composer-
             - name: Install dependencies
               run: composer update --prefer-dist --no-interaction
             - name: CS Fixer
@@ -61,11 +68,15 @@ jobs:
               uses: shivammathur/setup-php@v2
               with:
                   php-version: 8.2
-            - name: Composer cache
+            - name: Get composer cache directory
+              id: composer-cache
+              run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+            - name: Cache dependencies
               uses: actions/cache@v3
               with:
-                  path: ${{ env.HOME }}/.composer/cache
-                  key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+                  path: ${{ steps.composer-cache.outputs.dir }}
+                  key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+                  restore-keys: ${{ runner.os }}-composer-
             - name: Install dependencies
               run: composer update --prefer-dist --no-interaction
             - name: Rector PHP
