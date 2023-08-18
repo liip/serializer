@@ -28,7 +28,7 @@ final class Serializer implements SerializerInterface
      * Serializing primitive types is not currently implemented and will lead
      * to an UnsupportedTypeException.
      */
-    public function serialize($data, string $format, Context $context = null): string
+    public function serialize(mixed $data, string $format, Context $context = null): string
     {
         if ('json' !== $format) {
             throw new UnsupportedFormatException('Liip serializer only supports JSON for now');
@@ -84,7 +84,10 @@ final class Serializer implements SerializerInterface
         return $this->arrayToObject($data, $type, $context);
     }
 
-    private function arrayToObject(array $data, string $type, ?Context $context)
+    /**
+     * @param mixed[] $data
+     */
+    private function arrayToObject(array $data, string $type, ?Context $context): mixed
     {
         if ($context && ($context->getVersion() || \count($context->getGroups()))) {
             throw new Exception('Version and group support is not implemented for deserialization. It is only supported for serialization');
@@ -108,7 +111,10 @@ final class Serializer implements SerializerInterface
         }
     }
 
-    private function objectToArray($data, bool $useStdClass, ?Context $context): array
+    /**
+     * @return mixed[]
+     */
+    private function objectToArray(mixed $data, bool $useStdClass, ?Context $context): array
     {
         if (!\is_object($data)) {
             throw new UnsupportedTypeException('The Liip Serializer only works for objects');

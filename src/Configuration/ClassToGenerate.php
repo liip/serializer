@@ -28,8 +28,8 @@ class ClassToGenerate implements \IteratorAggregate
     private ?array $defaultVersions;
 
     /**
-     * @param class-string      $className       Fully qualified class name
-     * @param list<string>|null $defaultVersions
+     * @param class-string          $className
+     * @param list<string|int>|null $defaultVersions
      */
     public function __construct(
         private GeneratorConfiguration $configuration,

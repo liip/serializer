@@ -124,6 +124,9 @@ EOT;
         ]);
     }
 
+    /**
+     * @param list<string> $arguments
+     */
     public function renderClass(string $modelPath, string $className, array $arguments, string $code, string $initArgumentsCode = ''): string
     {
         return $this->render(self::TMPL_CLASS, [
@@ -206,6 +209,9 @@ EOT;
         ]);
     }
 
+    /**
+     * @param list<string> $arguments
+     */
     public function renderCreateObject(string $className, array $arguments): string
     {
         return $this->render(self::TMPL_CREATE_OBJECT, [
@@ -257,6 +263,9 @@ EOT;
         ]);
     }
 
+    /**
+     * @param array<string, mixed> $parameters
+     */
     private function render(string $template, array $parameters): string
     {
         $tmpl = $this->twig->createTemplate($template);

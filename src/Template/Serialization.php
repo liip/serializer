@@ -206,6 +206,9 @@ EOT;
         ]);
     }
 
+    /**
+     * @param array<string, mixed> $parameters
+     */
     private function render(string $template, array $parameters): string
     {
         $tmpl = $this->twig->createTemplate($template);
