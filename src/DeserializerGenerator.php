@@ -24,37 +24,19 @@ final class DeserializerGenerator
 {
     private const FILENAME_PREFIX = 'deserialize';
 
-    /**
-     * @var Deserialization
-     */
-    private $templating;
+    private Filesystem $filesystem;
+
+    private GeneratorConfiguration $configuration;
 
     /**
-     * @var Filesystem
-     */
-    private $filesystem;
-
-    /**
-     * @var string
-     */
-    private $cacheDirectory;
-
-    /**
-     * @var GeneratorConfiguration
-     */
-    private $configuration;
-
-    /**
-     * @param string[] $classesToGenerate This is a list of fqn classnames
+     * @param list<class-string> $classesToGenerate This is a list of FQCN classnames
      */
     public function __construct(
-        Deserialization $templating,
+        private Deserialization $templating,
         array $classesToGenerate,
-        string $cacheDirectory,
+        private string $cacheDirectory,
         GeneratorConfiguration $configuration = null
     ) {
-        $this->templating = $templating;
-        $this->cacheDirectory = $cacheDirectory;
         $this->filesystem = new Filesystem();
         $this->configuration = $this->createGeneratorConfiguration($configuration, $classesToGenerate);
     }
@@ -98,6 +80,9 @@ final class DeserializerGenerator
         $this->filesystem->dumpFile(sprintf('%s/%s.php', $this->cacheDirectory, $functionName), $code);
     }
 
+    /**
+     * @param array<string, positive-int> $stack
+     */
     private function generateCodeForClass(
         ClassMetadata $classMetadata,
         ArrayPath $arrayPath,
@@ -158,6 +143,9 @@ final class DeserializerGenerator
         return $this->templating->renderClass((string) $modelPath, $classMetadata->getClassName(), $constructorArguments, $code, $initCode);
     }
 
+    /**
+     * @param array<string, positive-int> $stack
+     */
     private function generateCodeForProperty(
         PropertyMetadata $propertyMetadata,
         ArrayPath $arrayPath,
@@ -189,6 +177,9 @@ final class DeserializerGenerator
         return $this->generateCodeForField($propertyMetadata, $arrayPath, $modelPropertyPath, $stack);
     }
 
+    /**
+     * @param array<string, positive-int> $stack
+     */
     private function generateCodeForField(
         PropertyMetadata $propertyMetadata,
         ArrayPath $arrayPath,
@@ -201,6 +192,9 @@ final class DeserializerGenerator
         );
     }
 
+    /**
+     * @param array<string, positive-int> $stack
+     */
     private function generateInnerCodeForFieldType(
         PropertyMetadata $propertyMetadata,
         ArrayPath $arrayPath,
@@ -243,6 +237,9 @@ final class DeserializerGenerator
         }
     }
 
+    /**
+     * @param array<string, positive-int> $stack
+     */
     private function generateCodeForArray(
         PropertyTypeArray $type,
         ArrayPath $arrayPath,
@@ -285,6 +282,9 @@ final class DeserializerGenerator
         return $code;
     }
 
+    /**
+     * @param array<string, positive-int> $stack
+     */
     private function generateCodeForArrayCollection(
         PropertyMetadata $propertyMetadata,
         PropertyTypeArray $type,
@@ -302,8 +302,13 @@ final class DeserializerGenerator
         return $innerCode.$this->templating->renderArrayCollection((string) $modelPath, (string) $tmpVariable);
     }
 
-    private function createGeneratorConfiguration(?GeneratorConfiguration $configuration, array $classesToGenerate): GeneratorConfiguration
-    {
+    /**
+     * @param list<class-string> $classesToGenerate
+     */
+    private function createGeneratorConfiguration(
+        ?GeneratorConfiguration $configuration,
+        array $classesToGenerate
+    ): GeneratorConfiguration {
         if (null === $configuration) {
             $configuration = new GeneratorConfiguration([], []);
         }

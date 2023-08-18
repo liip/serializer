@@ -18,9 +18,9 @@ interface SerializerInterface
     /**
      * Convert an object to a string representation.
      *
-     * @param mixed   $data    The model to serialize.
-     * @param string  $format  The target format to serialize to
-     * @param Context $context Additional configuration for serialization
+     * @param mixed    $data    The model to serialize.
+     * @param string   $format  The target format to serialize to
+     * @param ?Context $context Additional configuration for serialization
      *
      * @return string Encoded data according to $format
      *
@@ -28,15 +28,15 @@ interface SerializerInterface
      * @throws UnsupportedFormatException if $format is not supported
      * @throws UnsupportedTypeException   if no generated function is available for the class of $data
      */
-    public function serialize($data, string $format, Context $context = null): string;
+    public function serialize(mixed $data, string $format, Context $context = null): string;
 
     /**
      * Convert a string representation to an object.
      *
-     * @param string  $data    Encoded data according to $format
-     * @param string  $type    The target type to deserialize to
-     * @param string  $format  Encoding of $data
-     * @param Context $context Additional configuration for deserialization
+     * @param string   $data    Encoded data according to $format
+     * @param string   $type    The target type to deserialize to
+     * @param string   $format  Encoding of $data
+     * @param ?Context $context Additional configuration for deserialization
      *
      * @return mixed Object of $type
      *
@@ -49,22 +49,22 @@ interface SerializerInterface
     /**
      * Convert an object to an array.
      *
-     * @param mixed   $data    The model to convert to an array.
-     * @param Context $context Additional configuration for serialization
+     * @param mixed    $data    The model to convert to an array.
+     * @param ?Context $context Additional configuration for serialization
      *
-     * @return array Data represented as an array
+     * @return mixed[] Data represented as an array
      *
      * @throws Exception                if anything else goes wrong
      * @throws UnsupportedTypeException if no generated function is available for the class of $data
      */
-    public function toArray($data, Context $context = null): array;
+    public function toArray(mixed $data, Context $context = null): array;
 
     /**
      * Convert an array to an object.
      *
-     * @param array   $data    Array representation of the model
-     * @param string  $type    The target type to deserialize to
-     * @param Context $context Additional configuration for deserialization
+     * @param mixed[]  $data    Array representation of the model
+     * @param string   $type    The target type to deserialize to
+     * @param ?Context $context Additional configuration for deserialization
      *
      * @return mixed Object of $type
      *

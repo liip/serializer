@@ -21,6 +21,9 @@ final class UnsupportedTypeException extends Exception
         return new self(sprintf(self::UNSUPPORTED_TYPE_DESERIALIZATION, $type));
     }
 
+    /**
+     * @param list<string> $groups
+     */
     public static function typeUnsupportedSerialization(string $type, ?string $version, array $groups): self
     {
         $versionInfo = $version ?: '[no version]';

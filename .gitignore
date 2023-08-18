@@ -2,6 +2,8 @@
 /vendor
 /composer.lock
 
+/.cache/
+
 ###> phpunit/phpunit ###
 /.phpunit.result.cache
 /phpunit.xml

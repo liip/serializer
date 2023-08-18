@@ -107,10 +107,7 @@ EOT;
 
     private const TMPL_CREATE_OBJECT = 'new {{className}}({{arguments|join(\', \')}})';
 
-    /**
-     * @var Environment
-     */
-    private $twig;
+    private Environment $twig;
 
     public function __construct()
     {

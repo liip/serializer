@@ -25,35 +25,13 @@ final class SerializerGenerator
 {
     private const FILENAME_PREFIX = 'serialize';
 
-    /**
-     * @var Serialization
-     */
-    private $templating;
-
-    /**
-     * @var GeneratorConfiguration
-     */
-    private $configuration;
-
-    /**
-     * @var string
-     */
-    private $cacheDirectory;
-
-    /**
-     * @var Filesystem
-     */
-    private $filesystem;
+    private Filesystem $filesystem;
 
     public function __construct(
-        Serialization $templating,
-        GeneratorConfiguration $configuration,
-        string $cacheDirectory
+        private Serialization $templating,
+        private GeneratorConfiguration $configuration,
+        private string $cacheDirectory
     ) {
-        $this->templating = $templating;
-        $this->configuration = $configuration;
-        $this->cacheDirectory = $cacheDirectory;
-
         $this->filesystem = new Filesystem();
     }
 

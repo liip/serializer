@@ -18,14 +18,8 @@ use Pnz\JsonException\Json;
  */
 final class Serializer implements SerializerInterface
 {
-    /**
-     * @var string
-     */
-    private $cacheDirectory;
-
-    public function __construct(string $cacheDirectory)
+    public function __construct(private string $cacheDirectory)
     {
-        $this->cacheDirectory = $cacheDirectory;
     }
 
     /**
@@ -43,7 +37,7 @@ final class Serializer implements SerializerInterface
         try {
             return Json::encode($this->objectToArray($data, true, $context), \JSON_UNESCAPED_SLASHES);
         } catch (\JsonException $e) {
-            throw new Exception(sprintf('Failed to JSON encode data for %s. This is not supposed to happen.', \is_object($data) ? $data::class : \gettype($data)), 0, $e);
+            throw new Exception(sprintf('Failed to JSON encode data for %s. This is not supposed to happen.', get_debug_type($data)), 0, $e);
         }
     }
 

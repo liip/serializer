@@ -92,10 +92,7 @@ EOT;
 
     private const TMPL_TEMP_VAR = '${{name}} = {{value}}';
 
-    /**
-     * @var Environment
-     */
-    private $twig;
+    private Environment $twig;
 
     public function __construct()
     {
