@@ -37,6 +37,7 @@ final class Context
     public function setGroups(array $groups): self
     {
         $this->groups = array_unique($groups);
+        sort($this->groups);
 
         return $this;
     }

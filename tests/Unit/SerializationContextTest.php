@@ -29,7 +29,7 @@ class SerializationContextTest extends TestCase
     public function testSetGroups(): void
     {
         $context = new Context();
-        $context->setGroups(['a', 'b', 'c']);
+        $context->setGroups(['a', 'c', 'b']);
 
         self::assertSame(['a', 'b', 'c'], $context->getGroups());
     }

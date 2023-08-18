@@ -52,7 +52,7 @@ class SerializerGeneratorTest extends SerializerTestCase
         $groups = [
             [],
             ['api'],
-            ['api', 'details'],
+            ['details', 'api'],
         ];
         self::generateSerializers(self::$metadataBuilder, Model::class, [$functionNoGroups, $functionApi, $functionApiDetails], ['2'], $groups);
 

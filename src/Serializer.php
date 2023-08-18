@@ -128,7 +128,7 @@ final class Serializer implements SerializerInterface
                 $version = $context->getVersion();
             }
         }
-        $functionName = SerializerGenerator::buildSerializerFunctionName($type, $version ? (string) $version : null, $groups);
+        $functionName = SerializerGenerator::buildSerializerFunctionName($type, $version ?: null, $groups);
         $filename = sprintf('%s/%s.php', $this->cacheDirectory, $functionName);
         if (!file_exists($filename)) {
             throw UnsupportedTypeException::typeUnsupportedSerialization($type, $version, $groups);

@@ -1,5 +1,11 @@
 # Changelog
 
+# Unreleased
+
+* Fix fallback to JMS serializer when the order of configured groups were
+  not ordered as the ones in the generated PHP filenames.
+  Keep consistent sorting on both Context and GroupCombination classes.
+
 # 2.4.0
 
 * Increase liip/metadata to `1.1` and drop support for `0.6`
