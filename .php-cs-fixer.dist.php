@@ -13,8 +13,10 @@ $config->setFinder(
 
 return $config
     ->setRiskyAllowed(true)
+    ->setCacheFile('.cache/php-cs-fixer.cache')
     ->setRules(
         [
+            '@PSR12' => true,
             '@PhpCsFixer' => true,
             '@PhpCsFixer:risky' => true,
             '@Symfony' => true,
