@@ -38,6 +38,8 @@ class GroupCombination
     {
         $this->containingClass = $containingClass;
         $this->groups = $groups;
+        sort($this->groups);
+
         if (null !== $versions && 0 === \count($versions)) {
             throw new \InvalidArgumentException('Version list may not be empty. To generate without version, specify an empty string. To use the default versions, pass null.');
         }

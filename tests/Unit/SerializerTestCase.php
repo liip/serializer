@@ -19,8 +19,9 @@ class SerializerTestCase extends TestCase
 {
     /**
      * @param ModelParserInterface[] $parsers
+     * @param string[][]             $expectedRecursions List of expected recursions
      */
-    protected static function createMetadataBuilder(array $parsers, $expectedRecursions = []): Builder
+    protected static function createMetadataBuilder(array $parsers, array $expectedRecursions = []): Builder
     {
         return new Builder(new Parser($parsers), new RecursionChecker(null, $expectedRecursions));
     }

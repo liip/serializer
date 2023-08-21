@@ -113,7 +113,6 @@ final class SerializerGenerator
         array $serializerGroups,
         ClassMetadata $classMetadata
     ): void {
-        sort($serializerGroups);
         $functionName = self::buildSerializerFunctionName($className, $apiVersion, $serializerGroups);
 
         $code = $this->templating->renderFunction(
