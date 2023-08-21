@@ -2,6 +2,9 @@
 
 # Unreleased
 
+* Clean CI workflow: fix GitHub composer caches
+* Add rector-php analysis
+* Increase Phpstan check level to 7
 * Fix fallback to JMS serializer when the order of configured groups were
   not ordered as the ones in the generated PHP filenames.
   Keep consistent sorting on both Context and GroupCombination classes.
