@@ -38,7 +38,7 @@ class Versions
      *
      * @Serializer\SerializedName("changed")
      */
-    public function getChangedInV3()
+    public function getChangedInV3(): string
     {
         return mb_strtoupper($this->changed);
     }

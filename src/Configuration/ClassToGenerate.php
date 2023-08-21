@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace Liip\Serializer\Configuration;
 
+/**
+ * @implements \IteratorAggregate<int, GroupCombination>
+ */
 class ClassToGenerate implements \IteratorAggregate
 {
-    /**
-     * @var GeneratorConfiguration
-     */
-    private $configuration;
-
     /**
      * A list of group combinations, potentially with a version overwrite.
      *
@@ -18,28 +16,26 @@ class ClassToGenerate implements \IteratorAggregate
      *
      * @var GroupCombination[]
      */
-    private $groupCombinations = [];
-
-    /**
-     * Fully qualified class name.
-     *
-     * @var string
-     */
-    private $className;
+    private array $groupCombinations = [];
 
     /**
      * Overwrite global default list of versions to generate.
      *
      * @see GroupCombination::$versions
      *
-     * @var string[]|null
+     * @var list<string>|null
      */
-    private $defaultVersions;
+    private ?array $defaultVersions;
 
-    public function __construct(GeneratorConfiguration $configuration, string $className, array $defaultVersions = null)
-    {
-        $this->configuration = $configuration;
-        $this->className = $className;
+    /**
+     * @param class-string          $className
+     * @param list<string|int>|null $defaultVersions
+     */
+    public function __construct(
+        private GeneratorConfiguration $configuration,
+        private string $className,
+        array $defaultVersions = null
+    ) {
         $this->defaultVersions = null === $defaultVersions ? null : array_map('strval', $defaultVersions);
     }
 
@@ -48,6 +44,9 @@ class ClassToGenerate implements \IteratorAggregate
         return $this->className;
     }
 
+    /**
+     * @return list<string>
+     */
     public function getDefaultVersions(): array
     {
         if (null !== $this->defaultVersions) {

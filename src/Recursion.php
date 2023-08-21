@@ -10,6 +10,9 @@ use Liip\MetadataParser\Metadata\PropertyTypeClass;
 
 abstract class Recursion
 {
+    /**
+     * @param array<string, positive-int> $stack
+     */
     public static function check(string $className, array $stack, string $modelPath): bool
     {
         if (\array_key_exists($className, $stack) && $stack[$className] > 1) {
@@ -19,6 +22,9 @@ abstract class Recursion
         return false;
     }
 
+    /**
+     * @param array<string, positive-int> $stack
+     */
     public static function hasMaxDepthReached(PropertyMetadata $propertyMetadata, array $stack): bool
     {
         if (null === $propertyMetadata->getMaxDepth()) {

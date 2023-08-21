@@ -25,38 +25,19 @@ final class SerializerGenerator
 {
     private const FILENAME_PREFIX = 'serialize';
 
-    /**
-     * @var Serialization
-     */
-    private $templating;
-
-    /**
-     * @var GeneratorConfiguration
-     */
-    private $configuration;
-
-    /**
-     * @var string
-     */
-    private $cacheDirectory;
-
-    /**
-     * @var Filesystem
-     */
-    private $filesystem;
+    private Filesystem $filesystem;
 
     public function __construct(
-        Serialization $templating,
-        GeneratorConfiguration $configuration,
-        string $cacheDirectory
+        private Serialization $templating,
+        private GeneratorConfiguration $configuration,
+        private string $cacheDirectory
     ) {
-        $this->templating = $templating;
-        $this->configuration = $configuration;
-        $this->cacheDirectory = $cacheDirectory;
-
         $this->filesystem = new Filesystem();
     }
 
+    /**
+     * @param list<string> $serializerGroups
+     */
     public static function buildSerializerFunctionName(string $className, ?string $apiVersion, array $serializerGroups): string
     {
         $functionName = self::FILENAME_PREFIX.'_'.$className;
@@ -107,6 +88,9 @@ final class SerializerGenerator
         }
     }
 
+    /**
+     * @param list<string> $serializerGroups
+     */
     private function writeFile(
         string $className,
         ?string $apiVersion,
@@ -124,6 +108,10 @@ final class SerializerGenerator
         $this->filesystem->dumpFile(sprintf('%s/%s.php', $this->cacheDirectory, $functionName), $code);
     }
 
+    /**
+     * @param list<string>                $serializerGroups
+     * @param array<string, positive-int> $stack
+     */
     private function generateCodeForClass(
         ClassMetadata $classMetadata,
         ?string $apiVersion,
@@ -142,6 +130,10 @@ final class SerializerGenerator
         return $this->templating->renderClass($arrayPath, $code);
     }
 
+    /**
+     * @param list<string>                $serializerGroups
+     * @param array<string, positive-int> $stack
+     */
     private function generateCodeForField(
         PropertyMetadata $propertyMetadata,
         ?string $apiVersion,
@@ -175,6 +167,10 @@ final class SerializerGenerator
         );
     }
 
+    /**
+     * @param list<string>                $serializerGroups
+     * @param array<string, positive-int> $stack
+     */
     private function generateCodeForFieldType(
         PropertyType $type,
         ?string $apiVersion,
@@ -219,6 +215,10 @@ final class SerializerGenerator
         }
     }
 
+    /**
+     * @param list<string>                $serializerGroups
+     * @param array<string, positive-int> $stack
+     */
     private function generateCodeForArray(
         PropertyTypeArray $type,
         ?string $apiVersion,

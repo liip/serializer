@@ -9,15 +9,12 @@ namespace Liip\Serializer;
  */
 final class Context
 {
-    /**
-     * @var string
-     */
-    private $version;
+    private ?string $version = null;
 
     /**
      * @var string[]
      */
-    private $groups = [];
+    private array $groups = [];
 
     public function __construct()
     {

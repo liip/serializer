@@ -30,10 +30,7 @@ use Tests\Liip\Serializer\Fixtures\VirtualProperties;
  */
 class DeserializerGeneratorTest extends SerializerTestCase
 {
-    /**
-     * @var Builder
-     */
-    private static $metadataBuilder;
+    private static Builder $metadataBuilder;
 
     public static function setUpBeforeClass(): void
     {

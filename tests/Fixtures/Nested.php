@@ -12,6 +12,8 @@ class Nested
      * @Serializer\Type("string")
      *
      * @Serializer\Groups({"api"})
+     *
+     * @var string
      */
     public $nestedString;
 
@@ -22,7 +24,7 @@ class Nested
      *
      * @Serializer\Accessor(getter="getArray")
      */
-    public $array;
+    public ?array $array = null;
 
     public function __construct(string $nestedString = '')
     {

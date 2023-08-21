@@ -10,29 +10,23 @@ class NonEmptyConstructor
 {
     private const FOOBAR = 'bar';
 
-    /**
-     * @Serializer\Type("string")
-     */
-    private $apiString;
-
-    /**
-     * @Serializer\Exclude
-     */
-    private $onlyArgument;
-
-    /**
-     * @Serializer\Type("string")
-     */
-    private $optional;
-
-    public function __construct(string $apiString, array $onlyArgument = ['foo', self::FOOBAR], string $optional = 'optional')
-    {
-        $this->apiString = $apiString;
-        $this->onlyArgument = $onlyArgument;
-        $this->optional = $optional;
+    public function __construct(
+        /**
+         * @Serializer\Type("string")
+         */
+        private string $apiString,
+        /**
+         * @Serializer\Exclude
+         */
+        private array $onlyArgument = ['foo', self::FOOBAR],
+        /**
+         * @Serializer\Type("string")
+         */
+        private string $optional = 'optional'
+    ) {
     }
 
-    public function getApiString()
+    public function getApiString(): string
     {
         return $this->apiString;
     }
@@ -42,7 +36,7 @@ class NonEmptyConstructor
         return $this->onlyArgument;
     }
 
-    public function getOptional()
+    public function getOptional(): string
     {
         return $this->optional;
     }

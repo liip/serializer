@@ -26,12 +26,12 @@ jobs:
         with:
           php-version: ${{ matrix.php-version }}
       - name: Remove dev tools to not interfere with dependencies
-        run: composer remove --dev friendsofphp/php-cs-fixer phpstan/phpstan-phpunit phpstan/phpstan
+        run: composer remove --dev friendsofphp/php-cs-fixer phpstan/phpstan-phpunit phpstan/phpstan rector/rector
       - name: Composer cache
         uses: actions/cache@v3
         with:
           path: ${{ env.HOME }}/.composer/cache
-          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.json') }}
       - name: Install dependencies
         run: composer update ${{ matrix.composer-flags }} --prefer-dist --no-interaction
       - name: Run tests

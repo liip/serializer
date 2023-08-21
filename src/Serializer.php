@@ -18,14 +18,8 @@ use Pnz\JsonException\Json;
  */
 final class Serializer implements SerializerInterface
 {
-    /**
-     * @var string
-     */
-    private $cacheDirectory;
-
-    public function __construct(string $cacheDirectory)
+    public function __construct(private string $cacheDirectory)
     {
-        $this->cacheDirectory = $cacheDirectory;
     }
 
     /**
@@ -34,7 +28,7 @@ final class Serializer implements SerializerInterface
      * Serializing primitive types is not currently implemented and will lead
      * to an UnsupportedTypeException.
      */
-    public function serialize($data, string $format, Context $context = null): string
+    public function serialize(mixed $data, string $format, Context $context = null): string
     {
         if ('json' !== $format) {
             throw new UnsupportedFormatException('Liip serializer only supports JSON for now');
@@ -43,7 +37,7 @@ final class Serializer implements SerializerInterface
         try {
             return Json::encode($this->objectToArray($data, true, $context), \JSON_UNESCAPED_SLASHES);
         } catch (\JsonException $e) {
-            throw new Exception(sprintf('Failed to JSON encode data for %s. This is not supposed to happen.', \is_object($data) ? $data::class : \gettype($data)), 0, $e);
+            throw new Exception(sprintf('Failed to JSON encode data for %s. This is not supposed to happen.', get_debug_type($data)), 0, $e);
         }
     }
 
@@ -90,7 +84,10 @@ final class Serializer implements SerializerInterface
         return $this->arrayToObject($data, $type, $context);
     }
 
-    private function arrayToObject(array $data, string $type, ?Context $context)
+    /**
+     * @param mixed[] $data
+     */
+    private function arrayToObject(array $data, string $type, ?Context $context): mixed
     {
         if ($context && ($context->getVersion() || \count($context->getGroups()))) {
             throw new Exception('Version and group support is not implemented for deserialization. It is only supported for serialization');
@@ -114,7 +111,10 @@ final class Serializer implements SerializerInterface
         }
     }
 
-    private function objectToArray($data, bool $useStdClass, ?Context $context): array
+    /**
+     * @return mixed[]
+     */
+    private function objectToArray(mixed $data, bool $useStdClass, ?Context $context): array
     {
         if (!\is_object($data)) {
             throw new UnsupportedTypeException('The Liip Serializer only works for objects');

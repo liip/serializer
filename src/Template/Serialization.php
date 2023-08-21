@@ -92,10 +92,7 @@ EOT;
 
     private const TMPL_TEMP_VAR = '${{name}} = {{value}}';
 
-    /**
-     * @var Environment
-     */
-    private $twig;
+    private Environment $twig;
 
     public function __construct()
     {
@@ -209,6 +206,9 @@ EOT;
         ]);
     }
 
+    /**
+     * @param array<string, mixed> $parameters
+     */
     private function render(string $template, array $parameters): string
     {
         $tmpl = $this->twig->createTemplate($template);
