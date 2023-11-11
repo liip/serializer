@@ -212,12 +212,9 @@ final class DeserializerGenerator
                 return $this->generateCodeForArray($type, $arrayPath, $modelPropertyPath, $stack);
 
             case $type instanceof PropertyTypeDateTime:
-                if (null !== $type->getZone()) {
-                    throw new \RuntimeException('Timezone support is not implemented');
-                }
-                $format = $type->getDeserializeFormat() ?: $type->getFormat();
+                $format = $type->getDeserializeFormats() ?: (is_string($type->getFormat()) ? [$type->getFormat()] : $type->getFormat());
                 if (null !== $format) {
-                    return $this->templating->renderAssignDateTimeFromFormat($type->isImmutable(), (string) $modelPropertyPath, (string) $arrayPath, $format);
+                    return $this->templating->renderAssignDateTimeFromFormat($type->isImmutable(), (string) $modelPropertyPath, (string) $arrayPath, $format, $type->getZone());
                 }
 
                 return $this->templating->renderAssignDateTimeToField($type->isImmutable(), (string) $modelPropertyPath, (string) $arrayPath);
