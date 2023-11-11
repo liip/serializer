@@ -212,9 +212,12 @@ final class DeserializerGenerator
                 return $this->generateCodeForArray($type, $arrayPath, $modelPropertyPath, $stack);
 
             case $type instanceof PropertyTypeDateTime:
-                $format = $type->getDeserializeFormats() ?: (\is_string($type->getFormat()) ? [$type->getFormat()] : $type->getFormat());
-                if (null !== $format) {
-                    return $this->templating->renderAssignDateTimeFromFormat($type->isImmutable(), (string) $modelPropertyPath, (string) $arrayPath, $format, $type->getZone());
+                // todo: remove use of deprecated method {@link \Liip\MetadataParser\Metadata\PropertyTypeDateTime::getDeserializeFormat}
+                $formats = method_exists($type, 'getDeserializeFormats') ? $type->getDeserializeFormats() : null;
+                $singleFormat = $type->getDeserializeFormat() ?: $type->getFormat();
+                $formats = $formats ?: (\is_string($singleFormat) ? [$singleFormat] : $singleFormat);
+                if (null !== $formats) {
+                    return $this->templating->renderAssignDateTimeFromFormat($type->isImmutable(), (string) $modelPropertyPath, (string) $arrayPath, $formats, $type->getZone());
                 }
 
                 return $this->templating->renderAssignDateTimeToField($type->isImmutable(), (string) $modelPropertyPath, (string) $arrayPath);
