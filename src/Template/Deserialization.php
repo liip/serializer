@@ -208,12 +208,12 @@ EOT;
         ]);
     }
 
-    public function renderAssignDateTimeFromFormat(bool $immutable, string $modelPath, string $jsonPath, array|string $formats, ?string $timezone = null): string
+    public function renderAssignDateTimeFromFormat(bool $immutable, string $modelPath, string $jsonPath, array|string $formats, string $timezone = null): string
     {
         $template = $immutable ? self::TMPL_ASSIGN_DATETIME_IMMUTABLE_FROM_FORMAT : self::TMPL_ASSIGN_DATETIME_FROM_FORMAT;
         $formatVariable = preg_replace_callback(
-            '/(^|[^a-zA-Z]+|\d+)([a-zA-Z])/',
-            fn($match) => (ctype_digit($match[1]) ? $match[1] : null).mb_strtoupper($match[2]),
+            '/([^a-zA-Z]+|\d+)([a-zA-Z])/',
+            static fn ($match) => (ctype_digit($match[1]) ? $match[1] : null).mb_strtoupper($match[2]),
             $modelPath
         );
 
@@ -222,9 +222,9 @@ EOT;
             'jsonPath' => $jsonPath,
             'formats' => array_map(
                 static fn (string $f) => var_export($f, true),
-                is_string($formats) ? [$formats] : $formats
+                \is_string($formats) ? [$formats] : $formats
             ),
-            'formatVariable' => '$'.$formatVariable,
+            'formatVariable' => '$'.lcfirst($formatVariable),
             'timezone' => $timezone ? 'new \DateTimeZone('.var_export($timezone, true).')' : 'null',
         ]);
     }
