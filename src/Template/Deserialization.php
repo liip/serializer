@@ -208,6 +208,9 @@ EOT;
         ]);
     }
 
+    /**
+     * @param list<string>|string $formats
+     */
     public function renderAssignDateTimeFromFormat(bool $immutable, string $modelPath, string $jsonPath, array|string $formats, string $timezone = null): string
     {
         $template = $immutable ? self::TMPL_ASSIGN_DATETIME_IMMUTABLE_FROM_FORMAT : self::TMPL_ASSIGN_DATETIME_FROM_FORMAT;
