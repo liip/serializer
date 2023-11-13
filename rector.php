@@ -21,7 +21,6 @@ use Rector\TypeDeclaration\Rector\ClassMethod\ReturnTypeFromStrictScalarReturnEx
 use Rector\TypeDeclaration\Rector\ClassMethod\ReturnTypeFromStrictTypedCallRector;
 use Rector\TypeDeclaration\Rector\ClassMethod\ReturnTypeFromStrictTypedPropertyRector;
 use Rector\TypeDeclaration\Rector\Param\ParamTypeFromStrictTypedPropertyRector;
-use Rector\TypeDeclaration\Rector\Property\TypedPropertyFromStrictConstructorReadonlyClassRector;
 use Rector\TypeDeclaration\Rector\Property\TypedPropertyFromStrictConstructorRector;
 use Rector\TypeDeclaration\Rector\Property\TypedPropertyFromStrictGetterMethodReturnTypeRector;
 use Rector\TypeDeclaration\Rector\Property\TypedPropertyFromStrictSetUpRector;
@@ -43,7 +42,6 @@ return static function (RectorConfig $rectorConfig): void {
         ReturnTypeFromStrictTypedCallRector::class,
         ReturnTypeFromStrictTypedPropertyRector::class,
         PropertyTypeFromStrictSetterGetterRector::class,
-        TypedPropertyFromStrictConstructorReadonlyClassRector::class,
         TypedPropertyFromStrictConstructorRector::class,
         TypedPropertyFromStrictGetterMethodReturnTypeRector::class,
         TypedPropertyFromStrictSetUpRector::class,

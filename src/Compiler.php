@@ -12,8 +12,7 @@ final class Compiler
         private Builder $metadataBuilder,
         private DeserializerGenerator $deserializerGenerator,
         private SerializerGenerator $serializerGenerator
-    ) {
-    }
+    ) {}
 
     public function compile(): void
     {

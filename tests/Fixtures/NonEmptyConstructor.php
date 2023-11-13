@@ -23,8 +23,7 @@ class NonEmptyConstructor
          * @Serializer\Type("string")
          */
         private string $optional = 'optional'
-    ) {
-    }
+    ) {}
 
     public function getApiString(): string
     {

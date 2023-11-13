@@ -6,9 +6,7 @@ namespace Liip\Serializer\Path;
 
 abstract class AbstractEntry implements \Stringable
 {
-    public function __construct(private string $path)
-    {
-    }
+    public function __construct(private string $path) {}
 
     abstract public function __toString(): string;
 
