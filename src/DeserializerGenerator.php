@@ -213,9 +213,7 @@ final class DeserializerGenerator
 
             case $type instanceof PropertyTypeDateTime:
                 // todo: remove use of deprecated method {@link \Liip\MetadataParser\Metadata\PropertyTypeDateTime::getDeserializeFormat}
-                $formats = method_exists($type, 'getDeserializeFormats') ? $type->getDeserializeFormats() : null;
-                $singleFormat = $type->getDeserializeFormat() ?: $type->getFormat();
-                $formats = $formats ?: (\is_string($singleFormat) ? [$singleFormat] : $singleFormat);
+                $formats = $type->getDeserializeFormats() ?: (\is_string($type->getFormat()) ? [$type->getFormat()] : $type->getFormat());
                 if (null !== $formats) {
                     return $this->templating->renderAssignDateTimeFromFormat($type->isImmutable(), (string) $modelPropertyPath, (string) $arrayPath, $formats, $type->getZone());
                 }

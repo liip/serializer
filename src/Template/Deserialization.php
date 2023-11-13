@@ -62,14 +62,14 @@ EOT;
 EOT;
 
     private const TMPL_ASSIGN_DATETIME_FROM_FORMAT = <<<'EOT'
-foreach([{{formats|join(', ')}}] as {{formatVariable}}) {
-    if (({{formatVariable}} = \DateTime::createFromFormat({{formatVariable}}, {{jsonPath}}, {{timezone}}))) {
-        {{modelPath}} = {{formatVariable}};
+foreach([{{formats|join(', ')}}] as {{format}}) {
+    if (({{date}} = \DateTime::createFromFormat({{format}}, {{jsonPath}}, {{timezone}}))) {
+        {{modelPath}} = {{date}};
         break;
     }
 }
 
-if (false === ({{formatVariable}} ?? null)) {
+if (false === ({{date}} ?? null)) {
     throw new \Exception('Invalid datetime string '.({{jsonPath}}).' matches none of the deserialization formats '.({{formats|join('|')}}));
 }
 
@@ -81,14 +81,14 @@ EOT;
 EOT;
 
     private const TMPL_ASSIGN_DATETIME_IMMUTABLE_FROM_FORMAT = <<<'EOT'
-foreach([{{formats|join(', ')}}] as {{formatVariable}}) {
-    if (({{formatVariable}} = \DateTimeImmutable::createFromFormat({{formatVariable}}, {{jsonPath}}, {{timezone}}))) {
-        {{modelPath}} = {{formatVariable}};
+foreach([{{formats|join(', ')}}] as {{format}}) {
+    if (({{date}} = \DateTimeImmutable::createFromFormat({{format}}, {{jsonPath}}, {{timezone}}))) {
+        {{modelPath}} = {{date}};
         break;
     }
 }
 
-if (false === ({{formatVariable}} ?? null)) {
+if (false === ({{date}} ?? null)) {
     throw new \Exception('Invalid datetime string '.({{jsonPath}}).' matches none of the deserialization formats '.({{formats|join('|')}}));
 }
 
@@ -214,20 +214,22 @@ EOT;
     public function renderAssignDateTimeFromFormat(bool $immutable, string $modelPath, string $jsonPath, array|string $formats, string $timezone = null): string
     {
         $template = $immutable ? self::TMPL_ASSIGN_DATETIME_IMMUTABLE_FROM_FORMAT : self::TMPL_ASSIGN_DATETIME_FROM_FORMAT;
+        $formats = array_map(
+            static fn (string $f): string => var_export($f, true),
+            \is_string($formats) ? [$formats] : $formats
+        );
         $formatVariable = preg_replace_callback(
             '/([^a-zA-Z]+|\d+)([a-zA-Z])/',
-            static fn ($match) => (ctype_digit($match[1]) ? $match[1] : null).mb_strtoupper($match[2]),
+            static fn ($match): string => (ctype_digit($match[1]) ? $match[1] : null).mb_strtoupper($match[2]),
             $modelPath
         );
 
         return $this->render($template, [
             'modelPath' => $modelPath,
             'jsonPath' => $jsonPath,
-            'formats' => array_map(
-                static fn (string $f) => var_export($f, true),
-                \is_string($formats) ? [$formats] : $formats
-            ),
-            'formatVariable' => '$'.lcfirst($formatVariable),
+            'formats' => $formats,
+            'format' => '$'.lcfirst($formatVariable),
+            'date' => '$'.lcfirst($formatVariable).'Date',
             'timezone' => $timezone ? 'new \DateTimeZone('.var_export($timezone, true).')' : 'null',
         ]);
     }
