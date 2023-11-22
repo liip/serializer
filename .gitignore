@@ -13,3 +13,7 @@
 /.php-cs-fixer
 /.php-cs-fixer.cache
 ###< friendsofphp/php-cs-fixer ###
+
+###> PHPStorm IDE ###
+.idea
+###< PHPStorm IDE ###
