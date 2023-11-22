@@ -24,58 +24,26 @@ final class DeserializerGenerator
 {
     private const FILENAME_PREFIX = 'deserialize';
 
-    /**
-     * @var Deserialization
-     */
-    private $templating;
+    private Filesystem $filesystem;
+
+    private GeneratorConfiguration $configuration;
 
     /**
-     * @var Filesystem
-     */
-    private $filesystem;
-
-    /**
-     * This is a list of fqn classnames
-     *
-     * I.e.
-     *
-     * [
-     *    Product::class,
-     * ];
-     *
-     * @var array
-     */
-    private $classesToGenerate;
-
-    /**
-     * @var string
-     */
-    private $cacheDirectory;
-
-    /**
-     * @var GeneratorConfiguration
-     */
-    private $configuration;
-
-    /**
-     * @param string[] $classesToGenerate
+     * @param list<class-string> $classesToGenerate This is a list of FQCN classnames
      */
     public function __construct(
-        Deserialization $templating,
+        private Deserialization $templating,
         array $classesToGenerate,
-        string $cacheDirectory,
+        private string $cacheDirectory,
         GeneratorConfiguration $configuration = null
     ) {
-
-        $this->templating = $templating;
-        $this->cacheDirectory = $cacheDirectory;
         $this->filesystem = new Filesystem();
         $this->configuration = $this->createGeneratorConfiguration($configuration, $classesToGenerate);
     }
 
     public static function buildDeserializerFunctionName(string $className): string
     {
-        return static::FILENAME_PREFIX.'_'.str_replace('\\', '_', $className);
+        return self::FILENAME_PREFIX.'_'.str_replace('\\', '_', $className);
     }
 
     public function generate(Builder $metadataBuilder): void
@@ -99,7 +67,7 @@ final class DeserializerGenerator
             throw new \Exception(sprintf('We currently do not support deserializing when the root class has a non-empty constructor. Class %s', $classMetadata->getClassName()));
         }
 
-        $functionName = static::buildDeserializerFunctionName($classMetadata->getClassName());
+        $functionName = self::buildDeserializerFunctionName($classMetadata->getClassName());
         $arrayPath = new ArrayPath('jsonData');
 
         $code = $this->templating->renderFunction(
@@ -112,6 +80,9 @@ final class DeserializerGenerator
         $this->filesystem->dumpFile(sprintf('%s/%s.php', $this->cacheDirectory, $functionName), $code);
     }
 
+    /**
+     * @param array<string, positive-int> $stack
+     */
     private function generateCodeForClass(
         ClassMetadata $classMetadata,
         ArrayPath $arrayPath,
@@ -172,6 +143,9 @@ final class DeserializerGenerator
         return $this->templating->renderClass((string) $modelPath, $classMetadata->getClassName(), $constructorArguments, $code, $initCode);
     }
 
+    /**
+     * @param array<string, positive-int> $stack
+     */
     private function generateCodeForProperty(
         PropertyMetadata $propertyMetadata,
         ArrayPath $arrayPath,
@@ -181,7 +155,7 @@ final class DeserializerGenerator
         if ($propertyMetadata->isReadOnly()) {
             return '';
         }
-        
+
         if (Recursion::hasMaxDepthReached($propertyMetadata, $stack)) {
             return '';
         }
@@ -203,6 +177,9 @@ final class DeserializerGenerator
         return $this->generateCodeForField($propertyMetadata, $arrayPath, $modelPropertyPath, $stack);
     }
 
+    /**
+     * @param array<string, positive-int> $stack
+     */
     private function generateCodeForField(
         PropertyMetadata $propertyMetadata,
         ArrayPath $arrayPath,
@@ -215,6 +192,9 @@ final class DeserializerGenerator
         );
     }
 
+    /**
+     * @param array<string, positive-int> $stack
+     */
     private function generateInnerCodeForFieldType(
         PropertyMetadata $propertyMetadata,
         ArrayPath $arrayPath,
@@ -253,10 +233,13 @@ final class DeserializerGenerator
                 return $this->generateCodeForClass($type->getClassMetadata(), $arrayPath, $modelPropertyPath, $stack);
 
             default:
-                throw new \Exception('Unexpected type '.\get_class($type).' at '.$modelPropertyPath);
+                throw new \Exception('Unexpected type '.$type::class.' at '.$modelPropertyPath);
         }
     }
 
+    /**
+     * @param array<string, positive-int> $stack
+     */
     private function generateCodeForArray(
         PropertyTypeArray $type,
         ArrayPath $arrayPath,
@@ -286,7 +269,7 @@ final class DeserializerGenerator
                 return $this->templating->renderAssignJsonDataToField((string) $modelPath, (string) $arrayPath);
 
             default:
-                throw new \Exception('Unexpected array subtype '.\get_class($subType));
+                throw new \Exception('Unexpected array subtype '.$subType::class);
         }
 
         if ('' === $innerCode) {
@@ -299,6 +282,9 @@ final class DeserializerGenerator
         return $code;
     }
 
+    /**
+     * @param array<string, positive-int> $stack
+     */
     private function generateCodeForArrayCollection(
         PropertyMetadata $propertyMetadata,
         PropertyTypeArray $type,
@@ -313,13 +299,16 @@ final class DeserializerGenerator
             return '';
         }
 
-        $code = $innerCode . $this->templating->renderArrayCollection((string) $modelPath, (string) $tmpVariable);
-
-        return $code;
+        return $innerCode.$this->templating->renderArrayCollection((string) $modelPath, (string) $tmpVariable);
     }
 
-    private function createGeneratorConfiguration(?GeneratorConfiguration $configuration, array $classesToGenerate): GeneratorConfiguration
-    {
+    /**
+     * @param list<class-string> $classesToGenerate
+     */
+    private function createGeneratorConfiguration(
+        ?GeneratorConfiguration $configuration,
+        array $classesToGenerate
+    ): GeneratorConfiguration {
         if (null === $configuration) {
             $configuration = new GeneratorConfiguration([], []);
         }

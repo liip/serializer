@@ -25,41 +25,22 @@ final class SerializerGenerator
 {
     private const FILENAME_PREFIX = 'serialize';
 
-    /**
-     * @var Serialization
-     */
-    private $templating;
-
-    /**
-     * @var GeneratorConfiguration
-     */
-    private $configuration;
-
-    /**
-     * @var string
-     */
-    private $cacheDirectory;
-
-    /**
-     * @var Filesystem
-     */
-    private $filesystem;
+    private Filesystem $filesystem;
 
     public function __construct(
-        Serialization $templating,
-        GeneratorConfiguration $configuration,
-        string $cacheDirectory
+        private Serialization $templating,
+        private GeneratorConfiguration $configuration,
+        private string $cacheDirectory
     ) {
-        $this->templating = $templating;
-        $this->configuration = $configuration;
-        $this->cacheDirectory = $cacheDirectory;
-
         $this->filesystem = new Filesystem();
     }
 
+    /**
+     * @param list<string> $serializerGroups
+     */
     public static function buildSerializerFunctionName(string $className, ?string $apiVersion, array $serializerGroups): string
     {
-        $functionName = static::FILENAME_PREFIX.'_'.$className;
+        $functionName = self::FILENAME_PREFIX.'_'.$className;
         if (\count($serializerGroups)) {
             $functionName .= '_'.implode('_', $serializerGroups);
         }
@@ -107,14 +88,16 @@ final class SerializerGenerator
         }
     }
 
+    /**
+     * @param list<string> $serializerGroups
+     */
     private function writeFile(
         string $className,
         ?string $apiVersion,
         array $serializerGroups,
         ClassMetadata $classMetadata
     ): void {
-        sort($serializerGroups);
-        $functionName = static::buildSerializerFunctionName($className, $apiVersion, $serializerGroups);
+        $functionName = self::buildSerializerFunctionName($className, $apiVersion, $serializerGroups);
 
         $code = $this->templating->renderFunction(
             $functionName,
@@ -125,6 +108,10 @@ final class SerializerGenerator
         $this->filesystem->dumpFile(sprintf('%s/%s.php', $this->cacheDirectory, $functionName), $code);
     }
 
+    /**
+     * @param list<string>                $serializerGroups
+     * @param array<string, positive-int> $stack
+     */
     private function generateCodeForClass(
         ClassMetadata $classMetadata,
         ?string $apiVersion,
@@ -143,6 +130,10 @@ final class SerializerGenerator
         return $this->templating->renderClass($arrayPath, $code);
     }
 
+    /**
+     * @param list<string>                $serializerGroups
+     * @param array<string, positive-int> $stack
+     */
     private function generateCodeForField(
         PropertyMetadata $propertyMetadata,
         ?string $apiVersion,
@@ -176,6 +167,10 @@ final class SerializerGenerator
         );
     }
 
+    /**
+     * @param list<string>                $serializerGroups
+     * @param array<string, positive-int> $stack
+     */
     private function generateCodeForFieldType(
         PropertyType $type,
         ?string $apiVersion,
@@ -208,10 +203,14 @@ final class SerializerGenerator
                 return $this->generateCodeForArray($type, $apiVersion, $serializerGroups, $fieldPath, $modelPropertyPath, $stack);
 
             default:
-                throw new \Exception('Unexpected type '.\get_class($type).' at '.$modelPropertyPath);
+                throw new \Exception('Unexpected type '.$type::class.' at '.$modelPropertyPath);
         }
     }
 
+    /**
+     * @param list<string>                $serializerGroups
+     * @param array<string, positive-int> $stack
+     */
     private function generateCodeForArray(
         PropertyTypeArray $type,
         ?string $apiVersion,
@@ -220,7 +219,7 @@ final class SerializerGenerator
         string $modelPath,
         array $stack
     ): string {
-        $index = '$index'.\mb_strlen($arrayPath);
+        $index = '$index'.mb_strlen($arrayPath);
         $subType = $type->getSubType();
 
         switch ($subType) {
@@ -237,7 +236,7 @@ final class SerializerGenerator
                 return $this->templating->renderArrayAssign($arrayPath, $modelPath);
 
             default:
-                throw new \Exception('Unexpected array subtype '.\get_class($subType));
+                throw new \Exception('Unexpected array subtype '.$subType::class);
         }
 
         if ('' === $innerCode) {

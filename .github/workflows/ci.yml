@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches:
-      - 'master'
+      - '*.x'
     tags:
       - '[0-9].[0-9]+'
   pull_request:
@@ -14,28 +14,25 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php-version: ['7.2', '7.3', '7.4', '8.0', '8.1']
+        php-version: ['8.0', '8.1', '8.2']
         include:
-          - php-version: '7.2'
+          - php-version: '8.0'
             composer-flags: '--prefer-stable --prefer-lowest'
     steps:
       - name: Check out code into the workspace
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup PHP ${{ matrix.php-version }}
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
-      - name: Validate composer.json
-        run: composer validate --strict --no-check-lock
+      - name: Remove dev tools to not interfere with dependencies
+        run: composer remove --dev friendsofphp/php-cs-fixer phpstan/phpstan-phpunit phpstan/phpstan rector/rector
       - name: Composer cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ${{ env.HOME }}/.composer/cache
-          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.json') }}
       - name: Install dependencies
         run: composer update ${{ matrix.composer-flags }} --prefer-dist --no-interaction
-      - name: PHPStan
-        if: ${{ matrix.php-version == '7.3' }}
-        run: composer phpstan-all
       - name: Run tests
         run: composer phpunit

@@ -9,19 +9,14 @@ namespace Liip\Serializer;
  */
 final class Context
 {
-    /**
-     * @var string
-     */
-    private $version;
+    private ?string $version = null;
 
     /**
      * @var string[]
      */
-    private $groups = [];
+    private array $groups = [];
 
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * @return string[]
@@ -37,6 +32,7 @@ final class Context
     public function setGroups(array $groups): self
     {
         $this->groups = array_unique($groups);
+        sort($this->groups);
 
         return $this;
     }

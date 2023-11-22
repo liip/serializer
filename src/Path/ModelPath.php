@@ -7,12 +7,12 @@ namespace Liip\Serializer\Path;
 /**
  * Representation of a model path in PHP, e.g. $model->property1[$index]->property2, used for code generation.
  */
-final class ModelPath
+final class ModelPath implements \Stringable
 {
     /**
      * @var AbstractEntry[]
      */
-    private $path = [];
+    private array $path = [];
 
     public function __construct(string $root)
     {
@@ -25,14 +25,12 @@ final class ModelPath
     }
 
     /**
-     * @var string[]
+     * @param string[] $components
      */
     public static function tempVariable(array $components): self
     {
         $components = array_map(
-            static function (string $component): string {
-                return ucfirst(str_replace(['->', '[', ']', '$'], '', $component));
-            },
+            static fn (string $component): string => ucfirst(str_replace(['->', '[', ']', '$'], '', $component)),
             $components
         );
 
@@ -41,7 +39,7 @@ final class ModelPath
 
     public static function indexVariable(string $path): self
     {
-        return new self('index'.\mb_strlen($path));
+        return new self('index'.mb_strlen($path));
     }
 
     public function withPath(string $component): self

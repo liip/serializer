@@ -10,15 +10,17 @@ class PrivateProperty
 {
     /**
      * @Serializer\Type("string")
+     *
      * @Serializer\Accessor(getter="getExtra", setter="setExtra")
      */
     protected $extra;
 
     /**
      * @Serializer\Type("string")
+     *
      * @Serializer\Accessor(getter="getApiString", setter="setApiString")
      */
-    private $apiString;
+    private ?string $apiString = null;
 
     public function getExtra()
     {
@@ -30,7 +32,7 @@ class PrivateProperty
         $this->extra = $extra;
     }
 
-    public function getApiString()
+    public function getApiString(): ?string
     {
         return $this->apiString;
     }

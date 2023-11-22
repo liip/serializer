@@ -10,12 +10,14 @@ class Model
 {
     /**
      * @Serializer\Type("string")
+     *
      * @Serializer\Groups({"api"})
      */
     public $apiString;
 
     /**
      * @Serializer\Type("string")
+     *
      * @Serializer\Groups({"details"})
      */
     public $detailString;

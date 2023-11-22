@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
-function deserialize_Tests_Liip_Serializer_Fixtures_SerializerModel(array $data)
+use Tests\Liip\Serializer\Fixtures\SerializerModel;
+
+function deserialize_Tests_Liip_Serializer_Fixtures_SerializerModel(array $data): SerializerModel
 {
-    $model = new Tests\Liip\Serializer\Fixtures\SerializerModel();
+    $model = new SerializerModel();
     $model->field = 'deserializer';
 
     return $model;

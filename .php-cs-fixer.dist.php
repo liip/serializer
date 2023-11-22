@@ -2,14 +2,21 @@
 
 declare(strict_types=1);
 
-$finder = PhpCsFixer\Finder::create()
-    ->in(__DIR__)
-;
+$config = new PhpCsFixer\Config();
 
-return PhpCsFixer\Config::create()
+$config->setFinder(
+    PhpCsFixer\Finder::create()
+        ->in([
+            __DIR__,
+        ]),
+);
+
+return $config
     ->setRiskyAllowed(true)
+    ->setCacheFile('.cache/php-cs-fixer.cache')
     ->setRules(
         [
+            '@PSR12' => true,
             '@PhpCsFixer' => true,
             '@PhpCsFixer:risky' => true,
             '@Symfony' => true,
@@ -47,5 +54,4 @@ return PhpCsFixer\Config::create()
             'strict_comparison' => false,
         ]
     )
-    ->setFinder($finder)
 ;

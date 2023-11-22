@@ -18,15 +18,7 @@ use Pnz\JsonException\Json;
  */
 final class Serializer implements SerializerInterface
 {
-    /**
-     * @var string
-     */
-    private $cacheDirectory;
-
-    public function __construct(string $cacheDirectory)
-    {
-        $this->cacheDirectory = $cacheDirectory;
-    }
+    public function __construct(private string $cacheDirectory) {}
 
     /**
      * {@inheritdoc}
@@ -34,7 +26,7 @@ final class Serializer implements SerializerInterface
      * Serializing primitive types is not currently implemented and will lead
      * to an UnsupportedTypeException.
      */
-    public function serialize($data, string $format, ?Context $context = null): string
+    public function serialize(mixed $data, string $format, Context $context = null): string
     {
         if ('json' !== $format) {
             throw new UnsupportedFormatException('Liip serializer only supports JSON for now');
@@ -43,7 +35,7 @@ final class Serializer implements SerializerInterface
         try {
             return Json::encode($this->objectToArray($data, true, $context), \JSON_UNESCAPED_SLASHES);
         } catch (\JsonException $e) {
-            throw new Exception(sprintf('Failed to JSON encode data for %s. This is not supposed to happen.', \is_object($data) ? \get_class($data) : \gettype($data)), 0, $e);
+            throw new Exception(sprintf('Failed to JSON encode data for %s. This is not supposed to happen.', get_debug_type($data)), 0, $e);
         }
     }
 
@@ -53,7 +45,7 @@ final class Serializer implements SerializerInterface
      * Version or groups are currently not implemented for deserialization and
      * passing a context with one of those values set will lead to an Exception.
      */
-    public function deserialize(string $data, string $type, string $format, ?Context $context = null)
+    public function deserialize(string $data, string $type, string $format, Context $context = null): mixed
     {
         if ('json' !== $format) {
             throw new UnsupportedFormatException('Liip serializer only supports JSON for now');
@@ -74,7 +66,7 @@ final class Serializer implements SerializerInterface
      * Serializing primitive types is not currently implemented and will lead
      * to an UnsupportedTypeException.
      */
-    public function toArray($data, ?Context $context = null): array
+    public function toArray($data, Context $context = null): array
     {
         return $this->objectToArray($data, false, $context);
     }
@@ -85,12 +77,15 @@ final class Serializer implements SerializerInterface
      * Version or groups are currently not implemented for deserialization and
      * passing a context with one of those values set will lead to an Exception.
      */
-    public function fromArray(array $data, string $type, ?Context $context = null)
+    public function fromArray(array $data, string $type, Context $context = null): mixed
     {
         return $this->arrayToObject($data, $type, $context);
     }
 
-    private function arrayToObject(array $data, string $type, ?Context $context)
+    /**
+     * @param mixed[] $data
+     */
+    private function arrayToObject(array $data, string $type, ?Context $context): mixed
     {
         if ($context && ($context->getVersion() || \count($context->getGroups()))) {
             throw new Exception('Version and group support is not implemented for deserialization. It is only supported for serialization');
@@ -114,12 +109,15 @@ final class Serializer implements SerializerInterface
         }
     }
 
-    private function objectToArray($data, bool $useStdClass, ?Context $context): array
+    /**
+     * @return mixed[]
+     */
+    private function objectToArray(mixed $data, bool $useStdClass, ?Context $context): array
     {
         if (!\is_object($data)) {
             throw new UnsupportedTypeException('The Liip Serializer only works for objects');
         }
-        $type = \get_class($data);
+        $type = $data::class;
         $groups = [];
         $version = null;
         if ($context) {
@@ -128,9 +126,9 @@ final class Serializer implements SerializerInterface
                 $version = $context->getVersion();
             }
         }
-        $functionName = SerializerGenerator::buildSerializerFunctionName($type, $version ? (string) $version : null, $groups);
+        $functionName = SerializerGenerator::buildSerializerFunctionName($type, $version ?: null, $groups);
         $filename = sprintf('%s/%s.php', $this->cacheDirectory, $functionName);
-        if (!\file_exists($filename)) {
+        if (!file_exists($filename)) {
             throw UnsupportedTypeException::typeUnsupportedSerialization($type, $version, $groups);
         }
 

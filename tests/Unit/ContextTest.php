@@ -16,6 +16,6 @@ class ContextTest extends TestCase
     {
         $context = new Context();
         $context->setGroups(['a', 'b', 'a']);
-        static::assertSame(['a', 'b'], $context->getGroups());
+        self::assertSame(['a', 'b'], $context->getGroups());
     }
 }

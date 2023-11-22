@@ -57,7 +57,7 @@ EOT;
 if ({{propertyAccessor}} instanceof \Doctrine\Common\Collections\Collection) {
     {{indexVariable}}Array = {{propertyAccessor}}->toArray();
 }
-    
+
 $jsonData{{jsonPath}} = [];
 foreach (array_keys({{indexVariable}}Array) as {{indexVariable}}) {
     {{code}}
@@ -78,15 +78,11 @@ if (0 === \count({{propertyAccessor}})) {
     if ({{propertyAccessor}} instanceof \Doctrine\Common\Collections\Collection) {
         {{indexVariable}}Array = {{propertyAccessor}}->toArray();
     }
-    
+
     foreach (array_keys({{indexVariable}}Array) as {{indexVariable}}) {
         {{code}}
     }
 }
-
-EOT;
-    private const TMPL_LOOP_HASHMAP_EMPTY = <<<'EOT'
-$jsonData{{jsonPath}} = $emptyHashmap;
 
 EOT;
 
@@ -96,10 +92,7 @@ EOT;
 
     private const TMPL_TEMP_VAR = '${{name}} = {{value}}';
 
-    /**
-     * @var Environment
-     */
-    private $twig;
+    private Environment $twig;
 
     public function __construct()
     {
@@ -213,6 +206,9 @@ EOT;
         ]);
     }
 
+    /**
+     * @param array<string, mixed> $parameters
+     */
     private function render(string $template, array $parameters): string
     {
         $tmpl = $this->twig->createTemplate($template);

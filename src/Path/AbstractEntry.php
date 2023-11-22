@@ -4,17 +4,9 @@ declare(strict_types=1);
 
 namespace Liip\Serializer\Path;
 
-abstract class AbstractEntry
+abstract class AbstractEntry implements \Stringable
 {
-    /**
-     * @var string
-     */
-    private $path;
-
-    public function __construct(string $path)
-    {
-        $this->path = $path;
-    }
+    public function __construct(private string $path) {}
 
     abstract public function __toString(): string;
 

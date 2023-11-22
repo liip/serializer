@@ -8,30 +8,11 @@ use Liip\MetadataParser\Builder;
 
 final class Compiler
 {
-    /**
-     * @var Builder
-     */
-    private $metadataBuilder;
-
-    /**
-     * @var DeserializerGenerator
-     */
-    private $deserializerGenerator;
-
-    /**
-     * @var SerializerGenerator
-     */
-    private $serializerGenerator;
-
     public function __construct(
-        Builder $metadataBuilder,
-        DeserializerGenerator $deserializerGenerator,
-        SerializerGenerator $serializerGenerator
-    ) {
-        $this->metadataBuilder = $metadataBuilder;
-        $this->deserializerGenerator = $deserializerGenerator;
-        $this->serializerGenerator = $serializerGenerator;
-    }
+        private Builder $metadataBuilder,
+        private DeserializerGenerator $deserializerGenerator,
+        private SerializerGenerator $serializerGenerator
+    ) {}
 
     public function compile(): void
     {

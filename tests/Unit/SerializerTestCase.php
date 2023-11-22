@@ -19,8 +19,9 @@ class SerializerTestCase extends TestCase
 {
     /**
      * @param ModelParserInterface[] $parsers
+     * @param string[][]             $expectedRecursions List of expected recursions
      */
-    protected static function createMetadataBuilder(array $parsers, $expectedRecursions = []): Builder
+    protected static function createMetadataBuilder(array $parsers, array $expectedRecursions = []): Builder
     {
         return new Builder(new Parser($parsers), new RecursionChecker(null, $expectedRecursions));
     }
@@ -37,9 +38,9 @@ class SerializerTestCase extends TestCase
         $deserializerGenerator->generate($metadataBuilder);
 
         $filePath = '/tmp/'.$functionName.'.php';
-        static::assertFileExists($filePath);
+        self::assertFileExists($filePath);
         require_once $filePath;
-        static::assertTrue(\function_exists($functionName));
+        self::assertTrue(\function_exists($functionName));
     }
 
     protected static function generateSerializers(Builder $metadataBuilder, string $classToGenerate, array $functionNames, array $versions = ['2'], array $groups = [], array $options = []): void
@@ -59,9 +60,9 @@ class SerializerTestCase extends TestCase
 
         foreach ($functionNames as $functionName) {
             $filePath = '/tmp/'.$functionName.'.php';
-            static::assertFileExists($filePath);
+            self::assertFileExists($filePath);
             require_once $filePath;
-            static::assertTrue(\function_exists($functionName));
+            self::assertTrue(\function_exists($functionName));
         }
     }
 }

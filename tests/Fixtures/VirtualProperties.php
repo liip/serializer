@@ -15,10 +15,12 @@ class VirtualProperties
 
     /**
      * @Serializer\Type("string")
+     *
      * @Serializer\VirtualProperty
+     *
      * @Serializer\SerializedName("api_string_virtual")
      */
-    public function getApiString()
+    public function getApiString(): string
     {
         return $this->apiString.'_virtual';
     }

@@ -15,22 +15,22 @@ class SerializationContextTest extends TestCase
     public function testEmpty(): void
     {
         $context = new Context();
-        static::assertNull($context->getVersion());
-        static::assertCount(0, $context->getGroups());
+        self::assertNull($context->getVersion());
+        self::assertCount(0, $context->getGroups());
     }
 
     public function testSetVersion(): void
     {
         $context = new Context();
         $context->setVersion('3');
-        static::assertSame('3', $context->getVersion());
+        self::assertSame('3', $context->getVersion());
     }
 
     public function testSetGroups(): void
     {
         $context = new Context();
-        $context->setGroups(['a', 'b', 'c']);
+        $context->setGroups(['a', 'c', 'b']);
 
-        static::assertSame(['a', 'b', 'c'], $context->getGroups());
+        self::assertSame(['a', 'b', 'c'], $context->getGroups());
     }
 }

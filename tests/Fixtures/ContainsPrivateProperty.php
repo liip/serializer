@@ -20,6 +20,7 @@ class ContainsPrivateProperty
 
     /**
      * @Serializer\Type("string")
+     *
      * @Serializer\Groups({"api"})
      */
     public $apiString;

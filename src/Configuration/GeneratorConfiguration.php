@@ -13,6 +13,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  * default versions, and a list of classes. For each class, you can overwrite
  * the group combinations. For each group combination, you can again overwrite
  * the versions to generate.
+ *
+ * @implements \IteratorAggregate<int, ClassToGenerate>
  */
 class GeneratorConfiguration implements \IteratorAggregate
 {
@@ -21,28 +23,33 @@ class GeneratorConfiguration implements \IteratorAggregate
      *
      * @see GroupCombination::$groups
      *
-     * @var string[][]
+     * @var list<list<string>>
      */
-    private $defaultGroupCombinations;
+    private array $defaultGroupCombinations;
 
     /**
      * List of versions to generate. An empty string '' means to generate without a version.
      * e.g. ['', '2', '3']
      *
-     * @var string[]
+     * @var list<string>
      */
-    private $defaultVersions;
+    private array $defaultVersions;
 
     /**
      * @var ClassToGenerate[]
      */
-    private $classesToGenerate = [];
+    private array $classesToGenerate = [];
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
-    private $options;
+    private array $options;
 
+    /**
+     * @param list<list<string>>   $defaultGroupCombinations
+     * @param list<string|int>     $defaultVersions
+     * @param array<string, mixed> $options
+     */
     public function __construct(array $defaultGroupCombinations, array $defaultVersions, array $options = [])
     {
         $this->defaultGroupCombinations = $defaultGroupCombinations ?: [[]];
@@ -51,13 +58,20 @@ class GeneratorConfiguration implements \IteratorAggregate
     }
 
     /**
+     * @param array{
+     *     'default_group_combinations'?: list<list<string>>|null,
+     *     'default_versions'?: list<string>|null,
+     *     'classes'?: ?array<class-string, array<string, mixed>>,
+     *     'options'?: array<string, mixed|array<mixed>>,
+     * } $config
+     *
      * Create configuration from array definition
      *
      * [
      *     'options' => [
      *         'allow_generic_arrays' => true,
      *     ],
-     *     'default_group_combinations' => ['api'],
+     *     'default_group_combinations' => [['api']],
      *     'default_versions' => ['', '1', '2'],
      *     'classes' => [
      *          Product::class => [
@@ -81,11 +95,16 @@ class GeneratorConfiguration implements \IteratorAggregate
      */
     public static function createFomArray(array $config): self
     {
-        if (!\array_key_exists('classes', $config) || \count($config['classes']) < 1) {
+        if (!\array_key_exists('classes', $config) || (is_countable($config['classes']) ? \count($config['classes']) : 0) < 1) {
             throw new \InvalidArgumentException('You need to specify the classes to generate');
         }
 
-        $instance = new self($config['default_group_combinations'] ?? [], $config['default_versions'] ?? [], $config['options'] ?? []);
+        $instance = new self(
+            $config['default_group_combinations'] ?? [],
+            $config['default_versions'] ?? [],
+            $config['options'] ?? []
+        );
+
         foreach ($config['classes'] as $className => $classConfig) {
             $classToGenerate = new ClassToGenerate($instance, $className, $classConfig['default_versions'] ?? null);
             foreach ($classConfig['group_combinations'] ?? [] as $groupCombination) {
@@ -112,11 +131,15 @@ class GeneratorConfiguration implements \IteratorAggregate
         return $this->defaultVersions;
     }
 
+    /**
+     * @return list<GroupCombination>
+     */
     public function getDefaultGroupCombinations(ClassToGenerate $classToGenerate): array
     {
-        return array_map(static function (array $combination) use ($classToGenerate) {
-            return new GroupCombination($classToGenerate, $combination);
-        }, $this->defaultGroupCombinations);
+        return array_map(
+            static fn (array $combination): GroupCombination => new GroupCombination($classToGenerate, $combination),
+            $this->defaultGroupCombinations
+        );
     }
 
     /**
@@ -128,17 +151,21 @@ class GeneratorConfiguration implements \IteratorAggregate
         return $this->options['allow_generic_arrays'];
     }
 
-    #[\ReturnTypeWillChange]
-    public function getIterator()
+    public function getIterator(): \Traversable
     {
         return new \ArrayIterator($this->classesToGenerate);
     }
 
+    /**
+     * @param array<string, mixed> $options
+     *
+     * @return array<string, mixed>
+     */
     private function resolveOptions(array $options): array
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults([
-            'allow_generic_arrays' => false
+            'allow_generic_arrays' => false,
         ]);
 
         $resolver->setAllowedTypes('allow_generic_arrays', 'boolean');

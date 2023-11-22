@@ -7,12 +7,12 @@ namespace Liip\Serializer\Path;
 /**
  * Representation of an array path in PHP, e.g. $data['property1'][$index]['property2'], used for code generation.
  */
-final class ArrayPath
+final class ArrayPath implements \Stringable
 {
     /**
      * @var AbstractEntry[]
      */
-    private $path = [];
+    private array $path = [];
 
     public function __construct(string $root)
     {
