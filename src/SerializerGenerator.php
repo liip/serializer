@@ -223,6 +223,11 @@ final class SerializerGenerator
         $subType = $type->getSubType();
 
         switch ($subType) {
+            case $subType instanceof PropertyTypePrimitive:
+            case $subType instanceof PropertyTypeArray && $subType->getSubType() instanceof PropertyTypePrimitive:
+            case $subType instanceof PropertyTypeUnknown && $this->configuration->shouldAllowGenericArrays():
+                return $this->templating->renderArrayAssign($arrayPath, $modelPath);
+
             case $subType instanceof PropertyTypeArray:
                 $innerCode = $this->generateCodeForArray($subType, $apiVersion, $serializerGroups, $arrayPath.'['.$index.']', $modelPath.'['.$index.']', $stack);
                 break;
@@ -230,10 +235,6 @@ final class SerializerGenerator
             case $subType instanceof PropertyTypeClass:
                 $innerCode = $this->generateCodeForClass($subType->getClassMetadata(), $apiVersion, $serializerGroups, $arrayPath.'['.$index.']', $modelPath.'['.$index.']', $stack);
                 break;
-
-            case $subType instanceof PropertyTypePrimitive:
-            case $subType instanceof PropertyTypeUnknown && $this->configuration->shouldAllowGenericArrays():
-                return $this->templating->renderArrayAssign($arrayPath, $modelPath);
 
             default:
                 throw new \Exception('Unexpected array subtype '.$subType::class);
