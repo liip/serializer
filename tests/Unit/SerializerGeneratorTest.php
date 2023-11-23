@@ -19,6 +19,7 @@ use Tests\Liip\Serializer\Fixtures\ListModel;
 use Tests\Liip\Serializer\Fixtures\Model;
 use Tests\Liip\Serializer\Fixtures\Nested;
 use Tests\Liip\Serializer\Fixtures\PostDeserialize;
+use Tests\Liip\Serializer\Fixtures\PrimitiveArraySubType;
 use Tests\Liip\Serializer\Fixtures\PrivateProperty;
 use Tests\Liip\Serializer\Fixtures\RecursionModel;
 use Tests\Liip\Serializer\Fixtures\UnknownArraySubType;
@@ -139,6 +140,23 @@ class SerializerGeneratorTest extends SerializerTestCase
         ];
 
         $data = $functionName($list);
+        self::assertSame($expected, $data);
+    }
+
+    public function testArraysWithPrimitiveSubType(): void
+    {
+        $functionName = 'serialize_Tests_Liip_Serializer_Fixtures_PrimitiveArraySubType';
+        self::generateSerializers(self::$metadataBuilder, PrimitiveArraySubType::class, [$functionName], ['']);
+
+        $subject = new PrimitiveArraySubType();
+        $lists = [[1, 2, 3], [4, 5, 6]];
+        $subject->primitivesLists = $lists;
+
+        $expected = [
+            'primitives_lists' => $lists,
+        ];
+
+        $data = $functionName($subject);
         self::assertSame($expected, $data);
     }
 
