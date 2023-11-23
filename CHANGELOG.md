@@ -1,6 +1,6 @@
 # Changelog
 
-# Unreleased
+# 2.5.0
 
 * Clean CI workflow: fix GitHub composer caches
 * Add rector-php analysis
