@@ -224,7 +224,7 @@ final class SerializerGenerator
 
         switch ($subType) {
             case $subType instanceof PropertyTypePrimitive:
-            case $subType instanceof PropertyTypeArray && $subType->getSubType() instanceof PropertyTypePrimitive:
+            case $subType instanceof PropertyTypeArray && self::isArrayForPrimitive($subType):
             case $subType instanceof PropertyTypeUnknown && $this->configuration->shouldAllowGenericArrays():
                 return $this->templating->renderArrayAssign($arrayPath, $modelPath);
 
@@ -253,5 +253,17 @@ final class SerializerGenerator
         }
 
         return $this->templating->renderLoopArray($arrayPath, $modelPath, $index, $innerCode);
+    }
+
+    private static function isArrayForPrimitive(PropertyTypeArray $type): bool
+    {
+        do {
+            $type = $type->getSubType();
+            if ($type instanceof PropertyTypePrimitive) {
+                return true;
+            }
+        } while ($type instanceof PropertyTypeArray);
+
+        return false;
     }
 }

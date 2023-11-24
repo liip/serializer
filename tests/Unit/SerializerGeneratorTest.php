@@ -17,9 +17,9 @@ use Tests\Liip\Serializer\Fixtures\InaccessiblePrivateProperty;
 use Tests\Liip\Serializer\Fixtures\Inheritance;
 use Tests\Liip\Serializer\Fixtures\ListModel;
 use Tests\Liip\Serializer\Fixtures\Model;
+use Tests\Liip\Serializer\Fixtures\MultidimensionalArrayForPrimitive;
 use Tests\Liip\Serializer\Fixtures\Nested;
 use Tests\Liip\Serializer\Fixtures\PostDeserialize;
-use Tests\Liip\Serializer\Fixtures\PrimitiveArraySubType;
 use Tests\Liip\Serializer\Fixtures\PrivateProperty;
 use Tests\Liip\Serializer\Fixtures\RecursionModel;
 use Tests\Liip\Serializer\Fixtures\UnknownArraySubType;
@@ -143,17 +143,27 @@ class SerializerGeneratorTest extends SerializerTestCase
         self::assertSame($expected, $data);
     }
 
-    public function testArraysWithPrimitiveSubType(): void
+    public function testMultidimensionalArraysForPrimitives(): void
     {
-        $functionName = 'serialize_Tests_Liip_Serializer_Fixtures_PrimitiveArraySubType';
-        self::generateSerializers(self::$metadataBuilder, PrimitiveArraySubType::class, [$functionName], ['']);
+        $functionName = 'serialize_Tests_Liip_Serializer_Fixtures_MultidimensionalArrayForPrimitive';
+        self::generateSerializers(self::$metadataBuilder, MultidimensionalArrayForPrimitive::class, [$functionName], ['']);
 
-        $subject = new PrimitiveArraySubType();
-        $lists = [[1, 2, 3], [4, 5, 6]];
-        $subject->primitivesLists = $lists;
+        $subject = new MultidimensionalArrayForPrimitive();
+        $twoDims = [0 => [0], 1 => [1]];
+        $fiveDims = [0 => [0 => [0 => [0 => [2]]]], 1 => [3 => [0 => [0 => [3]]]]];
+        $mapOfLists = ['foo' => [0], 'bar' => 1];
+        $listOfMapOfLists = [0 => ['m00' => [0 => [0], 1 => [1]], 'm01' => [0 => [0]]], 1 => ['m10' => [0 => [42]]]];
+
+        $subject->twoDims = $twoDims;
+        $subject->fiveDims = $fiveDims;
+        $subject->mapOfLists = $mapOfLists;
+        $subject->listOfMapOfLists = $listOfMapOfLists;
 
         $expected = [
-            'primitives_lists' => $lists,
+            'two_dims' => $twoDims,
+            'five_dims' => $fiveDims,
+            'map_of_lists' => $mapOfLists,
+            'list_of_map_of_lists' => $listOfMapOfLists,
         ];
 
         $data = $functionName($subject);
