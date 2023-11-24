@@ -257,10 +257,13 @@ final class SerializerGenerator
 
     private static function isArrayForPrimitive(PropertyTypeArray $type): bool
     {
-        return match ($type->getSubType()::class) {
-            PropertyTypePrimitive::class => true,
-            PropertyTypeArray::class => self::isArrayForPrimitive($type->getSubType()),
-            default => false,
-        };
+        do {
+            $type = $type->getSubType();
+            if ($type instanceof PropertyTypePrimitive) {
+                return true;
+            }
+        } while ($type instanceof PropertyTypeArray);
+
+        return false;
     }
 }
