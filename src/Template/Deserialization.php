@@ -62,6 +62,7 @@ EOT;
 EOT;
 
     private const TMPL_ASSIGN_DATETIME_FROM_FORMAT = <<<'EOT'
+{{date}} = false;
 foreach([{{formats|join(', ')}}] as {{format}}) {
     if (({{date}} = \DateTime::createFromFormat({{format}}, {{jsonPath}}, {{timezone}}))) {
         {{modelPath}} = {{date}};
@@ -69,9 +70,10 @@ foreach([{{formats|join(', ')}}] as {{format}}) {
     }
 }
 
-if (false === ({{date}} ?? null)) {
-    throw new \Exception('Invalid datetime string '.({{jsonPath}}).' matches none of the deserialization formats '.({{formats|join('|')}}));
+if (false === {{date}}) {
+    throw new \Exception('Invalid datetime string '.({{jsonPath}}).' matches none of the deserialization formats: '.({{formats|join('|')}}));
 }
+unset({{format}}, {{date}});
 
 EOT;
 
@@ -81,6 +83,7 @@ EOT;
 EOT;
 
     private const TMPL_ASSIGN_DATETIME_IMMUTABLE_FROM_FORMAT = <<<'EOT'
+{{date}} = false;
 foreach([{{formats|join(', ')}}] as {{format}}) {
     if (({{date}} = \DateTimeImmutable::createFromFormat({{format}}, {{jsonPath}}, {{timezone}}))) {
         {{modelPath}} = {{date}};
@@ -88,9 +91,10 @@ foreach([{{formats|join(', ')}}] as {{format}}) {
     }
 }
 
-if (false === ({{date}} ?? null)) {
-    throw new \Exception('Invalid datetime string '.({{jsonPath}}).' matches none of the deserialization formats '.({{formats|join('|')}}));
+if (false === {{date}}) {
+    throw new \Exception('Invalid datetime string '.({{jsonPath}}).' matches none of the deserialization formats: '.({{formats|join('|')}}));
 }
+unset({{format}}, {{date}});
 
 EOT;
 
@@ -213,12 +217,17 @@ EOT;
      */
     public function renderAssignDateTimeFromFormat(bool $immutable, string $modelPath, string $jsonPath, array|string $formats, string $timezone = null): string
     {
+        if (is_string($formats)) {
+            @trigger_error('Passing a string for argument $formats is deprecated, please pass an array of strings instead', \E_USER_DEPRECATED);
+            $formats = [$formats];
+        }
+
         $template = $immutable ? self::TMPL_ASSIGN_DATETIME_IMMUTABLE_FROM_FORMAT : self::TMPL_ASSIGN_DATETIME_FROM_FORMAT;
         $formats = array_map(
             static fn (string $f): string => var_export($f, true),
-            \is_string($formats) ? [$formats] : $formats
+            $formats
         );
-        $formatVariable = preg_replace_callback(
+        $dateVariable = preg_replace_callback(
             '/([^a-zA-Z]+|\d+)([a-zA-Z])/',
             static fn ($match): string => (ctype_digit($match[1]) ? $match[1] : null).mb_strtoupper($match[2]),
             $modelPath
@@ -228,8 +237,8 @@ EOT;
             'modelPath' => $modelPath,
             'jsonPath' => $jsonPath,
             'formats' => $formats,
-            'format' => '$'.lcfirst($formatVariable),
-            'date' => '$'.lcfirst($formatVariable).'Date',
+            'format' => '$'.lcfirst($dateVariable).'Format',
+            'date' => '$'.lcfirst($dateVariable),
             'timezone' => $timezone ? 'new \DateTimeZone('.var_export($timezone, true).')' : 'null',
         ]);
     }
