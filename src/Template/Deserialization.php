@@ -71,7 +71,7 @@ foreach([{{formats|join(', ')}}] as {{format}}) {
 }
 
 if (false === {{date}}) {
-    throw new \Exception('Invalid datetime string '.({{jsonPath}}).' matches none of the deserialization formats: '.({{formats|join('|')}}));
+    throw new \Exception('Invalid datetime string '.({{jsonPath}}).' matches none of the deserialization formats: '.{{formatsError}});
 }
 unset({{format}}, {{date}});
 
@@ -92,7 +92,7 @@ foreach([{{formats|join(', ')}}] as {{format}}) {
 }
 
 if (false === {{date}}) {
-    throw new \Exception('Invalid datetime string '.({{jsonPath}}).' matches none of the deserialization formats: '.({{formats|join('|')}}));
+    throw new \Exception('Invalid datetime string '.({{jsonPath}}).' matches none of the deserialization formats: '.{{formatsError}});
 }
 unset({{format}}, {{date}});
 
@@ -217,7 +217,7 @@ EOT;
      */
     public function renderAssignDateTimeFromFormat(bool $immutable, string $modelPath, string $jsonPath, array|string $formats, string $timezone = null): string
     {
-        if (is_string($formats)) {
+        if (\is_string($formats)) {
             @trigger_error('Passing a string for argument $formats is deprecated, please pass an array of strings instead', \E_USER_DEPRECATED);
             $formats = [$formats];
         }
@@ -227,16 +227,19 @@ EOT;
             static fn (string $f): string => var_export($f, true),
             $formats
         );
+        $formatsError = var_export(implode(',', $formats), true);
         $dateVariable = preg_replace_callback(
             '/([^a-zA-Z]+|\d+)([a-zA-Z])/',
             static fn ($match): string => (ctype_digit($match[1]) ? $match[1] : null).mb_strtoupper($match[2]),
             $modelPath
         );
 
+
         return $this->render($template, [
             'modelPath' => $modelPath,
             'jsonPath' => $jsonPath,
             'formats' => $formats,
+            'formatsError' => $formatsError,
             'format' => '$'.lcfirst($dateVariable).'Format',
             'date' => '$'.lcfirst($dateVariable),
             'timezone' => $timezone ? 'new \DateTimeZone('.var_export($timezone, true).')' : 'null',

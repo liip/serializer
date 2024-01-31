@@ -46,6 +46,27 @@ class Model
     public $dateWithFormat;
 
     /**
+     * @Serializer\Type("DateTime<'Y-m-d', '', 'd/m/Y'>")
+     *
+     * @var \DateTime
+     */
+    public $dateWithOneDeserializationFormat;
+
+    /**
+     * @Serializer\Type("DateTime<'Y-m-d', '', ['m/d/Y', 'Y-m-d']>")
+     *
+     * @var \DateTime
+     */
+    public $dateWithMultipleDeserializationFormats;
+
+    /**
+     * @Serializer\Type("DateTime<'Y-m-d', '+0600', '!d/m/Y'>")
+     *
+     * @var \DateTime
+     */
+    public $dateWithTimezone;
+
+    /**
      * @Serializer\Type("DateTimeImmutable")
      *
      * @var \DateTimeImmutable

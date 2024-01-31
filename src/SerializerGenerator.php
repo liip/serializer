@@ -181,10 +181,7 @@ final class SerializerGenerator
     ): string {
         switch ($type) {
             case $type instanceof PropertyTypeDateTime:
-                if (null !== $type->getZone()) {
-                    throw new \RuntimeException('Timezone support is not implemented');
-                }
-                $dateFormat = $type->getFormat() ?: \DateTime::ISO8601;
+                $dateFormat = $type->getFormat() ?: \DateTimeInterface::ISO8601;
 
                 return $this->templating->renderAssign(
                     $fieldPath,
