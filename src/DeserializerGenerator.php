@@ -205,7 +205,7 @@ final class DeserializerGenerator
 
         switch ($type) {
             case $type instanceof PropertyTypeArray:
-                if ($type->isCollection()) {
+                if ($type->isTraversable()) {
                     return $this->generateCodeForArrayCollection($propertyMetadata, $type, $arrayPath, $modelPropertyPath, $stack);
                 }
 
