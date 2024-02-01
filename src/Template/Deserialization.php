@@ -234,7 +234,6 @@ EOT;
             $modelPath
         );
 
-
         return $this->render($template, [
             'modelPath' => $modelPath,
             'jsonPath' => $jsonPath,
