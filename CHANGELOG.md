@@ -1,5 +1,9 @@
 # Changelog
 
+# 2.5.1
+
+* Generalized the improvement on arrays with primitive types to generate more efficient code.
+
 # 2.5.0
 
 * Clean CI workflow: fix GitHub composer caches
