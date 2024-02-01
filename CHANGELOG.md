@@ -1,5 +1,8 @@
 # Changelog
 
+# 2.6.0
+* (De)serialization now accepts timezones, and lists of deserialization formats
+
 # 2.5.1
 
 * Generalized the improvement on arrays with primitive types to generate more efficient code.

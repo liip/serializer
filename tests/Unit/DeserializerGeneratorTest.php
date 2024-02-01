@@ -52,6 +52,9 @@ class DeserializerGeneratorTest extends SerializerTestCase
             'nested_field' => ['nested_string' => 'nested'],
             'date' => '2018-08-03T00:00:00+02:00',
             'date_with_format' => '2018-08-04',
+            'date_with_one_deserialization_format' => '15/05/2019',
+            'date_with_multiple_deserialization_formats' => '05/16/2019',
+            'date_with_timezone' => '04/08/2018', // Defined timezone offset is +6 hours, so bringing it back to UTC removes a day
             'date_immutable' => '2016-06-01T00:00:00+02:00',
         ];
 
@@ -67,6 +70,12 @@ class DeserializerGeneratorTest extends SerializerTestCase
         self::assertSame('2018-08-03', $model->date->format('Y-m-d'));
         self::assertInstanceOf(\DateTime::class, $model->dateWithFormat);
         self::assertSame('2018-08-04', $model->dateWithFormat->format('Y-m-d'));
+        self::assertInstanceOf(\DateTime::class, $model->dateWithOneDeserializationFormat);
+        self::assertSame('2019-05-15', $model->dateWithOneDeserializationFormat->format('Y-m-d'));
+        self::assertInstanceOf(\DateTime::class, $model->dateWithMultipleDeserializationFormats);
+        self::assertSame('2019-05-16', $model->dateWithMultipleDeserializationFormats->format('Y-m-d'));
+        self::assertInstanceOf(\DateTime::class, $model->dateWithTimezone);
+        self::assertSame('2018-08-03', $model->dateWithTimezone->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d'));
         self::assertInstanceOf(\DateTimeImmutable::class, $model->dateImmutable);
         self::assertSame('2016-06-01', $model->dateImmutable->format('Y-m-d'));
     }

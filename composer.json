@@ -16,7 +16,7 @@
     "require": {
         "php": "^8.0",
         "ext-json": "*",
-        "liip/metadata-parser": "^1.1",
+        "liip/metadata-parser": "^1.2",
         "pnz/json-exception": "^1.0",
         "symfony/filesystem": "^4.4 || ^5.0 || ^6.0",
         "symfony/finder": "^4.4 || ^5.0 || ^6.0",
