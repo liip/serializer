@@ -16,7 +16,9 @@ final class Context
      */
     private array $groups = [];
 
-    public function __construct() {}
+    public function __construct()
+    {
+    }
 
     /**
      * @return string[]
