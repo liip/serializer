@@ -18,7 +18,9 @@ use Pnz\JsonException\Json;
  */
 final class Serializer implements SerializerInterface
 {
-    public function __construct(private string $cacheDirectory) {}
+    public function __construct(private string $cacheDirectory)
+    {
+    }
 
     /**
      * {@inheritdoc}
