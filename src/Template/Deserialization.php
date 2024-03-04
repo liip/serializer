@@ -232,7 +232,7 @@ EOT;
             '/([^a-zA-Z]+|\d+)([a-zA-Z])/',
             static fn ($match): string => (ctype_digit($match[1]) ? $match[1] : null).mb_strtoupper($match[2]),
             $modelPath
-        );
+        ).'Date';
 
         return $this->render($template, [
             'modelPath' => $modelPath,
