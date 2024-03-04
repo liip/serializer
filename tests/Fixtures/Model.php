@@ -72,4 +72,21 @@ class Model
      * @var \DateTimeImmutable
      */
     public $dateImmutable;
+
+    /**
+     * @Serializer\Type("DateTimeImmutable")
+     *
+     * @Serializer\Accessor(getter="getDateImmutablePrivate", setter="setDateImmutablePrivate")
+     */
+    private $dateImmutablePrivate;
+
+    public function getDateImmutablePrivate()
+    {
+        return $this->dateImmutablePrivate;
+    }
+
+    public function setDateImmutablePrivate($dateImmutablePrivate): void
+    {
+        $this->dateImmutablePrivate = $dateImmutablePrivate;
+    }
 }
