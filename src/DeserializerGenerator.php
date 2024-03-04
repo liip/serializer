@@ -35,7 +35,7 @@ final class DeserializerGenerator
         private Deserialization $templating,
         array $classesToGenerate,
         private string $cacheDirectory,
-        GeneratorConfiguration $configuration = null
+        ?GeneratorConfiguration $configuration = null
     ) {
         $this->filesystem = new Filesystem();
         $this->configuration = $this->createGeneratorConfiguration($configuration, $classesToGenerate);
