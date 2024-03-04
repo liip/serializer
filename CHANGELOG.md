@@ -1,6 +1,12 @@
 # Changelog
 
+# unreleased
+
+* Fixed: Dates with a getter/setter where incorrectly handled in the refactoring for 2.6.0.
+  See (#44)[https://github.com/liip/serializer/pull/44]
+
 # 2.6.0
+
 * (De)serialization now accepts timezones, and lists of deserialization formats
 
 # 2.5.1
