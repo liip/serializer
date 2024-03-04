@@ -215,7 +215,7 @@ EOT;
     /**
      * @param list<string>|string $formats
      */
-    public function renderAssignDateTimeFromFormat(bool $immutable, string $modelPath, string $jsonPath, array|string $formats, string $timezone = null): string
+    public function renderAssignDateTimeFromFormat(bool $immutable, string $modelPath, string $jsonPath, array|string $formats, ?string $timezone = null): string
     {
         if (\is_string($formats)) {
             @trigger_error('Passing a string for argument $formats is deprecated, please pass an array of strings instead', \E_USER_DEPRECATED);

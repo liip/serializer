@@ -28,7 +28,7 @@ interface SerializerInterface
      * @throws UnsupportedFormatException if $format is not supported
      * @throws UnsupportedTypeException   if no generated function is available for the class of $data
      */
-    public function serialize(mixed $data, string $format, Context $context = null): string;
+    public function serialize(mixed $data, string $format, ?Context $context = null): string;
 
     /**
      * Convert a string representation to an object.
@@ -44,7 +44,7 @@ interface SerializerInterface
      * @throws UnsupportedFormatException if $format is not supported
      * @throws UnsupportedTypeException   if there is no generated function available for $type
      */
-    public function deserialize(string $data, string $type, string $format, Context $context = null): mixed;
+    public function deserialize(string $data, string $type, string $format, ?Context $context = null): mixed;
 
     /**
      * Convert an object to an array.
@@ -57,7 +57,7 @@ interface SerializerInterface
      * @throws Exception                if anything else goes wrong
      * @throws UnsupportedTypeException if no generated function is available for the class of $data
      */
-    public function toArray(mixed $data, Context $context = null): array;
+    public function toArray(mixed $data, ?Context $context = null): array;
 
     /**
      * Convert an array to an object.
@@ -71,5 +71,5 @@ interface SerializerInterface
      * @throws Exception                if anything else goes wrong
      * @throws UnsupportedTypeException if there is no generated function available for $type
      */
-    public function fromArray(array $data, string $type, Context $context = null): mixed;
+    public function fromArray(array $data, string $type, ?Context $context = null): mixed;
 }

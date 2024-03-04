@@ -34,7 +34,7 @@ class ClassToGenerate implements \IteratorAggregate
     public function __construct(
         private GeneratorConfiguration $configuration,
         private string $className,
-        array $defaultVersions = null
+        ?array $defaultVersions = null
     ) {
         $this->defaultVersions = null === $defaultVersions ? null : array_map('strval', $defaultVersions);
     }
