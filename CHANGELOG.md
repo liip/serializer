@@ -5,6 +5,7 @@
 * Fixed: Dates with a getter/setter where incorrectly handled in the refactoring for 2.6.0.
   See (#44)[https://github.com/liip/serializer/pull/44]
 * Add support for symfony `7.x`
+* Also test against PHP `8.3`
 
 # 2.6.0
 
