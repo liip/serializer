@@ -9,13 +9,14 @@ use Rector\Set\ValueObject\SetList;
 use Rector\TypeDeclaration\Rector\Class_\PropertyTypeFromStrictSetterGetterRector;
 use Rector\TypeDeclaration\Rector\ClassMethod\AddMethodCallBasedStrictParamTypeRector;
 use Rector\TypeDeclaration\Rector\ClassMethod\AddParamTypeFromPropertyTypeRector;
+use Rector\TypeDeclaration\Rector\ClassMethod\BoolReturnTypeFromBooleanStrictReturnsRector;
+use Rector\TypeDeclaration\Rector\ClassMethod\NumericReturnTypeFromStrictScalarReturnsRector;
 use Rector\TypeDeclaration\Rector\ClassMethod\ParamTypeByMethodCallTypeRector;
-use Rector\TypeDeclaration\Rector\ClassMethod\ReturnTypeFromStrictBoolReturnExprRector;
 use Rector\TypeDeclaration\Rector\ClassMethod\ReturnTypeFromStrictConstantReturnRector;
 use Rector\TypeDeclaration\Rector\ClassMethod\ReturnTypeFromStrictNativeCallRector;
 use Rector\TypeDeclaration\Rector\ClassMethod\ReturnTypeFromStrictNewArrayRector;
 use Rector\TypeDeclaration\Rector\ClassMethod\ReturnTypeFromStrictParamRector;
-use Rector\TypeDeclaration\Rector\ClassMethod\ReturnTypeFromStrictScalarReturnExprRector;
+use Rector\TypeDeclaration\Rector\ClassMethod\StringReturnTypeFromStrictScalarReturnsRector;
 use Rector\TypeDeclaration\Rector\Property\TypedPropertyFromStrictConstructorRector;
 use Rector\TypeDeclaration\Rector\Property\TypedPropertyFromStrictSetUpRector;
 
@@ -27,12 +28,13 @@ return static function (RectorConfig $rectorConfig): void {
 
     $rectorConfig->rules([
         InlineConstructorDefaultToPropertyRector::class,
-        ReturnTypeFromStrictBoolReturnExprRector::class,
+        BoolReturnTypeFromBooleanStrictReturnsRector::class,
         ReturnTypeFromStrictConstantReturnRector::class,
         ReturnTypeFromStrictNativeCallRector::class,
         ReturnTypeFromStrictNewArrayRector::class,
         ReturnTypeFromStrictParamRector::class,
-        ReturnTypeFromStrictScalarReturnExprRector::class,
+        NumericReturnTypeFromStrictScalarReturnsRector::class,
+        StringReturnTypeFromStrictScalarReturnsRector::class,
         PropertyTypeFromStrictSetterGetterRector::class,
         TypedPropertyFromStrictConstructorRector::class,
         TypedPropertyFromStrictSetUpRector::class,

@@ -6,6 +6,7 @@
   See (#44)[https://github.com/liip/serializer/pull/44]
 * Add support for symfony `7.x`
 * Also test against PHP `8.3`
+* Update rector to `1.2.1`
 
 # 2.6.0
 
