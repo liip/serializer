@@ -6,6 +6,8 @@ namespace Liip\Serializer\Template;
 
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
+use function is_string;
+use const E_USER_DEPRECATED;
 
 final class Deserialization
 {
@@ -41,6 +43,13 @@ EOT;
 
     private const TMPL_CONDITIONAL = <<<'EOT'
 if (isset({{data}})) {
+    {{code}}
+}
+
+EOT;
+
+    private const TMPL_DISCRIMINATOR_CONDITIONAL = <<<'EOT'
+if ({{jsonPath}} === '{{typeValue}}') {
     {{code}}
 }
 
@@ -185,6 +194,15 @@ EOT;
         ]);
     }
 
+    public function renderDiscriminatorConditional(string $jsonPath, string $typeValue, string $code): string
+    {
+        return $this->render(self::TMPL_DISCRIMINATOR_CONDITIONAL, [
+            'jsonPath' => $jsonPath,
+            'typeValue' => $typeValue,
+            'code' => $code,
+        ]);
+    }
+
     public function renderAssignJsonDataToField(string $modelPath, string $jsonPath): string
     {
         return $this->render(self::TMPL_ASSIGN_JSON_DATA_TO_FIELD, [
@@ -217,8 +235,8 @@ EOT;
      */
     public function renderAssignDateTimeFromFormat(bool $immutable, string $modelPath, string $jsonPath, array|string $formats, ?string $timezone = null): string
     {
-        if (\is_string($formats)) {
-            @trigger_error('Passing a string for argument $formats is deprecated, please pass an array of strings instead', \E_USER_DEPRECATED);
+        if (is_string($formats)) {
+            @trigger_error('Passing a string for argument $formats is deprecated, please pass an array of strings instead', E_USER_DEPRECATED);
             $formats = [$formats];
         }
 

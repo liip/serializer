@@ -4,6 +4,9 @@
 
 # 3.0.0 (unreleased)
 
+* Update to liip/metadata-parser 2.x
+* Add discriminator support
+
 # 2.x
 
 # 2.6.2

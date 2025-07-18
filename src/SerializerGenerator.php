@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Liip\Serializer;
 
+use DateTimeInterface;
+use Exception;
 use Liip\MetadataParser\Builder;
 use Liip\MetadataParser\Metadata\ClassMetadata;
 use Liip\MetadataParser\Metadata\PropertyMetadata;
@@ -20,6 +22,7 @@ use Liip\MetadataParser\Reducer\VersionReducer;
 use Liip\Serializer\Configuration\GeneratorConfiguration;
 use Liip\Serializer\Template\Serialization;
 use Symfony\Component\Filesystem\Filesystem;
+use function count;
 
 final class SerializerGenerator
 {
@@ -41,7 +44,7 @@ final class SerializerGenerator
     public static function buildSerializerFunctionName(string $className, ?string $apiVersion, array $serializerGroups): string
     {
         $functionName = self::FILENAME_PREFIX.'_'.$className;
-        if (\count($serializerGroups)) {
+        if (count($serializerGroups)) {
             $functionName .= '_'.implode('_', $serializerGroups);
         }
         if (null !== $apiVersion) {
@@ -120,6 +123,11 @@ final class SerializerGenerator
         string $modelPath,
         array $stack = [],
     ): string {
+        $discriminatorMetadata = $classMetadata->getDiscriminatorMetadata();
+        if (null !== $discriminatorMetadata && $discriminatorMetadata->baseClass == $classMetadata->getClassName()) {
+            return $this->generateCodeForDiscriminatorClass($classMetadata, $apiVersion, $serializerGroups, $arrayPath, $modelPath, $stack);
+        }
+
         $stack[$classMetadata->getClassName()] = ($stack[$classMetadata->getClassName()] ?? 0) + 1;
 
         $code = '';
@@ -127,7 +135,37 @@ final class SerializerGenerator
             $code .= $this->generateCodeForField($propertyMetadata, $apiVersion, $serializerGroups, $arrayPath, $modelPath, $stack);
         }
 
+        if (null !== $discriminatorMetadata)  {
+            $discriminatorFieldPath = $arrayPath.'["'.$discriminatorMetadata->propertyName.'"]';
+            $code .= $this->templating->renderAssign($discriminatorFieldPath, sprintf("'%s'", $discriminatorMetadata->value));
+        }
+
         return $this->templating->renderClass($arrayPath, $code);
+    }
+
+    /**
+     * @param list<string>                $serializerGroups
+     * @param array<string, positive-int> $stack
+     */
+    private function generateCodeForDiscriminatorClass(
+        ClassMetadata $classMetadata,
+        ?string $apiVersion,
+        array $serializerGroups,
+        string $arrayPath,
+        string $modelPath,
+        array $stack = []
+    ): string {
+        $code = '';
+        $discriminatorMetadata = $classMetadata->getDiscriminatorMetadata();
+        foreach ($discriminatorMetadata->classMap as $class) {
+            $code .= $this->templating->renderInstanceOfConditional(
+                $modelPath,
+                $class,
+                $this->generateCodeForClass($discriminatorMetadata->getMetadataForClass($class), $apiVersion, $serializerGroups, $arrayPath, $modelPath, $stack)
+            );
+        }
+
+        return $code;
     }
 
     /**
@@ -158,7 +196,7 @@ final class SerializerGenerator
             );
         }
         if (!$propertyMetadata->isPublic()) {
-            throw new \Exception(\sprintf('Property %s is not public and no getter has been defined. Stack %s', $modelPropertyPath, var_export($stack, true)));
+            throw new Exception(\sprintf('Property %s is not public and no getter has been defined. Stack %s', $modelPropertyPath, var_export($stack, true)));
         }
 
         return $this->templating->renderConditional(
@@ -181,7 +219,7 @@ final class SerializerGenerator
     ): string {
         switch ($type) {
             case $type instanceof PropertyTypeDateTime:
-                $dateFormat = $type->getFormat() ?: \DateTimeInterface::ISO8601;
+                $dateFormat = $type->getFormat() ?: DateTimeInterface::ISO8601;
 
                 return $this->templating->renderAssign(
                     $fieldPath,
@@ -200,7 +238,7 @@ final class SerializerGenerator
                 return $this->generateCodeForArray($type, $apiVersion, $serializerGroups, $fieldPath, $modelPropertyPath, $stack);
 
             default:
-                throw new \Exception('Unexpected type '.$type::class.' at '.$modelPropertyPath);
+                throw new Exception('Unexpected type '.$type::class.' at '.$modelPropertyPath);
         }
     }
 
@@ -234,7 +272,7 @@ final class SerializerGenerator
                 break;
 
             default:
-                throw new \Exception('Unexpected array subtype '.$subType::class);
+                throw new Exception('Unexpected array subtype '.$subType::class);
         }
 
         if ('' === $innerCode) {

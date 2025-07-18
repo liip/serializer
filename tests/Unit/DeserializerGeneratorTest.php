@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Liip\Serializer\Unit;
 
+use DateTime;
+use DateTimeImmutable;
+use DateTimeZone;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Collections\ArrayCollection;
 use Liip\MetadataParser\Builder;
@@ -13,6 +16,9 @@ use Liip\MetadataParser\ModelParser\ReflectionParser;
 use Liip\Serializer\DeserializerGenerator;
 use Liip\Serializer\Template\Deserialization;
 use Tests\Liip\Serializer\Fixtures\ContainsNonEmptyConstructor;
+use Tests\Liip\Serializer\Fixtures\DiscriminatorDependency;
+use Tests\Liip\Serializer\Fixtures\DiscriminatorFirstChild;
+use Tests\Liip\Serializer\Fixtures\DiscriminatorSecondChild;
 use Tests\Liip\Serializer\Fixtures\FloatProperty;
 use Tests\Liip\Serializer\Fixtures\Inheritance;
 use Tests\Liip\Serializer\Fixtures\ListModel;
@@ -67,17 +73,17 @@ class DeserializerGeneratorTest extends SerializerTestCase
         self::assertNull($model->unAnnotated);
         self::assertInstanceOf(Nested::class, $model->nestedField);
         self::assertSame('nested', $model->nestedField->nestedString);
-        self::assertInstanceOf(\DateTime::class, $model->date);
+        self::assertInstanceOf(DateTime::class, $model->date);
         self::assertSame('2018-08-03', $model->date->format('Y-m-d'));
-        self::assertInstanceOf(\DateTime::class, $model->dateWithFormat);
+        self::assertInstanceOf(DateTime::class, $model->dateWithFormat);
         self::assertSame('2018-08-04', $model->dateWithFormat->format('Y-m-d'));
-        self::assertInstanceOf(\DateTime::class, $model->dateWithOneDeserializationFormat);
+        self::assertInstanceOf(DateTime::class, $model->dateWithOneDeserializationFormat);
         self::assertSame('2019-05-15', $model->dateWithOneDeserializationFormat->format('Y-m-d'));
-        self::assertInstanceOf(\DateTime::class, $model->dateWithMultipleDeserializationFormats);
+        self::assertInstanceOf(DateTime::class, $model->dateWithMultipleDeserializationFormats);
         self::assertSame('2019-05-16', $model->dateWithMultipleDeserializationFormats->format('Y-m-d'));
-        self::assertInstanceOf(\DateTime::class, $model->dateWithTimezone);
-        self::assertSame('2018-08-03', $model->dateWithTimezone->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d'));
-        self::assertInstanceOf(\DateTimeImmutable::class, $model->dateImmutable);
+        self::assertInstanceOf(DateTime::class, $model->dateWithTimezone);
+        self::assertSame('2018-08-03', $model->dateWithTimezone->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d'));
+        self::assertInstanceOf(DateTimeImmutable::class, $model->dateImmutable);
         self::assertSame('2016-06-01', $model->dateImmutable->format('Y-m-d'));
         self::assertSame('2016-06-01', $model->getDateImmutablePrivate()?->format('Y-m-d'));
     }
@@ -267,6 +273,37 @@ class DeserializerGeneratorTest extends SerializerTestCase
         $model = $functionName($input);
         self::assertInstanceOf(VirtualProperties::class, $model);
         self::assertSame('apiString', $model->apiString);
+    }
+
+    public function testDiscriminator(): void
+    {
+        $functionName = 'deserialize_Tests_Liip_Serializer_Fixtures_DiscriminatorDependency';
+        self::generateDeserializer(self::$metadataBuilder, DiscriminatorDependency::class, $functionName);
+
+
+        $input = [
+            'discriminator' => [
+                'first_property' => 'first-value',
+                'type' => 'first',
+            ],
+        ];
+        $model = $functionName($input);
+
+        self::assertInstanceOf(DiscriminatorDependency::class, $model);
+        self::assertInstanceOf(DiscriminatorFirstChild::class, $model->discriminator);
+        self::assertSame('first-value', $model->discriminator->firstProperty);
+
+        $input = [
+            'discriminator' => [
+                'second_property' => 'second-value',
+                'type' => 'second',
+            ],
+        ];
+        $model = $functionName($input);
+
+        self::assertInstanceOf(DiscriminatorDependency::class, $model);
+        self::assertInstanceOf(DiscriminatorSecondChild::class, $model->discriminator);
+        self::assertSame('second-value', $model->discriminator->secondProperty);
     }
 
     public function testPostDeserialize(): void

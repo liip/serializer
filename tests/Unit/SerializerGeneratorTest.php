@@ -4,15 +4,22 @@ declare(strict_types=1);
 
 namespace Tests\Liip\Serializer\Unit;
 
+use DateTime;
+use DateTimeImmutable;
+use DateTimeZone;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Collections\ArrayCollection;
+use Exception;
 use Liip\MetadataParser\Builder;
 use Liip\MetadataParser\ModelParser\JMSParser;
 use Liip\MetadataParser\ModelParser\PhpDocParser;
 use Liip\MetadataParser\ModelParser\ReflectionParser;
+use stdClass;
 use Tests\Liip\Serializer\Fixtures\AccessorOrder;
 use Tests\Liip\Serializer\Fixtures\AccessorOrderInherit;
 use Tests\Liip\Serializer\Fixtures\ContainsPrivateProperty;
+use Tests\Liip\Serializer\Fixtures\DiscriminatorDependency;
+use Tests\Liip\Serializer\Fixtures\DiscriminatorFirstChild;
 use Tests\Liip\Serializer\Fixtures\InaccessiblePrivateProperty;
 use Tests\Liip\Serializer\Fixtures\Inheritance;
 use Tests\Liip\Serializer\Fixtures\ListModel;
@@ -59,8 +66,8 @@ class SerializerGeneratorTest extends SerializerTestCase
         $model->detailString = 'details';
         $model->unAnnotated = 'unAnnotated';
         $model->nestedField = new Nested('nested');
-        $model->date = new \DateTime('2018-08-03', new \DateTimeZone('Europe/Zurich'));
-        $model->dateImmutable = new \DateTimeImmutable('2016-06-01', new \DateTimeZone('Europe/Zurich'));
+        $model->date = new DateTime('2018-08-03', new DateTimeZone('Europe/Zurich'));
+        $model->dateImmutable = new DateTimeImmutable('2016-06-01', new DateTimeZone('Europe/Zurich'));
 
         $expected = [
             'api_string' => 'api',
@@ -206,7 +213,7 @@ class SerializerGeneratorTest extends SerializerTestCase
         $model = new Model();
         $data = $functionName($model);
 
-        self::assertInstanceOf(\stdClass::class, $data);
+        self::assertInstanceOf(stdClass::class, $data);
         self::assertCount(0, get_object_vars($data));
     }
 
@@ -227,7 +234,7 @@ class SerializerGeneratorTest extends SerializerTestCase
         self::generateSerializers(self::$metadataBuilder, Model::class, [$functionName]);
 
         $model = new Model();
-        $model->dateWithFormat = new \DateTime('2020-04-22 10:11:12');
+        $model->dateWithFormat = new DateTime('2020-04-22 10:11:12');
         $data = $functionName($model);
 
         self::assertSame(['date_with_format' => '2020-04-22'], $data);
@@ -253,7 +260,7 @@ class SerializerGeneratorTest extends SerializerTestCase
         self::assertArrayHasKey('list_nested', $data);
         self::assertSame([], $data['list_nested']);
         self::assertArrayHasKey('hashmap', $data);
-        self::assertInstanceOf(\stdClass::class, $data['hashmap']);
+        self::assertInstanceOf(stdClass::class, $data['hashmap']);
         self::assertCount(0, get_object_vars($data['hashmap']));
     }
 
@@ -337,6 +344,26 @@ class SerializerGeneratorTest extends SerializerTestCase
         $expected = [
             'api_string' => 'apiString',
             'api_string_virtual' => 'apiString_virtual',
+        ];
+        $data = $functionName($model);
+
+        self::assertSame($expected, $data);
+    }
+
+    public function testDiscriminator(): void
+    {
+        $functionName = 'serialize_Tests_Liip_Serializer_Fixtures_DiscriminatorDependency_2';
+        self::generateSerializers(self::$metadataBuilder, DiscriminatorDependency::class, [$functionName]);
+
+        $model = new DiscriminatorDependency();
+        $model->discriminator = new DiscriminatorFirstChild();
+        $model->discriminator->firstProperty = 'my-value';
+
+        $expected = [
+            'discriminator' => [
+                'first_property' => 'my-value',
+                'type' => 'first',
+            ],
         ];
         $data = $functionName($model);
 
@@ -454,7 +481,7 @@ class SerializerGeneratorTest extends SerializerTestCase
 
     public function testInaccessibleProperty(): void
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
         $this->expectExceptionMessage('is not public and no getter has been defined');
 
         self::generateSerializers(self::$metadataBuilder, InaccessiblePrivateProperty::class, ['should never get here']);

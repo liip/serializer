@@ -40,6 +40,13 @@ if (null !== {{condition}}) {
 
 EOT;
 
+    private const TMPL_INSTANCE_OF_CONDITIONAL = <<<'EOT'
+if ({{propertyAccessor}} instanceof {{class}}) {
+    {{code}}
+}
+
+EOT;
+
     private const TMPL_ASSIGN = <<<'EOT'
 $jsonData{{jsonPath}} = {{propertyAccessor}};
 EOT;
@@ -120,6 +127,15 @@ EOT;
     {
         return $this->render(self::TMPL_CONDITIONAL, [
             'condition' => $condition,
+            'code' => $code,
+        ]);
+    }
+
+    public function renderInstanceOfConditional(string $propertyAccessor, string $class, string $code): string
+    {
+        return $this->render(self::TMPL_INSTANCE_OF_CONDITIONAL, [
+            'propertyAccessor' => $propertyAccessor,
+            'class' => $class,
             'code' => $code,
         ]);
     }

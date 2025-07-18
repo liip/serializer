@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Liip\Serializer;
 
+use Exception;
 use Liip\MetadataParser\Builder;
 use Liip\MetadataParser\Metadata\ClassMetadata;
 use Liip\MetadataParser\Metadata\PropertyMetadata;
@@ -19,6 +20,9 @@ use Liip\Serializer\Path\ArrayPath;
 use Liip\Serializer\Path\ModelPath;
 use Liip\Serializer\Template\Deserialization;
 use Symfony\Component\Filesystem\Filesystem;
+use function array_key_exists;
+use function count;
+use function is_string;
 
 final class DeserializerGenerator
 {
@@ -63,8 +67,8 @@ final class DeserializerGenerator
 
     private function writeFile(ClassMetadata $classMetadata): void
     {
-        if (\count($classMetadata->getConstructorParameters())) {
-            throw new \Exception(\sprintf('We currently do not support deserializing when the root class has a non-empty constructor. Class %s', $classMetadata->getClassName()));
+        if (count($classMetadata->getConstructorParameters())) {
+            throw new Exception(\sprintf('We currently do not support deserializing when the root class has a non-empty constructor. Class %s', $classMetadata->getClassName()));
         }
 
         $functionName = self::buildDeserializerFunctionName($classMetadata->getClassName());
@@ -89,6 +93,11 @@ final class DeserializerGenerator
         ModelPath $modelPath,
         array $stack = [],
     ): string {
+        $discriminatorMetadata = $classMetadata->getDiscriminatorMetadata();
+        if (null !== $discriminatorMetadata && $discriminatorMetadata->baseClass == $classMetadata->getClassName()) {
+            return $this->generateCodeForDiscriminatorClass($classMetadata, $arrayPath, $modelPath, $stack);
+        }
+
         $stack[$classMetadata->getClassName()] = ($stack[$classMetadata->getClassName()] ?? 0) + 1;
 
         $constructorArgumentNames = [];
@@ -102,7 +111,7 @@ final class DeserializerGenerator
                 $argument = $classMetadata->getConstructorParameter($propertyMetadata->getName());
                 $default = var_export($argument->isRequired() ? null : $argument->getDefaultValue(), true);
                 $tempVariable = ModelPath::tempVariable([(string) $modelPath, $propertyMetadata->getName()]);
-                if (\array_key_exists($propertyMetadata->getName(), $constructorArgumentNames)) {
+                if (array_key_exists($propertyMetadata->getName(), $constructorArgumentNames)) {
                     $overwrittenNames[$propertyMetadata->getName()] = true;
                 }
                 $constructorArgumentNames[$propertyMetadata->getName()] = (string) $tempVariable;
@@ -123,7 +132,7 @@ final class DeserializerGenerator
 
         $constructorArguments = [];
         foreach ($classMetadata->getConstructorParameters() as $definition) {
-            if (\array_key_exists($definition->getName(), $constructorArgumentNames)) {
+            if (array_key_exists($definition->getName(), $constructorArgumentNames)) {
                 $constructorArguments[] = $constructorArgumentNames[$definition->getName()];
                 continue;
             }
@@ -132,15 +141,39 @@ final class DeserializerGenerator
                 if ($overwrittenNames) {
                     $msg .= \sprintf(' Multiple definitions for fields %s seen - the last one overwrites previous ones.', implode(', ', array_keys($overwrittenNames)));
                 }
-                throw new \Exception($msg);
+                throw new Exception($msg);
             }
             $constructorArguments[] = var_export($definition->getDefaultValue(), true);
         }
-        if (\count($constructorArgumentNames) > 0) {
+        if (count($constructorArgumentNames) > 0) {
             $code .= $this->templating->renderUnset(array_values($constructorArgumentNames));
         }
 
         return $this->templating->renderClass((string) $modelPath, $classMetadata->getClassName(), $constructorArguments, $code, $initCode);
+    }
+
+    /**
+     * @param array<string, positive-int> $stack
+     */
+    private function generateCodeForDiscriminatorClass(
+        ClassMetadata $classMetadata,
+        ArrayPath $arrayPath,
+        ModelPath $modelPath,
+        array $stack = []
+    ): string
+    {
+        $code = '';
+        $discriminatorMetadata = $classMetadata->getDiscriminatorMetadata();
+        $discriminatorFieldPath = $arrayPath->withFieldName($discriminatorMetadata->propertyName);
+        foreach ($discriminatorMetadata->classMap as $typeValue => $class) {
+            $code .= $this->templating->renderDiscriminatorConditional(
+                (string)$discriminatorFieldPath,
+                $typeValue,
+                $this->generateCodeForClass($discriminatorMetadata->getMetadataForClass($class), $arrayPath, $modelPath, $stack)
+            );
+        }
+
+        return $code;
     }
 
     /**
@@ -212,7 +245,7 @@ final class DeserializerGenerator
                 return $this->generateCodeForArray($type, $arrayPath, $modelPropertyPath, $stack);
 
             case $type instanceof PropertyTypeDateTime:
-                $formats = $type->getDeserializeFormats() ?: (\is_string($type->getFormat()) ? [$type->getFormat()] : $type->getFormat());
+                $formats = $type->getDeserializeFormats() ?: (is_string($type->getFormat()) ? [$type->getFormat()] : $type->getFormat());
                 if (null !== $formats) {
                     return $this->templating->renderAssignDateTimeFromFormat($type->isImmutable(), (string) $modelPropertyPath, (string) $arrayPath, $formats, $type->getZone());
                 }
@@ -230,7 +263,7 @@ final class DeserializerGenerator
                 return $this->generateCodeForClass($type->getClassMetadata(), $arrayPath, $modelPropertyPath, $stack);
 
             default:
-                throw new \Exception('Unexpected type '.$type::class.' at '.$modelPropertyPath);
+                throw new Exception('Unexpected type '.$type::class.' at '.$modelPropertyPath);
         }
     }
 
@@ -266,7 +299,7 @@ final class DeserializerGenerator
                 return $this->templating->renderAssignJsonDataToField((string) $modelPath, (string) $arrayPath);
 
             default:
-                throw new \Exception('Unexpected array subtype '.$subType::class);
+                throw new Exception('Unexpected array subtype '.$subType::class);
         }
 
         if ('' === $innerCode) {
