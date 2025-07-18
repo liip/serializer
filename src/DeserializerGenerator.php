@@ -7,7 +7,7 @@ namespace Liip\Serializer;
 use Liip\MetadataParser\Builder;
 use Liip\MetadataParser\Metadata\ClassMetadata;
 use Liip\MetadataParser\Metadata\PropertyMetadata;
-use Liip\MetadataParser\Metadata\PropertyTypeArray;
+use Liip\MetadataParser\Metadata\PropertyTypeIterable;
 use Liip\MetadataParser\Metadata\PropertyTypeClass;
 use Liip\MetadataParser\Metadata\PropertyTypeDateTime;
 use Liip\MetadataParser\Metadata\PropertyTypePrimitive;
@@ -204,7 +204,7 @@ final class DeserializerGenerator
         $type = $propertyMetadata->getType();
 
         switch ($type) {
-            case $type instanceof PropertyTypeArray:
+            case $type instanceof PropertyTypeIterable:
                 if ($type->isTraversable()) {
                     return $this->generateCodeForArrayCollection($propertyMetadata, $type, $arrayPath, $modelPropertyPath, $stack);
                 }
@@ -238,7 +238,7 @@ final class DeserializerGenerator
      * @param array<string, positive-int> $stack
      */
     private function generateCodeForArray(
-        PropertyTypeArray $type,
+        PropertyTypeIterable $type,
         ArrayPath $arrayPath,
         ModelPath $modelPath,
         array $stack,
@@ -254,7 +254,7 @@ final class DeserializerGenerator
         $subType = $type->getSubType();
 
         switch ($subType) {
-            case $subType instanceof PropertyTypeArray:
+            case $subType instanceof PropertyTypeIterable:
                 $innerCode = $this->generateCodeForArray($subType, $arrayPropertyPath, $modelPropertyPath, $stack);
                 break;
 
@@ -284,7 +284,7 @@ final class DeserializerGenerator
      */
     private function generateCodeForArrayCollection(
         PropertyMetadata $propertyMetadata,
-        PropertyTypeArray $type,
+        PropertyTypeIterable $type,
         ArrayPath $arrayPath,
         ModelPath $modelPath,
         array $stack,

@@ -8,9 +8,9 @@ use Liip\MetadataParser\Builder;
 use Liip\MetadataParser\Metadata\ClassMetadata;
 use Liip\MetadataParser\Metadata\PropertyMetadata;
 use Liip\MetadataParser\Metadata\PropertyType;
-use Liip\MetadataParser\Metadata\PropertyTypeArray;
 use Liip\MetadataParser\Metadata\PropertyTypeClass;
 use Liip\MetadataParser\Metadata\PropertyTypeDateTime;
+use Liip\MetadataParser\Metadata\PropertyTypeIterable;
 use Liip\MetadataParser\Metadata\PropertyTypePrimitive;
 use Liip\MetadataParser\Metadata\PropertyTypeUnknown;
 use Liip\MetadataParser\Reducer\GroupReducer;
@@ -196,7 +196,7 @@ final class SerializerGenerator
             case $type instanceof PropertyTypeClass:
                 return $this->generateCodeForClass($type->getClassMetadata(), $apiVersion, $serializerGroups, $fieldPath, $modelPropertyPath, $stack);
 
-            case $type instanceof PropertyTypeArray:
+            case $type instanceof PropertyTypeIterable:
                 return $this->generateCodeForArray($type, $apiVersion, $serializerGroups, $fieldPath, $modelPropertyPath, $stack);
 
             default:
@@ -209,7 +209,7 @@ final class SerializerGenerator
      * @param array<string, positive-int> $stack
      */
     private function generateCodeForArray(
-        PropertyTypeArray $type,
+        PropertyTypeIterable $type,
         ?string $apiVersion,
         array $serializerGroups,
         string $arrayPath,
@@ -221,11 +221,11 @@ final class SerializerGenerator
 
         switch ($subType) {
             case $subType instanceof PropertyTypePrimitive:
-            case $subType instanceof PropertyTypeArray && self::isArrayForPrimitive($subType):
+            case $subType instanceof PropertyTypeIterable && self::isArrayForPrimitive($subType):
             case $subType instanceof PropertyTypeUnknown && $this->configuration->shouldAllowGenericArrays():
                 return $this->templating->renderArrayAssign($arrayPath, $modelPath);
 
-            case $subType instanceof PropertyTypeArray:
+            case $subType instanceof PropertyTypeIterable:
                 $innerCode = $this->generateCodeForArray($subType, $apiVersion, $serializerGroups, $arrayPath.'['.$index.']', $modelPath.'['.$index.']', $stack);
                 break;
 
@@ -252,14 +252,14 @@ final class SerializerGenerator
         return $this->templating->renderLoopArray($arrayPath, $modelPath, $index, $innerCode);
     }
 
-    private static function isArrayForPrimitive(PropertyTypeArray $type): bool
+    private static function isArrayForPrimitive(PropertyTypeIterable $type): bool
     {
         do {
             $type = $type->getSubType();
             if ($type instanceof PropertyTypePrimitive) {
                 return true;
             }
-        } while ($type instanceof PropertyTypeArray);
+        } while ($type instanceof PropertyTypeIterable);
 
         return false;
     }
