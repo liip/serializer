@@ -8,10 +8,12 @@ use Exception;
 use Liip\MetadataParser\Builder;
 use Liip\MetadataParser\Metadata\ClassMetadata;
 use Liip\MetadataParser\Metadata\PropertyMetadata;
-use Liip\MetadataParser\Metadata\PropertyTypeIterable;
+use Liip\MetadataParser\Metadata\PropertyType;
 use Liip\MetadataParser\Metadata\PropertyTypeClass;
 use Liip\MetadataParser\Metadata\PropertyTypeDateTime;
+use Liip\MetadataParser\Metadata\PropertyTypeIterable;
 use Liip\MetadataParser\Metadata\PropertyTypePrimitive;
+use Liip\MetadataParser\Metadata\PropertyTypeUnion;
 use Liip\MetadataParser\Metadata\PropertyTypeUnknown;
 use Liip\MetadataParser\Reducer\TakeBestReducer;
 use Liip\Serializer\Configuration\ClassToGenerate;
@@ -23,6 +25,7 @@ use Symfony\Component\Filesystem\Filesystem;
 use function array_key_exists;
 use function count;
 use function is_string;
+use function sprintf;
 
 final class DeserializerGenerator
 {
@@ -159,15 +162,14 @@ final class DeserializerGenerator
         ClassMetadata $classMetadata,
         ArrayPath $arrayPath,
         ModelPath $modelPath,
-        array $stack = []
-    ): string
-    {
+        array $stack = [],
+    ): string {
         $code = '';
         $discriminatorMetadata = $classMetadata->getDiscriminatorMetadata();
         $discriminatorFieldPath = $arrayPath->withFieldName($discriminatorMetadata->propertyName);
         foreach ($discriminatorMetadata->classMap as $typeValue => $class) {
             $code .= $this->templating->renderDiscriminatorConditional(
-                (string)$discriminatorFieldPath,
+                (string) $discriminatorFieldPath,
                 $typeValue,
                 $this->generateCodeForClass($discriminatorMetadata->getMetadataForClass($class), $arrayPath, $modelPath, $stack)
             );
@@ -262,9 +264,67 @@ final class DeserializerGenerator
             case $type instanceof PropertyTypeClass:
                 return $this->generateCodeForClass($type->getClassMetadata(), $arrayPath, $modelPropertyPath, $stack);
 
+            case $type instanceof PropertyTypeUnion:
+                return $this->generateCodeForUnion($type, $arrayPath, $modelPropertyPath, $stack);
+
             default:
                 throw new Exception('Unexpected type '.$type::class.' at '.$modelPropertyPath);
         }
+    }
+
+    /**
+     * @param array<string, positive-int> $stack
+     */
+    private function generateCodeForUnion(
+        PropertyTypeUnion $type,
+        ArrayPath $arrayPath,
+        ModelPath $modelPath,
+        array $stack,
+    ): string {
+        $code = '';
+
+        $types = $type->getTypes();
+        $typesWithoutPrimitives = array_filter($types, static function (PropertyType $subType): bool {
+            return !($subType instanceof PropertyTypePrimitive || $subType instanceof PropertyTypeIterable);
+        });
+
+        $fieldName = $type->getFieldName();
+        if (null !== $fieldName) {
+            $discriminatorFieldPath = $arrayPath->withFieldName($fieldName);
+
+            foreach ($type->getTypeMap() as $typeValue => $class) {
+                $classType = $type->getTypeByClassName($class);
+                $code .= $this->templating->renderDiscriminatorConditional(
+                    (string) $discriminatorFieldPath,
+                    $typeValue,
+                    $this->generateCodeForClass($classType->getClassMetadata(), $arrayPath, $modelPath, $stack)
+                );
+            }
+
+            return $code;
+        }
+
+        if (0 !== count($typesWithoutPrimitives)) {
+            throw new Exception('Found union type that contains primitives and non primitives, which is currently not supported.');
+        }
+
+        $amountOfTypes = count($types);
+        foreach ($types as $key => $subType) {
+            $phpType = 'array';
+            if ($subType instanceof PropertyTypePrimitive) {
+                $phpType = $subType->getTypeName();
+            }
+
+            $withElseBlock = $key !== ($amountOfTypes - 1);
+            $code .= $this->templating->renderPrimitiveConditional(
+                $phpType,
+                (string) $arrayPath,
+                $this->templating->renderAssignJsonDataToFieldWithCast($phpType, (string) $modelPath, (string) $arrayPath),
+                $withElseBlock
+            );
+        }
+
+        return $code;
     }
 
     /**

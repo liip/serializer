@@ -4,13 +4,34 @@ declare(strict_types=1);
 
 namespace Liip\Serializer\Template;
 
+use InvalidArgumentException;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
 use function is_string;
+use function sprintf;
 use const E_USER_DEPRECATED;
 
 final class Deserialization
 {
+    private const PRIMITIVE_CHECKS = [
+        'null' => 'is_null({{value}})',
+        'array' => 'is_array({{value}})',
+        'int' => '(string) (int) {{value}} === (string) {{value}}',
+        'float' => '(string) (float) {{value}} === (string) {{value}}',
+        'bool' => '!is_array({{value}}) && (string) (bool) {{value}} === (string) {{value}}',
+        'true' => 'true === {{value}}',
+        'false' => 'false === {{value}}',
+        'string' => '!is_array({{value}}) && !is_object({{value}})',
+    ];
+
+    private const PRIMITIVE_CASTS = [
+        'array' => '{{value}}',
+        'int' => '(int) {{value}}',
+        'float' => '(float) {{value}}',
+        'bool' => '(bool) {{value}}',
+        'string' => '(string) {{value}}',
+    ];
+
     private const TMPL_FUNCTION = <<<'EOT'
 <?php
 
@@ -52,6 +73,13 @@ EOT;
 if ({{jsonPath}} === '{{typeValue}}') {
     {{code}}
 }
+
+EOT;
+
+    private const TMPL_PRIMITIVE_CONDITIONAL = <<<'EOT'
+if ({{typeConditional}}) {
+    {{code}}
+} {% if withElseBlock %} else {% endif %}
 
 EOT;
 
@@ -203,8 +231,41 @@ EOT;
         ]);
     }
 
+    public function renderPrimitiveConditional(string $phpType, string $jsonPath, string $code, bool $withElseBlock = false): string
+    {
+        $typeCheck = self::PRIMITIVE_CHECKS[$phpType] ?? null;
+        if (null === $typeCheck) {
+            throw new InvalidArgumentException(sprintf('Provided type "%s" but only the following types are supported: %s', $phpType, implode(', ', array_keys(self::PRIMITIVE_CHECKS))));
+        }
+
+        $typeConditional = $this->render($typeCheck, [
+            'value' => $jsonPath,
+        ]);
+
+        return $this->render(self::TMPL_PRIMITIVE_CONDITIONAL, [
+            'typeConditional' => $typeConditional,
+            'code' => $code,
+            'withElseBlock' => $withElseBlock,
+        ]);
+    }
+
     public function renderAssignJsonDataToField(string $modelPath, string $jsonPath): string
     {
+        return $this->render(self::TMPL_ASSIGN_JSON_DATA_TO_FIELD, [
+            'modelPath' => $modelPath,
+            'jsonPath' => $jsonPath,
+        ]);
+    }
+
+    public function renderAssignJsonDataToFieldWithCast(string $phpType, string $modelPath, string $jsonPath): string
+    {
+        $typeCast = self::PRIMITIVE_CASTS[$phpType] ?? null;
+        if (null !== $typeCast) {
+            $jsonPath = $this->render($typeCast, [
+                'value' => $jsonPath,
+            ]);
+        }
+
         return $this->render(self::TMPL_ASSIGN_JSON_DATA_TO_FIELD, [
             'modelPath' => $modelPath,
             'jsonPath' => $jsonPath,

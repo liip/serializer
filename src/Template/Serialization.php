@@ -16,6 +16,14 @@ function {{functionName}}({{className}} $model, bool $useStdClass = true)
 {
     $emptyHashmap = $useStdClass ? new \stdClass() : [];
     $emptyObject = $useStdClass ? new \stdClass() : [];
+    $isPrimitive = function (mixed $data) {
+        if (is_array($data)) {
+            return false;
+        }
+    
+        return null === $data || is_scalar($data);
+    };
+    
 
     {{code}}
 
@@ -45,6 +53,18 @@ if ({{propertyAccessor}} instanceof {{class}}) {
     {{code}}
 }
 
+EOT;
+
+    private const TMPL_PRIMITIVE_CONDITIONAL = <<<'EOT'
+if ($isPrimitive({{propertyAccessor}})) {
+    {{code}}
+}
+EOT;
+
+    private const TMPL_ARRAY_CONDITIONAL = <<<'EOT'
+if (is_array({{propertyAccessor}})) {
+    {{code}}
+}
 EOT;
 
     private const TMPL_ASSIGN = <<<'EOT'
@@ -136,6 +156,22 @@ EOT;
         return $this->render(self::TMPL_INSTANCE_OF_CONDITIONAL, [
             'propertyAccessor' => $propertyAccessor,
             'class' => $class,
+            'code' => $code,
+        ]);
+    }
+
+    public function renderPrimitiveConditional(string $propertyAccessor, string $code): string
+    {
+        return $this->render(self::TMPL_PRIMITIVE_CONDITIONAL, [
+            'propertyAccessor' => $propertyAccessor,
+            'code' => $code,
+        ]);
+    }
+
+    public function renderArrayConditional(string $propertyAccessor, string $code): string
+    {
+        return $this->render(self::TMPL_ARRAY_CONDITIONAL, [
+            'propertyAccessor' => $propertyAccessor,
             'code' => $code,
         ]);
     }
