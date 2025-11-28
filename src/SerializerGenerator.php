@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Liip\Serializer;
 
-use DateTimeInterface;
-use Exception;
 use Liip\MetadataParser\Builder;
 use Liip\MetadataParser\Metadata\ClassMetadata;
 use Liip\MetadataParser\Metadata\PropertyMetadata;
@@ -23,8 +21,6 @@ use Liip\MetadataParser\Reducer\VersionReducer;
 use Liip\Serializer\Configuration\GeneratorConfiguration;
 use Liip\Serializer\Template\Serialization;
 use Symfony\Component\Filesystem\Filesystem;
-use function count;
-use function sprintf;
 
 final class SerializerGenerator
 {
@@ -46,7 +42,7 @@ final class SerializerGenerator
     public static function buildSerializerFunctionName(string $className, ?string $apiVersion, array $serializerGroups): string
     {
         $functionName = self::FILENAME_PREFIX.'_'.$className;
-        if (count($serializerGroups)) {
+        if (\count($serializerGroups)) {
             $functionName .= '_'.implode('_', $serializerGroups);
         }
         if (null !== $apiVersion) {
@@ -139,7 +135,7 @@ final class SerializerGenerator
 
         if (null !== $discriminatorMetadata) {
             $discriminatorFieldPath = $arrayPath.'["'.$discriminatorMetadata->propertyName.'"]';
-            $code .= $this->templating->renderAssign($discriminatorFieldPath, sprintf("'%s'", $discriminatorMetadata->value));
+            $code .= $this->templating->renderAssign($discriminatorFieldPath, \sprintf("'%s'", $discriminatorMetadata->value));
         }
 
         return $this->templating->renderClass($arrayPath, $code);
@@ -198,7 +194,7 @@ final class SerializerGenerator
             );
         }
         if (!$propertyMetadata->isPublic()) {
-            throw new Exception(\sprintf('Property %s is not public and no getter has been defined. Stack %s', $modelPropertyPath, var_export($stack, true)));
+            throw new \Exception(\sprintf('Property %s is not public and no getter has been defined. Stack %s', $modelPropertyPath, var_export($stack, true)));
         }
 
         return $this->templating->renderConditional(
@@ -221,7 +217,7 @@ final class SerializerGenerator
     ): string {
         switch ($type) {
             case $type instanceof PropertyTypeDateTime:
-                $dateFormat = $type->getFormat() ?: DateTimeInterface::ISO8601;
+                $dateFormat = $type->getFormat() ?: \DateTimeInterface::ISO8601;
 
                 return $this->templating->renderAssign(
                     $fieldPath,
@@ -243,7 +239,7 @@ final class SerializerGenerator
                 return $this->generateCodeForUnion($type, $apiVersion, $serializerGroups, $fieldPath, $modelPropertyPath, $stack);
 
             default:
-                throw new Exception('Unexpected type '.$type::class.' at '.$modelPropertyPath);
+                throw new \Exception('Unexpected type '.$type::class.' at '.$modelPropertyPath);
         }
     }
 
@@ -277,7 +273,7 @@ final class SerializerGenerator
                 break;
 
             default:
-                throw new Exception('Unexpected array subtype '.$subType::class);
+                throw new \Exception('Unexpected array subtype '.$subType::class);
         }
 
         if ('' === $innerCode) {
@@ -314,7 +310,7 @@ final class SerializerGenerator
             return !($subType instanceof PropertyTypePrimitive || $subType instanceof PropertyTypeUnknown);
         });
 
-        $hasPrimitives = count($types) !== count($typesWithoutPrimitives);
+        $hasPrimitives = \count($types) !== \count($typesWithoutPrimitives);
         if ($hasPrimitives) {
             $code .= $this->templating->renderPrimitiveConditional(
                 $modelPath,

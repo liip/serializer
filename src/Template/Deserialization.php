@@ -4,12 +4,8 @@ declare(strict_types=1);
 
 namespace Liip\Serializer\Template;
 
-use InvalidArgumentException;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
-use function is_string;
-use function sprintf;
-use const E_USER_DEPRECATED;
 
 final class Deserialization
 {
@@ -235,7 +231,7 @@ EOT;
     {
         $typeCheck = self::PRIMITIVE_CHECKS[$phpType] ?? null;
         if (null === $typeCheck) {
-            throw new InvalidArgumentException(sprintf('Provided type "%s" but only the following types are supported: %s', $phpType, implode(', ', array_keys(self::PRIMITIVE_CHECKS))));
+            throw new \InvalidArgumentException(\sprintf('Provided type "%s" but only the following types are supported: %s', $phpType, implode(', ', array_keys(self::PRIMITIVE_CHECKS))));
         }
 
         $typeConditional = $this->render($typeCheck, [
@@ -296,8 +292,8 @@ EOT;
      */
     public function renderAssignDateTimeFromFormat(bool $immutable, string $modelPath, string $jsonPath, array|string $formats, ?string $timezone = null): string
     {
-        if (is_string($formats)) {
-            @trigger_error('Passing a string for argument $formats is deprecated, please pass an array of strings instead', E_USER_DEPRECATED);
+        if (\is_string($formats)) {
+            @trigger_error('Passing a string for argument $formats is deprecated, please pass an array of strings instead', \E_USER_DEPRECATED);
             $formats = [$formats];
         }
 

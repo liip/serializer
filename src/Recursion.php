@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Liip\Serializer;
 
 use Liip\MetadataParser\Metadata\PropertyMetadata;
-use Liip\MetadataParser\Metadata\PropertyTypeIterable;
 use Liip\MetadataParser\Metadata\PropertyTypeClass;
+use Liip\MetadataParser\Metadata\PropertyTypeIterable;
 
 abstract class Recursion
 {

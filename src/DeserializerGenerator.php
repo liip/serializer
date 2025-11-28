@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Liip\Serializer;
 
-use Exception;
 use Liip\MetadataParser\Builder;
 use Liip\MetadataParser\Metadata\ClassMetadata;
 use Liip\MetadataParser\Metadata\PropertyMetadata;
@@ -22,10 +21,6 @@ use Liip\Serializer\Path\ArrayPath;
 use Liip\Serializer\Path\ModelPath;
 use Liip\Serializer\Template\Deserialization;
 use Symfony\Component\Filesystem\Filesystem;
-use function array_key_exists;
-use function count;
-use function is_string;
-use function sprintf;
 
 final class DeserializerGenerator
 {
@@ -70,8 +65,8 @@ final class DeserializerGenerator
 
     private function writeFile(ClassMetadata $classMetadata): void
     {
-        if (count($classMetadata->getConstructorParameters())) {
-            throw new Exception(\sprintf('We currently do not support deserializing when the root class has a non-empty constructor. Class %s', $classMetadata->getClassName()));
+        if (\count($classMetadata->getConstructorParameters())) {
+            throw new \Exception(\sprintf('We currently do not support deserializing when the root class has a non-empty constructor. Class %s', $classMetadata->getClassName()));
         }
 
         $functionName = self::buildDeserializerFunctionName($classMetadata->getClassName());
@@ -114,7 +109,7 @@ final class DeserializerGenerator
                 $argument = $classMetadata->getConstructorParameter($propertyMetadata->getName());
                 $default = var_export($argument->isRequired() ? null : $argument->getDefaultValue(), true);
                 $tempVariable = ModelPath::tempVariable([(string) $modelPath, $propertyMetadata->getName()]);
-                if (array_key_exists($propertyMetadata->getName(), $constructorArgumentNames)) {
+                if (\array_key_exists($propertyMetadata->getName(), $constructorArgumentNames)) {
                     $overwrittenNames[$propertyMetadata->getName()] = true;
                 }
                 $constructorArgumentNames[$propertyMetadata->getName()] = (string) $tempVariable;
@@ -135,7 +130,7 @@ final class DeserializerGenerator
 
         $constructorArguments = [];
         foreach ($classMetadata->getConstructorParameters() as $definition) {
-            if (array_key_exists($definition->getName(), $constructorArgumentNames)) {
+            if (\array_key_exists($definition->getName(), $constructorArgumentNames)) {
                 $constructorArguments[] = $constructorArgumentNames[$definition->getName()];
                 continue;
             }
@@ -144,11 +139,11 @@ final class DeserializerGenerator
                 if ($overwrittenNames) {
                     $msg .= \sprintf(' Multiple definitions for fields %s seen - the last one overwrites previous ones.', implode(', ', array_keys($overwrittenNames)));
                 }
-                throw new Exception($msg);
+                throw new \Exception($msg);
             }
             $constructorArguments[] = var_export($definition->getDefaultValue(), true);
         }
-        if (count($constructorArgumentNames) > 0) {
+        if (\count($constructorArgumentNames) > 0) {
             $code .= $this->templating->renderUnset(array_values($constructorArgumentNames));
         }
 
@@ -247,7 +242,7 @@ final class DeserializerGenerator
                 return $this->generateCodeForArray($type, $arrayPath, $modelPropertyPath, $stack);
 
             case $type instanceof PropertyTypeDateTime:
-                $formats = $type->getDeserializeFormats() ?: (is_string($type->getFormat()) ? [$type->getFormat()] : $type->getFormat());
+                $formats = $type->getDeserializeFormats() ?: (\is_string($type->getFormat()) ? [$type->getFormat()] : $type->getFormat());
                 if (null !== $formats) {
                     return $this->templating->renderAssignDateTimeFromFormat($type->isImmutable(), (string) $modelPropertyPath, (string) $arrayPath, $formats, $type->getZone());
                 }
@@ -268,7 +263,7 @@ final class DeserializerGenerator
                 return $this->generateCodeForUnion($type, $arrayPath, $modelPropertyPath, $stack);
 
             default:
-                throw new Exception('Unexpected type '.$type::class.' at '.$modelPropertyPath);
+                throw new \Exception('Unexpected type '.$type::class.' at '.$modelPropertyPath);
         }
     }
 
@@ -304,11 +299,11 @@ final class DeserializerGenerator
             return $code;
         }
 
-        if (0 !== count($typesWithoutPrimitives)) {
-            throw new Exception('Found union type that contains primitives and non primitives, which is currently not supported.');
+        if (0 !== \count($typesWithoutPrimitives)) {
+            throw new \Exception('Found union type that contains primitives and non primitives, which is currently not supported.');
         }
 
-        $amountOfTypes = count($types);
+        $amountOfTypes = \count($types);
         foreach ($types as $key => $subType) {
             $phpType = 'array';
             if ($subType instanceof PropertyTypePrimitive) {
@@ -359,7 +354,7 @@ final class DeserializerGenerator
                 return $this->templating->renderAssignJsonDataToField((string) $modelPath, (string) $arrayPath);
 
             default:
-                throw new Exception('Unexpected array subtype '.$subType::class);
+                throw new \Exception('Unexpected array subtype '.$subType::class);
         }
 
         if ('' === $innerCode) {
