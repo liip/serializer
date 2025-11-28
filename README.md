@@ -36,7 +36,7 @@ use Liip\MetadataParser\Builder;
 use Liip\MetadataParser\Parser;
 use Liip\MetadataParser\RecursionChecker;
 use Liip\MetadataParser\ModelParser\JMSParser;
-use Liip\MetadataParser\ModelParser\LiipMetadataAnnotationParser;
+use Liip\MetadataParser\ModelParser\LiipMetadataAttributeParser;
 use Liip\MetadataParser\ModelParser\PhpDocParser;
 use Liip\MetadataParser\ModelParser\ReflectionParser;
 use Liip\Serializer\DeserializerGenerator;
@@ -75,7 +75,7 @@ $parsers = [
     new ReflectionParser(),
     new PhpDocParser(),
     new JMSParser(new AnnotationReader()),
-    new LiipMetadataAnnotationParser(new AnnotationReader()),
+    new LiipMetadataAttributeParser(),
 ];
 $builder = new Builder(new Parser($parsers), new RecursionChecker(null, []));
 
