@@ -35,7 +35,7 @@ final class DeserializerGenerator
         private Deserialization $templating,
         array $classesToGenerate,
         private string $cacheDirectory,
-        ?GeneratorConfiguration $configuration = null
+        ?GeneratorConfiguration $configuration = null,
     ) {
         $this->filesystem = new Filesystem();
         $this->configuration = $this->createGeneratorConfiguration($configuration, $classesToGenerate);
@@ -64,7 +64,7 @@ final class DeserializerGenerator
     private function writeFile(ClassMetadata $classMetadata): void
     {
         if (\count($classMetadata->getConstructorParameters())) {
-            throw new \Exception(sprintf('We currently do not support deserializing when the root class has a non-empty constructor. Class %s', $classMetadata->getClassName()));
+            throw new \Exception(\sprintf('We currently do not support deserializing when the root class has a non-empty constructor. Class %s', $classMetadata->getClassName()));
         }
 
         $functionName = self::buildDeserializerFunctionName($classMetadata->getClassName());
@@ -77,7 +77,7 @@ final class DeserializerGenerator
             $this->generateCodeForClass($classMetadata, $arrayPath, new ModelPath('model'))
         );
 
-        $this->filesystem->dumpFile(sprintf('%s/%s.php', $this->cacheDirectory, $functionName), $code);
+        $this->filesystem->dumpFile(\sprintf('%s/%s.php', $this->cacheDirectory, $functionName), $code);
     }
 
     /**
@@ -87,7 +87,7 @@ final class DeserializerGenerator
         ClassMetadata $classMetadata,
         ArrayPath $arrayPath,
         ModelPath $modelPath,
-        array $stack = []
+        array $stack = [],
     ): string {
         $stack[$classMetadata->getClassName()] = ($stack[$classMetadata->getClassName()] ?? 0) + 1;
 
@@ -128,9 +128,9 @@ final class DeserializerGenerator
                 continue;
             }
             if ($definition->isRequired()) {
-                $msg = sprintf('Unknown constructor argument "%s". Class %s only has properties that tell how to handle %s.', $definition->getName(), $classMetadata->getClassName(), implode(', ', array_keys($constructorArgumentNames)));
+                $msg = \sprintf('Unknown constructor argument "%s". Class %s only has properties that tell how to handle %s.', $definition->getName(), $classMetadata->getClassName(), implode(', ', array_keys($constructorArgumentNames)));
                 if ($overwrittenNames) {
-                    $msg .= sprintf(' Multiple definitions for fields %s seen - the last one overwrites previous ones.', implode(', ', array_keys($overwrittenNames)));
+                    $msg .= \sprintf(' Multiple definitions for fields %s seen - the last one overwrites previous ones.', implode(', ', array_keys($overwrittenNames)));
                 }
                 throw new \Exception($msg);
             }
@@ -150,7 +150,7 @@ final class DeserializerGenerator
         PropertyMetadata $propertyMetadata,
         ArrayPath $arrayPath,
         ModelPath $modelPath,
-        array $stack
+        array $stack,
     ): string {
         if ($propertyMetadata->isReadOnly()) {
             return '';
@@ -184,7 +184,7 @@ final class DeserializerGenerator
         PropertyMetadata $propertyMetadata,
         ArrayPath $arrayPath,
         ModelPath $modelPath,
-        array $stack
+        array $stack,
     ): string {
         return $this->templating->renderConditional(
             (string) $arrayPath,
@@ -199,7 +199,7 @@ final class DeserializerGenerator
         PropertyMetadata $propertyMetadata,
         ArrayPath $arrayPath,
         ModelPath $modelPropertyPath,
-        array $stack
+        array $stack,
     ): string {
         $type = $propertyMetadata->getType();
 
@@ -241,7 +241,7 @@ final class DeserializerGenerator
         PropertyTypeArray $type,
         ArrayPath $arrayPath,
         ModelPath $modelPath,
-        array $stack
+        array $stack,
     ): string {
         if ($type->getSubType() instanceof PropertyTypePrimitive) {
             // for arrays of scalars, copy the field even when its an empty array
@@ -287,7 +287,7 @@ final class DeserializerGenerator
         PropertyTypeArray $type,
         ArrayPath $arrayPath,
         ModelPath $modelPath,
-        array $stack
+        array $stack,
     ): string {
         $tmpVariable = ModelPath::tempVariable([(string) $modelPath, $propertyMetadata->getName()]);
         $innerCode = $this->generateCodeForArray($type, $arrayPath, $tmpVariable, $stack);
@@ -304,7 +304,7 @@ final class DeserializerGenerator
      */
     private function createGeneratorConfiguration(
         ?GeneratorConfiguration $configuration,
-        array $classesToGenerate
+        array $classesToGenerate,
     ): GeneratorConfiguration {
         if (null === $configuration) {
             $configuration = new GeneratorConfiguration([], []);

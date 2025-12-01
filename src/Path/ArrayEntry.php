@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Liip\Serializer\Path;
 
-final class ArrayEntry extends AbstractEntry
+final class ArrayEntry extends AbstractEntry implements \Stringable
 {
     public function __toString(): string
     {

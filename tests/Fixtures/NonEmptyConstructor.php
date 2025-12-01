@@ -22,7 +22,7 @@ class NonEmptyConstructor
         /**
          * @Serializer\Type("string")
          */
-        private string $optional = 'optional'
+        private string $optional = 'optional',
     ) {
     }
 

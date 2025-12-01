@@ -11,7 +11,7 @@ final class Compiler
     public function __construct(
         private Builder $metadataBuilder,
         private DeserializerGenerator $deserializerGenerator,
-        private SerializerGenerator $serializerGenerator
+        private SerializerGenerator $serializerGenerator,
     ) {
     }
 

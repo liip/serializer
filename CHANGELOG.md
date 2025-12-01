@@ -1,5 +1,9 @@
 # Changelog
 
+# 2.6.2
+
+* Test with PHP 8.4 and 8.5.
+
 # 2.6.1
 
 * Fixed: Dates with a getter/setter where incorrectly handled in the refactoring for 2.6.0.

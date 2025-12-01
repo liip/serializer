@@ -35,7 +35,7 @@ class AccessorOrder
          *
          * @Serializer\Until("1")
          */
-        public ?string $apiString2
+        public ?string $apiString2,
     ) {
         $this->apiString1 = $apiString1;
     }

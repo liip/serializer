@@ -27,7 +27,7 @@ class GroupCombination
          * If not specified, this falls back to the class default.
          * If the array is not null, it must have a length > 0.
          */
-        private ?array $versions = null
+        private ?array $versions = null,
     ) {
         sort($this->groups);
 
