@@ -1,5 +1,7 @@
 # Changelog
 
+# 2.x
+
 # 2.6.2
 
 * Add support for Symfony 8.
