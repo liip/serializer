@@ -1,5 +1,9 @@
 # Changelog
 
+# 3.x
+
+# 3.0.0 (unreleased)
+
 # 2.x
 
 # 2.6.2
