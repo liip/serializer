@@ -4,7 +4,14 @@
 
 # 3.0.0 (unreleased)
 
-* Update to liip/metadata-parser 2.x
+* Update to liip/metadata-parser 2.x. Most notable changes:
+  * Switched from annotations to attributes. Replace `LiipMetadataAnnotationParser` with
+    `LiipMetadataAttributeParser` and change `@Preferred` annotations to `#[Preferred]` attributes.
+  * Setting a (different) naming strategy via the `PropertyCollection::useIdenticalNamingStrategy`
+    is no longer possible. Instead, pass the naming strategy as second argument to the constructor
+    of the `Parser`.
+  * For further changes in this library, take a look at the 
+    [changelog from metadata-parser](https://github.com/liip/metadata-parser/blob/2.x/CHANGELOG.md)
 * Add discriminator support
 
 # 2.x
