@@ -18,7 +18,7 @@ final class UnsupportedTypeException extends Exception
 
     public static function typeUnsupportedDeserialization(string $type): self
     {
-        return new self(sprintf(self::UNSUPPORTED_TYPE_DESERIALIZATION, $type));
+        return new self(\sprintf(self::UNSUPPORTED_TYPE_DESERIALIZATION, $type));
     }
 
     /**
@@ -29,6 +29,6 @@ final class UnsupportedTypeException extends Exception
         $versionInfo = $version ?: '[no version]';
         $groupInfo = \count($groups) ? implode(', ', $groups) : '[no groups]';
 
-        return new self(sprintf(self::UNSUPPORTED_TYPE_SERIALIZATION, $type, $versionInfo, $groupInfo));
+        return new self(\sprintf(self::UNSUPPORTED_TYPE_SERIALIZATION, $type, $versionInfo, $groupInfo));
     }
 }

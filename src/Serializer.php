@@ -37,7 +37,7 @@ final class Serializer implements SerializerInterface
         try {
             return Json::encode($this->objectToArray($data, true, $context), \JSON_UNESCAPED_SLASHES);
         } catch (\JsonException $e) {
-            throw new Exception(sprintf('Failed to JSON encode data for %s. This is not supposed to happen.', get_debug_type($data)), 0, $e);
+            throw new Exception(\sprintf('Failed to JSON encode data for %s. This is not supposed to happen.', get_debug_type($data)), 0, $e);
         }
     }
 
@@ -94,14 +94,14 @@ final class Serializer implements SerializerInterface
         }
 
         $functionName = DeserializerGenerator::buildDeserializerFunctionName($type);
-        $filename = sprintf('%s/%s.php', $this->cacheDirectory, $functionName);
+        $filename = \sprintf('%s/%s.php', $this->cacheDirectory, $functionName);
         if (!file_exists($filename)) {
             throw UnsupportedTypeException::typeUnsupportedDeserialization($type);
         }
         require_once $filename;
 
         if (!\is_callable($functionName)) {
-            throw new Exception(sprintf('Internal Error: Deserializer for %s in file %s does not have expected function %s', $type, $filename, $functionName));
+            throw new Exception(\sprintf('Internal Error: Deserializer for %s in file %s does not have expected function %s', $type, $filename, $functionName));
         }
 
         try {
@@ -129,7 +129,7 @@ final class Serializer implements SerializerInterface
             }
         }
         $functionName = SerializerGenerator::buildSerializerFunctionName($type, $version ?: null, $groups);
-        $filename = sprintf('%s/%s.php', $this->cacheDirectory, $functionName);
+        $filename = \sprintf('%s/%s.php', $this->cacheDirectory, $functionName);
         if (!file_exists($filename)) {
             throw UnsupportedTypeException::typeUnsupportedSerialization($type, $version, $groups);
         }
@@ -137,7 +137,7 @@ final class Serializer implements SerializerInterface
         require_once $filename;
 
         if (!\is_callable($functionName)) {
-            throw new Exception(sprintf('Internal Error: Serializer for %s in file %s does not have expected function %s', $type, $filename, $functionName));
+            throw new Exception(\sprintf('Internal Error: Serializer for %s in file %s does not have expected function %s', $type, $filename, $functionName));
         }
 
         try {

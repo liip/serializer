@@ -30,7 +30,7 @@ final class SerializerGenerator
     public function __construct(
         private Serialization $templating,
         private GeneratorConfiguration $configuration,
-        private string $cacheDirectory
+        private string $cacheDirectory,
     ) {
         $this->filesystem = new Filesystem();
     }
@@ -95,7 +95,7 @@ final class SerializerGenerator
         string $className,
         ?string $apiVersion,
         array $serializerGroups,
-        ClassMetadata $classMetadata
+        ClassMetadata $classMetadata,
     ): void {
         $functionName = self::buildSerializerFunctionName($className, $apiVersion, $serializerGroups);
 
@@ -105,7 +105,7 @@ final class SerializerGenerator
             $this->generateCodeForClass($classMetadata, $apiVersion, $serializerGroups, '', '$model')
         );
 
-        $this->filesystem->dumpFile(sprintf('%s/%s.php', $this->cacheDirectory, $functionName), $code);
+        $this->filesystem->dumpFile(\sprintf('%s/%s.php', $this->cacheDirectory, $functionName), $code);
     }
 
     /**
@@ -118,7 +118,7 @@ final class SerializerGenerator
         array $serializerGroups,
         string $arrayPath,
         string $modelPath,
-        array $stack = []
+        array $stack = [],
     ): string {
         $stack[$classMetadata->getClassName()] = ($stack[$classMetadata->getClassName()] ?? 0) + 1;
 
@@ -140,7 +140,7 @@ final class SerializerGenerator
         array $serializerGroups,
         string $arrayPath,
         string $modelPath,
-        array $stack
+        array $stack,
     ): string {
         if (Recursion::hasMaxDepthReached($propertyMetadata, $stack)) {
             return '';
@@ -158,7 +158,7 @@ final class SerializerGenerator
             );
         }
         if (!$propertyMetadata->isPublic()) {
-            throw new \Exception(sprintf('Property %s is not public and no getter has been defined. Stack %s', $modelPropertyPath, var_export($stack, true)));
+            throw new \Exception(\sprintf('Property %s is not public and no getter has been defined. Stack %s', $modelPropertyPath, var_export($stack, true)));
         }
 
         return $this->templating->renderConditional(
@@ -177,7 +177,7 @@ final class SerializerGenerator
         array $serializerGroups,
         string $fieldPath,
         string $modelPropertyPath,
-        array $stack
+        array $stack,
     ): string {
         switch ($type) {
             case $type instanceof PropertyTypeDateTime:
@@ -214,7 +214,7 @@ final class SerializerGenerator
         array $serializerGroups,
         string $arrayPath,
         string $modelPath,
-        array $stack
+        array $stack,
     ): string {
         $index = '$index'.mb_strlen($arrayPath);
         $subType = $type->getSubType();
