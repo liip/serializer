@@ -2,6 +2,7 @@
 
 # 2.6.2
 
+* Add support for Symfony 8.
 * Test with PHP 8.4 and 8.5.
 
 # 2.6.1
