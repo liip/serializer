@@ -288,15 +288,10 @@ EOT;
     }
 
     /**
-     * @param list<string>|string $formats
+     * @param list<string> $formats
      */
-    public function renderAssignDateTimeFromFormat(bool $immutable, string $modelPath, string $jsonPath, array|string $formats, ?string $timezone = null): string
+    public function renderAssignDateTimeFromFormat(bool $immutable, string $modelPath, string $jsonPath, array $formats, ?string $timezone = null): string
     {
-        if (\is_string($formats)) {
-            @trigger_error('Passing a string for argument $formats is deprecated, please pass an array of strings instead', \E_USER_DEPRECATED);
-            $formats = [$formats];
-        }
-
         $template = $immutable ? self::TMPL_ASSIGN_DATETIME_IMMUTABLE_FROM_FORMAT : self::TMPL_ASSIGN_DATETIME_FROM_FORMAT;
         $formats = array_map(
             static fn (string $f): string => var_export($f, true),
