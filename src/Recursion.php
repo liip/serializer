@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Liip\Serializer;
 
 use Liip\MetadataParser\Metadata\PropertyMetadata;
-use Liip\MetadataParser\Metadata\PropertyTypeArray;
 use Liip\MetadataParser\Metadata\PropertyTypeClass;
+use Liip\MetadataParser\Metadata\PropertyTypeIterable;
 
 abstract class Recursion
 {
@@ -44,7 +44,7 @@ abstract class Recursion
     private static function getClassNameFromProperty(PropertyMetadata $propertyMetadata): ?string
     {
         $type = $propertyMetadata->getType();
-        if ($type instanceof PropertyTypeArray) {
+        if ($type instanceof PropertyTypeIterable) {
             $type = $type->getLeafType();
         }
 

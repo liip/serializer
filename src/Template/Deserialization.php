@@ -9,6 +9,25 @@ use Twig\Loader\ArrayLoader;
 
 final class Deserialization
 {
+    private const PRIMITIVE_CHECKS = [
+        'null' => 'is_null({{value}})',
+        'array' => 'is_array({{value}})',
+        'int' => '(string) (int) {{value}} === (string) {{value}}',
+        'float' => '(string) (float) {{value}} === (string) {{value}}',
+        'bool' => '!is_array({{value}}) && (string) (bool) {{value}} === (string) {{value}}',
+        'true' => 'true === {{value}}',
+        'false' => 'false === {{value}}',
+        'string' => '!is_array({{value}}) && !is_object({{value}})',
+    ];
+
+    private const PRIMITIVE_CASTS = [
+        'array' => '{{value}}',
+        'int' => '(int) {{value}}',
+        'float' => '(float) {{value}}',
+        'bool' => '(bool) {{value}}',
+        'string' => '(string) {{value}}',
+    ];
+
     private const TMPL_FUNCTION = <<<'EOT'
 <?php
 
@@ -43,6 +62,20 @@ EOT;
 if (isset({{data}})) {
     {{code}}
 }
+
+EOT;
+
+    private const TMPL_DISCRIMINATOR_CONDITIONAL = <<<'EOT'
+if ({{jsonPath}} === '{{typeValue}}') {
+    {{code}}
+}
+
+EOT;
+
+    private const TMPL_PRIMITIVE_CONDITIONAL = <<<'EOT'
+if ({{typeConditional}}) {
+    {{code}}
+} {% if withElseBlock %} else {% endif %}
 
 EOT;
 
@@ -185,8 +218,50 @@ EOT;
         ]);
     }
 
+    public function renderDiscriminatorConditional(string $jsonPath, string $typeValue, string $code): string
+    {
+        return $this->render(self::TMPL_DISCRIMINATOR_CONDITIONAL, [
+            'jsonPath' => $jsonPath,
+            'typeValue' => $typeValue,
+            'code' => $code,
+        ]);
+    }
+
+    public function renderPrimitiveConditional(string $phpType, string $jsonPath, string $code, bool $withElseBlock = false): string
+    {
+        $typeCheck = self::PRIMITIVE_CHECKS[$phpType] ?? null;
+        if (null === $typeCheck) {
+            throw new \InvalidArgumentException(\sprintf('Provided type "%s" but only the following types are supported: %s', $phpType, implode(', ', array_keys(self::PRIMITIVE_CHECKS))));
+        }
+
+        $typeConditional = $this->render($typeCheck, [
+            'value' => $jsonPath,
+        ]);
+
+        return $this->render(self::TMPL_PRIMITIVE_CONDITIONAL, [
+            'typeConditional' => $typeConditional,
+            'code' => $code,
+            'withElseBlock' => $withElseBlock,
+        ]);
+    }
+
     public function renderAssignJsonDataToField(string $modelPath, string $jsonPath): string
     {
+        return $this->render(self::TMPL_ASSIGN_JSON_DATA_TO_FIELD, [
+            'modelPath' => $modelPath,
+            'jsonPath' => $jsonPath,
+        ]);
+    }
+
+    public function renderAssignJsonDataToFieldWithCast(string $phpType, string $modelPath, string $jsonPath): string
+    {
+        $typeCast = self::PRIMITIVE_CASTS[$phpType] ?? null;
+        if (null !== $typeCast) {
+            $jsonPath = $this->render($typeCast, [
+                'value' => $jsonPath,
+            ]);
+        }
+
         return $this->render(self::TMPL_ASSIGN_JSON_DATA_TO_FIELD, [
             'modelPath' => $modelPath,
             'jsonPath' => $jsonPath,
@@ -213,15 +288,10 @@ EOT;
     }
 
     /**
-     * @param list<string>|string $formats
+     * @param list<string> $formats
      */
-    public function renderAssignDateTimeFromFormat(bool $immutable, string $modelPath, string $jsonPath, array|string $formats, ?string $timezone = null): string
+    public function renderAssignDateTimeFromFormat(bool $immutable, string $modelPath, string $jsonPath, array $formats, ?string $timezone = null): string
     {
-        if (\is_string($formats)) {
-            @trigger_error('Passing a string for argument $formats is deprecated, please pass an array of strings instead', \E_USER_DEPRECATED);
-            $formats = [$formats];
-        }
-
         $template = $immutable ? self::TMPL_ASSIGN_DATETIME_IMMUTABLE_FROM_FORMAT : self::TMPL_ASSIGN_DATETIME_FROM_FORMAT;
         $formats = array_map(
             static fn (string $f): string => var_export($f, true),

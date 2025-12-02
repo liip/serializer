@@ -12,7 +12,13 @@ use Liip\MetadataParser\ModelParser\PhpDocParser;
 use Liip\MetadataParser\ModelParser\ReflectionParser;
 use Liip\Serializer\DeserializerGenerator;
 use Liip\Serializer\Template\Deserialization;
+use Tests\Liip\Serializer\Fixtures\ComplexUnionTyping;
 use Tests\Liip\Serializer\Fixtures\ContainsNonEmptyConstructor;
+use Tests\Liip\Serializer\Fixtures\DiscriminatorAuthor;
+use Tests\Liip\Serializer\Fixtures\DiscriminatorComment;
+use Tests\Liip\Serializer\Fixtures\DiscriminatorDependency;
+use Tests\Liip\Serializer\Fixtures\DiscriminatorFirstChild;
+use Tests\Liip\Serializer\Fixtures\DiscriminatorSecondChild;
 use Tests\Liip\Serializer\Fixtures\FloatProperty;
 use Tests\Liip\Serializer\Fixtures\Inheritance;
 use Tests\Liip\Serializer\Fixtures\ListModel;
@@ -20,6 +26,7 @@ use Tests\Liip\Serializer\Fixtures\Model;
 use Tests\Liip\Serializer\Fixtures\Nested;
 use Tests\Liip\Serializer\Fixtures\NonEmptyConstructor;
 use Tests\Liip\Serializer\Fixtures\PostDeserialize;
+use Tests\Liip\Serializer\Fixtures\PrimitiveUnionTyping;
 use Tests\Liip\Serializer\Fixtures\PrivateProperty;
 use Tests\Liip\Serializer\Fixtures\RecursionModel;
 use Tests\Liip\Serializer\Fixtures\UnknownArraySubType;
@@ -267,6 +274,96 @@ class DeserializerGeneratorTest extends SerializerTestCase
         $model = $functionName($input);
         self::assertInstanceOf(VirtualProperties::class, $model);
         self::assertSame('apiString', $model->apiString);
+    }
+
+    public function testDiscriminator(): void
+    {
+        $functionName = 'deserialize_Tests_Liip_Serializer_Fixtures_DiscriminatorDependency';
+        self::generateDeserializer(self::$metadataBuilder, DiscriminatorDependency::class, $functionName);
+
+        $input = [
+            'discriminator' => [
+                'first_property' => 'first-value',
+                'type' => 'first',
+            ],
+        ];
+        $model = $functionName($input);
+
+        self::assertInstanceOf(DiscriminatorDependency::class, $model);
+        self::assertInstanceOf(DiscriminatorFirstChild::class, $model->discriminator);
+        self::assertSame('first-value', $model->discriminator->firstProperty);
+
+        $input = [
+            'discriminator' => [
+                'second_property' => 'second-value',
+                'type' => 'second',
+            ],
+        ];
+        $model = $functionName($input);
+
+        self::assertInstanceOf(DiscriminatorDependency::class, $model);
+        self::assertInstanceOf(DiscriminatorSecondChild::class, $model->discriminator);
+        self::assertSame('second-value', $model->discriminator->secondProperty);
+    }
+
+    public function testComplexUnionDiscriminator(): void
+    {
+        if (\PHP_VERSION_ID < 80100) {
+            self::markTestSkipped('Intersection property types are only supported in PHP 8.1 or newer');
+        }
+
+        $functionName = 'deserialize_Tests_Liip_Serializer_Fixtures_ComplexUnionTyping';
+        self::generateDeserializer(self::$metadataBuilder, ComplexUnionTyping::class, $functionName);
+
+        $input = [
+            'property' => [
+                'text' => 'my-text',
+                'objectType' => 'comment',
+            ],
+        ];
+        $model = $functionName($input);
+
+        self::assertInstanceOf(ComplexUnionTyping::class, $model);
+        self::assertInstanceOf(DiscriminatorComment::class, $model->property);
+        self::assertSame('my-text', $model->property->text);
+
+        $input = [
+            'property' => [
+                'name' => 'my-author',
+                'objectType' => 'author',
+            ],
+        ];
+        $model = $functionName($input);
+
+        self::assertInstanceOf(ComplexUnionTyping::class, $model);
+        self::assertInstanceOf(DiscriminatorAuthor::class, $model->property);
+        self::assertSame('my-author', $model->property->name);
+    }
+
+    /**
+     * @dataProvider providePrimitiveUnionDiscriminatorCases
+     */
+    public function testPrimitiveUnionDiscriminator(mixed $propertyValue): void
+    {
+        $functionName = 'deserialize_Tests_Liip_Serializer_Fixtures_PrimitiveUnionTyping';
+        self::generateDeserializer(self::$metadataBuilder, PrimitiveUnionTyping::class, $functionName, ['allow_generic_arrays' => true]);
+
+        $input = ['property' => $propertyValue];
+        $model = $functionName($input);
+
+        self::assertInstanceOf(PrimitiveUnionTyping::class, $model);
+        self::assertSame($propertyValue, $model->property);
+    }
+
+    public static function providePrimitiveUnionDiscriminatorCases(): iterable
+    {
+        return [
+            [42],
+            ['string-value'],
+            [false],
+            [0.5],
+            [['key' => 'value', 'another_key' => 'another_value']],
+        ];
     }
 
     public function testPostDeserialize(): void

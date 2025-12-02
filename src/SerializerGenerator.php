@@ -8,10 +8,11 @@ use Liip\MetadataParser\Builder;
 use Liip\MetadataParser\Metadata\ClassMetadata;
 use Liip\MetadataParser\Metadata\PropertyMetadata;
 use Liip\MetadataParser\Metadata\PropertyType;
-use Liip\MetadataParser\Metadata\PropertyTypeArray;
 use Liip\MetadataParser\Metadata\PropertyTypeClass;
 use Liip\MetadataParser\Metadata\PropertyTypeDateTime;
+use Liip\MetadataParser\Metadata\PropertyTypeIterable;
 use Liip\MetadataParser\Metadata\PropertyTypePrimitive;
+use Liip\MetadataParser\Metadata\PropertyTypeUnion;
 use Liip\MetadataParser\Metadata\PropertyTypeUnknown;
 use Liip\MetadataParser\Reducer\GroupReducer;
 use Liip\MetadataParser\Reducer\PreferredReducer;
@@ -120,6 +121,11 @@ final class SerializerGenerator
         string $modelPath,
         array $stack = [],
     ): string {
+        $discriminatorMetadata = $classMetadata->getDiscriminatorMetadata();
+        if (null !== $discriminatorMetadata && $discriminatorMetadata->baseClass == $classMetadata->getClassName()) {
+            return $this->generateCodeForDiscriminatorClass($classMetadata, $apiVersion, $serializerGroups, $arrayPath, $modelPath, $stack);
+        }
+
         $stack[$classMetadata->getClassName()] = ($stack[$classMetadata->getClassName()] ?? 0) + 1;
 
         $code = '';
@@ -127,7 +133,37 @@ final class SerializerGenerator
             $code .= $this->generateCodeForField($propertyMetadata, $apiVersion, $serializerGroups, $arrayPath, $modelPath, $stack);
         }
 
+        if (null !== $discriminatorMetadata) {
+            $discriminatorFieldPath = $arrayPath.'["'.$discriminatorMetadata->propertyName.'"]';
+            $code .= $this->templating->renderAssign($discriminatorFieldPath, \sprintf("'%s'", $discriminatorMetadata->value));
+        }
+
         return $this->templating->renderClass($arrayPath, $code);
+    }
+
+    /**
+     * @param list<string>                $serializerGroups
+     * @param array<string, positive-int> $stack
+     */
+    private function generateCodeForDiscriminatorClass(
+        ClassMetadata $classMetadata,
+        ?string $apiVersion,
+        array $serializerGroups,
+        string $arrayPath,
+        string $modelPath,
+        array $stack = [],
+    ): string {
+        $code = '';
+        $discriminatorMetadata = $classMetadata->getDiscriminatorMetadata();
+        foreach ($discriminatorMetadata->classMap as $class) {
+            $code .= $this->templating->renderInstanceOfConditional(
+                $modelPath,
+                $class,
+                $this->generateCodeForClass($discriminatorMetadata->getMetadataForClass($class), $apiVersion, $serializerGroups, $arrayPath, $modelPath, $stack)
+            );
+        }
+
+        return $code;
     }
 
     /**
@@ -196,8 +232,11 @@ final class SerializerGenerator
             case $type instanceof PropertyTypeClass:
                 return $this->generateCodeForClass($type->getClassMetadata(), $apiVersion, $serializerGroups, $fieldPath, $modelPropertyPath, $stack);
 
-            case $type instanceof PropertyTypeArray:
+            case $type instanceof PropertyTypeIterable:
                 return $this->generateCodeForArray($type, $apiVersion, $serializerGroups, $fieldPath, $modelPropertyPath, $stack);
+
+            case $type instanceof PropertyTypeUnion:
+                return $this->generateCodeForUnion($type, $apiVersion, $serializerGroups, $fieldPath, $modelPropertyPath, $stack);
 
             default:
                 throw new \Exception('Unexpected type '.$type::class.' at '.$modelPropertyPath);
@@ -209,7 +248,7 @@ final class SerializerGenerator
      * @param array<string, positive-int> $stack
      */
     private function generateCodeForArray(
-        PropertyTypeArray $type,
+        PropertyTypeIterable $type,
         ?string $apiVersion,
         array $serializerGroups,
         string $arrayPath,
@@ -221,11 +260,11 @@ final class SerializerGenerator
 
         switch ($subType) {
             case $subType instanceof PropertyTypePrimitive:
-            case $subType instanceof PropertyTypeArray && self::isArrayForPrimitive($subType):
+            case $subType instanceof PropertyTypeIterable && self::isArrayForPrimitive($subType):
             case $subType instanceof PropertyTypeUnknown && $this->configuration->shouldAllowGenericArrays():
                 return $this->templating->renderArrayAssign($arrayPath, $modelPath);
 
-            case $subType instanceof PropertyTypeArray:
+            case $subType instanceof PropertyTypeIterable:
                 $innerCode = $this->generateCodeForArray($subType, $apiVersion, $serializerGroups, $arrayPath.'['.$index.']', $modelPath.'['.$index.']', $stack);
                 break;
 
@@ -252,14 +291,62 @@ final class SerializerGenerator
         return $this->templating->renderLoopArray($arrayPath, $modelPath, $index, $innerCode);
     }
 
-    private static function isArrayForPrimitive(PropertyTypeArray $type): bool
+    /**
+     * @param list<string>                $serializerGroups
+     * @param array<string, positive-int> $stack
+     */
+    private function generateCodeForUnion(
+        PropertyTypeUnion $subType,
+        ?string $apiVersion,
+        array $serializerGroups,
+        string $arrayPath,
+        string $modelPath,
+        array $stack,
+    ): string {
+        $code = '';
+
+        $types = $subType->getTypes();
+        $typesWithoutPrimitives = array_filter($types, static function (PropertyType $subType): bool {
+            return !($subType instanceof PropertyTypePrimitive || $subType instanceof PropertyTypeUnknown);
+        });
+
+        $hasPrimitives = \count($types) !== \count($typesWithoutPrimitives);
+        if ($hasPrimitives) {
+            $code .= $this->templating->renderPrimitiveConditional(
+                $modelPath,
+                $this->templating->renderAssign($arrayPath, $modelPath)
+            );
+        }
+
+        foreach ($typesWithoutPrimitives as $subType) {
+            switch ($subType::class) {
+                case PropertyTypeClass::class:
+                    $code .= $this->templating->renderInstanceOfConditional(
+                        $modelPath,
+                        $subType->getClassName(),
+                        $this->generateCodeForFieldType($subType, $apiVersion, $serializerGroups, $arrayPath, $modelPath, $stack)
+                    );
+                    break;
+                case PropertyTypeIterable::class:
+                    $code .= $this->templating->renderArrayConditional(
+                        $modelPath,
+                        $this->generateCodeForArray($subType, $apiVersion, $serializerGroups, $arrayPath, $modelPath, $stack)
+                    );
+                    break;
+            }
+        }
+
+        return $code;
+    }
+
+    private static function isArrayForPrimitive(PropertyTypeIterable $type): bool
     {
         do {
             $type = $type->getSubType();
             if ($type instanceof PropertyTypePrimitive) {
                 return true;
             }
-        } while ($type instanceof PropertyTypeArray);
+        } while ($type instanceof PropertyTypeIterable);
 
         return false;
     }

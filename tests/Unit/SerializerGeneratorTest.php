@@ -12,7 +12,12 @@ use Liip\MetadataParser\ModelParser\PhpDocParser;
 use Liip\MetadataParser\ModelParser\ReflectionParser;
 use Tests\Liip\Serializer\Fixtures\AccessorOrder;
 use Tests\Liip\Serializer\Fixtures\AccessorOrderInherit;
+use Tests\Liip\Serializer\Fixtures\ComplexUnionTyping;
 use Tests\Liip\Serializer\Fixtures\ContainsPrivateProperty;
+use Tests\Liip\Serializer\Fixtures\DiscriminatorAuthor;
+use Tests\Liip\Serializer\Fixtures\DiscriminatorComment;
+use Tests\Liip\Serializer\Fixtures\DiscriminatorDependency;
+use Tests\Liip\Serializer\Fixtures\DiscriminatorFirstChild;
 use Tests\Liip\Serializer\Fixtures\InaccessiblePrivateProperty;
 use Tests\Liip\Serializer\Fixtures\Inheritance;
 use Tests\Liip\Serializer\Fixtures\ListModel;
@@ -20,6 +25,7 @@ use Tests\Liip\Serializer\Fixtures\Model;
 use Tests\Liip\Serializer\Fixtures\MultidimensionalArrayForPrimitive;
 use Tests\Liip\Serializer\Fixtures\Nested;
 use Tests\Liip\Serializer\Fixtures\PostDeserialize;
+use Tests\Liip\Serializer\Fixtures\PrimitiveUnionTyping;
 use Tests\Liip\Serializer\Fixtures\PrivateProperty;
 use Tests\Liip\Serializer\Fixtures\RecursionModel;
 use Tests\Liip\Serializer\Fixtures\UnknownArraySubType;
@@ -341,6 +347,92 @@ class SerializerGeneratorTest extends SerializerTestCase
         $data = $functionName($model);
 
         self::assertSame($expected, $data);
+    }
+
+    public function testDiscriminator(): void
+    {
+        $functionName = 'serialize_Tests_Liip_Serializer_Fixtures_DiscriminatorDependency_2';
+        self::generateSerializers(self::$metadataBuilder, DiscriminatorDependency::class, [$functionName]);
+
+        $model = new DiscriminatorDependency();
+        $model->discriminator = new DiscriminatorFirstChild();
+        $model->discriminator->firstProperty = 'my-value';
+
+        $expected = [
+            'discriminator' => [
+                'first_property' => 'my-value',
+                'type' => 'first',
+            ],
+        ];
+        $data = $functionName($model);
+
+        self::assertSame($expected, $data);
+    }
+
+    public function testComplexUnionDiscriminator(): void
+    {
+        if (\PHP_VERSION_ID < 80100) {
+            self::markTestSkipped('Intersection property types are only supported in PHP 8.1 or newer');
+        }
+
+        $functionName = 'serialize_Tests_Liip_Serializer_Fixtures_ComplexUnionTyping_2';
+        self::generateSerializers(self::$metadataBuilder, ComplexUnionTyping::class, [$functionName]);
+
+        $model = new ComplexUnionTyping();
+        $model->property = new DiscriminatorAuthor();
+        $model->property->name = 'author-name';
+
+        $expected = [
+            'property' => [
+                'name' => 'author-name',
+                'objectType' => 'author',
+            ],
+        ];
+        $data = $functionName($model);
+
+        self::assertSame($expected, $data);
+
+        $model = new ComplexUnionTyping();
+        $model->property = new DiscriminatorComment();
+        $model->property->text = 'comment-text';
+
+        $expected = [
+            'property' => [
+                'text' => 'comment-text',
+                'objectType' => 'comment',
+            ],
+        ];
+        $data = $functionName($model);
+
+        self::assertSame($expected, $data);
+    }
+
+    /**
+     * @dataProvider providePrimitiveUnionDiscriminatorCases
+     */
+    public function testPrimitiveUnionDiscriminator(mixed $propertyValue): void
+    {
+        $functionName = 'serialize_Tests_Liip_Serializer_Fixtures_PrimitiveUnionTyping';
+        self::generateSerializers(self::$metadataBuilder, PrimitiveUnionTyping::class, [$functionName], [''], [], ['allow_generic_arrays' => true]);
+
+        $model = new PrimitiveUnionTyping();
+        $model->property = $propertyValue;
+
+        $expected = ['property' => $propertyValue];
+        $data = $functionName($model);
+
+        self::assertSame($expected, $data);
+    }
+
+    public static function providePrimitiveUnionDiscriminatorCases(): iterable
+    {
+        return [
+            [42],
+            ['string-value'],
+            [false],
+            [0.5],
+            [['key' => 'value', 'another_key' => 'another_value']],
+        ];
     }
 
     /**

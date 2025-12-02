@@ -7,10 +7,12 @@ namespace Liip\Serializer;
 use Liip\MetadataParser\Builder;
 use Liip\MetadataParser\Metadata\ClassMetadata;
 use Liip\MetadataParser\Metadata\PropertyMetadata;
-use Liip\MetadataParser\Metadata\PropertyTypeArray;
+use Liip\MetadataParser\Metadata\PropertyType;
 use Liip\MetadataParser\Metadata\PropertyTypeClass;
 use Liip\MetadataParser\Metadata\PropertyTypeDateTime;
+use Liip\MetadataParser\Metadata\PropertyTypeIterable;
 use Liip\MetadataParser\Metadata\PropertyTypePrimitive;
+use Liip\MetadataParser\Metadata\PropertyTypeUnion;
 use Liip\MetadataParser\Metadata\PropertyTypeUnknown;
 use Liip\MetadataParser\Reducer\TakeBestReducer;
 use Liip\Serializer\Configuration\ClassToGenerate;
@@ -89,6 +91,11 @@ final class DeserializerGenerator
         ModelPath $modelPath,
         array $stack = [],
     ): string {
+        $discriminatorMetadata = $classMetadata->getDiscriminatorMetadata();
+        if (null !== $discriminatorMetadata && $discriminatorMetadata->baseClass == $classMetadata->getClassName()) {
+            return $this->generateCodeForDiscriminatorClass($classMetadata, $arrayPath, $modelPath, $stack);
+        }
+
         $stack[$classMetadata->getClassName()] = ($stack[$classMetadata->getClassName()] ?? 0) + 1;
 
         $constructorArgumentNames = [];
@@ -141,6 +148,29 @@ final class DeserializerGenerator
         }
 
         return $this->templating->renderClass((string) $modelPath, $classMetadata->getClassName(), $constructorArguments, $code, $initCode);
+    }
+
+    /**
+     * @param array<string, positive-int> $stack
+     */
+    private function generateCodeForDiscriminatorClass(
+        ClassMetadata $classMetadata,
+        ArrayPath $arrayPath,
+        ModelPath $modelPath,
+        array $stack = [],
+    ): string {
+        $code = '';
+        $discriminatorMetadata = $classMetadata->getDiscriminatorMetadata();
+        $discriminatorFieldPath = $arrayPath->withFieldName($discriminatorMetadata->propertyName);
+        foreach ($discriminatorMetadata->classMap as $typeValue => $class) {
+            $code .= $this->templating->renderDiscriminatorConditional(
+                (string) $discriminatorFieldPath,
+                $typeValue,
+                $this->generateCodeForClass($discriminatorMetadata->getMetadataForClass($class), $arrayPath, $modelPath, $stack)
+            );
+        }
+
+        return $code;
     }
 
     /**
@@ -204,7 +234,7 @@ final class DeserializerGenerator
         $type = $propertyMetadata->getType();
 
         switch ($type) {
-            case $type instanceof PropertyTypeArray:
+            case $type instanceof PropertyTypeIterable:
                 if ($type->isTraversable()) {
                     return $this->generateCodeForArrayCollection($propertyMetadata, $type, $arrayPath, $modelPropertyPath, $stack);
                 }
@@ -229,6 +259,9 @@ final class DeserializerGenerator
             case $type instanceof PropertyTypeClass:
                 return $this->generateCodeForClass($type->getClassMetadata(), $arrayPath, $modelPropertyPath, $stack);
 
+            case $type instanceof PropertyTypeUnion:
+                return $this->generateCodeForUnion($type, $arrayPath, $modelPropertyPath, $stack);
+
             default:
                 throw new \Exception('Unexpected type '.$type::class.' at '.$modelPropertyPath);
         }
@@ -237,8 +270,63 @@ final class DeserializerGenerator
     /**
      * @param array<string, positive-int> $stack
      */
+    private function generateCodeForUnion(
+        PropertyTypeUnion $type,
+        ArrayPath $arrayPath,
+        ModelPath $modelPath,
+        array $stack,
+    ): string {
+        $code = '';
+
+        $types = $type->getTypes();
+        $typesWithoutPrimitives = array_filter($types, static function (PropertyType $subType): bool {
+            return !($subType instanceof PropertyTypePrimitive || $subType instanceof PropertyTypeIterable);
+        });
+
+        $fieldName = $type->getFieldName();
+        if (null !== $fieldName) {
+            $discriminatorFieldPath = $arrayPath->withFieldName($fieldName);
+
+            foreach ($type->getTypeMap() as $typeValue => $class) {
+                $classType = $type->getTypeByClassName($class);
+                $code .= $this->templating->renderDiscriminatorConditional(
+                    (string) $discriminatorFieldPath,
+                    $typeValue,
+                    $this->generateCodeForClass($classType->getClassMetadata(), $arrayPath, $modelPath, $stack)
+                );
+            }
+
+            return $code;
+        }
+
+        if (0 !== \count($typesWithoutPrimitives)) {
+            throw new \Exception('Found union type that contains primitives and non primitives, which is currently not supported.');
+        }
+
+        $amountOfTypes = \count($types);
+        foreach ($types as $key => $subType) {
+            $phpType = 'array';
+            if ($subType instanceof PropertyTypePrimitive) {
+                $phpType = $subType->getTypeName();
+            }
+
+            $withElseBlock = $key !== ($amountOfTypes - 1);
+            $code .= $this->templating->renderPrimitiveConditional(
+                $phpType,
+                (string) $arrayPath,
+                $this->templating->renderAssignJsonDataToFieldWithCast($phpType, (string) $modelPath, (string) $arrayPath),
+                $withElseBlock
+            );
+        }
+
+        return $code;
+    }
+
+    /**
+     * @param array<string, positive-int> $stack
+     */
     private function generateCodeForArray(
-        PropertyTypeArray $type,
+        PropertyTypeIterable $type,
         ArrayPath $arrayPath,
         ModelPath $modelPath,
         array $stack,
@@ -254,7 +342,7 @@ final class DeserializerGenerator
         $subType = $type->getSubType();
 
         switch ($subType) {
-            case $subType instanceof PropertyTypeArray:
+            case $subType instanceof PropertyTypeIterable:
                 $innerCode = $this->generateCodeForArray($subType, $arrayPropertyPath, $modelPropertyPath, $stack);
                 break;
 
@@ -284,7 +372,7 @@ final class DeserializerGenerator
      */
     private function generateCodeForArrayCollection(
         PropertyMetadata $propertyMetadata,
-        PropertyTypeArray $type,
+        PropertyTypeIterable $type,
         ArrayPath $arrayPath,
         ModelPath $modelPath,
         array $stack,
