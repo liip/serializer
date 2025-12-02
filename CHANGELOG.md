@@ -2,7 +2,7 @@
 
 # 3.x
 
-# 3.0.0 (unreleased)
+# 3.0.0
 
 * Update to liip/metadata-parser 2.x. Most notable changes:
   * Switched from annotations to attributes. Replace `LiipMetadataAnnotationParser` with
