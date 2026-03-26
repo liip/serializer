@@ -158,6 +158,23 @@ unset({{variableNames|join(', ')}});
 
 EOT;
 
+    private const TMPL_ASSIGN_BACKED_ENUM = <<<'EOT'
+{{modelPath}} = {{enumClass}}::from({{jsonPath}});
+
+EOT;
+
+    private const TMPL_ASSIGN_UNIT_ENUM = <<<'EOT'
+{{modelPath}} = (static function (string $n): {{enumClass}} {
+    foreach ({{enumClass}}::cases() as $case) {
+        if ($case->name === $n) {
+            return $case;
+        }
+    }
+    throw new \ValueError("'$n' is not a valid name for enum {{enumClass}}");
+})({{jsonPath}});
+
+EOT;
+
     private const TMPL_EXTRACT = '{{jsonPath}} ?? {{default}}';
 
     private const TMPL_CREATE_OBJECT = 'new {{className}}({{arguments|join(\', \')}})';
@@ -312,6 +329,24 @@ EOT;
             'format' => '$'.lcfirst($dateVariable).'Format',
             'date' => '$'.lcfirst($dateVariable),
             'timezone' => $timezone ? 'new \DateTimeZone('.var_export($timezone, true).')' : 'null',
+        ]);
+    }
+
+    public function renderAssignBackedEnum(string $enumClass, string $modelPath, string $jsonPath): string
+    {
+        return $this->render(self::TMPL_ASSIGN_BACKED_ENUM, [
+            'enumClass' => $enumClass,
+            'modelPath' => $modelPath,
+            'jsonPath' => $jsonPath,
+        ]);
+    }
+
+    public function renderAssignUnitEnum(string $enumClass, string $modelPath, string $jsonPath): string
+    {
+        return $this->render(self::TMPL_ASSIGN_UNIT_ENUM, [
+            'enumClass' => $enumClass,
+            'modelPath' => $modelPath,
+            'jsonPath' => $jsonPath,
         ]);
     }
 

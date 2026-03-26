@@ -10,6 +10,7 @@ use Liip\MetadataParser\Metadata\PropertyMetadata;
 use Liip\MetadataParser\Metadata\PropertyType;
 use Liip\MetadataParser\Metadata\PropertyTypeClass;
 use Liip\MetadataParser\Metadata\PropertyTypeDateTime;
+use Liip\MetadataParser\Metadata\PropertyTypeEnum;
 use Liip\MetadataParser\Metadata\PropertyTypeIterable;
 use Liip\MetadataParser\Metadata\PropertyTypePrimitive;
 use Liip\MetadataParser\Metadata\PropertyTypeUnion;
@@ -229,6 +230,11 @@ final class SerializerGenerator
                 // for arrays of scalars, copy the field even when its an empty array
                 return $this->templating->renderAssign($fieldPath, $modelPropertyPath);
 
+            case $type instanceof PropertyTypeEnum:
+                $valueAccess = $type->shouldSerializeAsValue() ? '->value' : '->name';
+
+                return $this->templating->renderAssign($fieldPath, $modelPropertyPath.$valueAccess);
+
             case $type instanceof PropertyTypeClass:
                 return $this->generateCodeForClass($type->getClassMetadata(), $apiVersion, $serializerGroups, $fieldPath, $modelPropertyPath, $stack);
 
@@ -266,6 +272,10 @@ final class SerializerGenerator
 
             case $subType instanceof PropertyTypeIterable:
                 $innerCode = $this->generateCodeForArray($subType, $apiVersion, $serializerGroups, $arrayPath.'['.$index.']', $modelPath.'['.$index.']', $stack);
+                break;
+
+            case $subType instanceof PropertyTypeEnum:
+                $innerCode = $this->generateCodeForFieldType($subType, $apiVersion, $serializerGroups, $arrayPath.'['.$index.']', $modelPath.'['.$index.']', $stack);
                 break;
 
             case $subType instanceof PropertyTypeClass:

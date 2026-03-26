@@ -10,6 +10,7 @@ use Liip\MetadataParser\Metadata\PropertyMetadata;
 use Liip\MetadataParser\Metadata\PropertyType;
 use Liip\MetadataParser\Metadata\PropertyTypeClass;
 use Liip\MetadataParser\Metadata\PropertyTypeDateTime;
+use Liip\MetadataParser\Metadata\PropertyTypeEnum;
 use Liip\MetadataParser\Metadata\PropertyTypeIterable;
 use Liip\MetadataParser\Metadata\PropertyTypePrimitive;
 use Liip\MetadataParser\Metadata\PropertyTypeUnion;
@@ -256,6 +257,9 @@ final class DeserializerGenerator
             case $type instanceof PropertyTypeUnknown:
                 return $this->templating->renderAssignJsonDataToField((string) $modelPropertyPath, (string) $arrayPath);
 
+            case $type instanceof PropertyTypeEnum:
+                return $this->generateCodeForEnumField($type, $modelPropertyPath, $arrayPath);
+
             case $type instanceof PropertyTypeClass:
                 return $this->generateCodeForClass($type->getClassMetadata(), $arrayPath, $modelPropertyPath, $stack);
 
@@ -346,6 +350,10 @@ final class DeserializerGenerator
                 $innerCode = $this->generateCodeForArray($subType, $arrayPropertyPath, $modelPropertyPath, $stack);
                 break;
 
+            case $subType instanceof PropertyTypeEnum:
+                $innerCode = $this->generateCodeForEnumField($subType, $modelPropertyPath, $arrayPropertyPath);
+                break;
+
             case $subType instanceof PropertyTypeClass:
                 $innerCode = $this->generateCodeForClass($subType->getClassMetadata(), $arrayPropertyPath, $modelPropertyPath, $stack);
                 break;
@@ -385,6 +393,18 @@ final class DeserializerGenerator
         }
 
         return $innerCode.$this->templating->renderArrayCollection((string) $modelPath, (string) $tmpVariable);
+    }
+
+    private function generateCodeForEnumField(
+        PropertyTypeEnum $type,
+        ModelPath $modelPath,
+        ArrayPath $arrayPath,
+    ): string {
+        if ($type->shouldSerializeAsValue()) {
+            return $this->templating->renderAssignBackedEnum($type->getClassName(), (string) $modelPath, (string) $arrayPath);
+        }
+
+        return $this->templating->renderAssignUnitEnum($type->getClassName(), (string) $modelPath, (string) $arrayPath);
     }
 
     /**

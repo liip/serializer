@@ -12,12 +12,15 @@ use Liip\MetadataParser\ModelParser\PhpDocParser;
 use Liip\MetadataParser\ModelParser\ReflectionParser;
 use Tests\Liip\Serializer\Fixtures\AccessorOrder;
 use Tests\Liip\Serializer\Fixtures\AccessorOrderInherit;
+use Tests\Liip\Serializer\Fixtures\BackedIntEnum;
+use Tests\Liip\Serializer\Fixtures\BackedStringEnum;
 use Tests\Liip\Serializer\Fixtures\ComplexUnionTyping;
 use Tests\Liip\Serializer\Fixtures\ContainsPrivateProperty;
 use Tests\Liip\Serializer\Fixtures\DiscriminatorAuthor;
 use Tests\Liip\Serializer\Fixtures\DiscriminatorComment;
 use Tests\Liip\Serializer\Fixtures\DiscriminatorDependency;
 use Tests\Liip\Serializer\Fixtures\DiscriminatorFirstChild;
+use Tests\Liip\Serializer\Fixtures\EnumModel;
 use Tests\Liip\Serializer\Fixtures\InaccessiblePrivateProperty;
 use Tests\Liip\Serializer\Fixtures\Inheritance;
 use Tests\Liip\Serializer\Fixtures\ListModel;
@@ -28,6 +31,7 @@ use Tests\Liip\Serializer\Fixtures\PostDeserialize;
 use Tests\Liip\Serializer\Fixtures\PrimitiveUnionTyping;
 use Tests\Liip\Serializer\Fixtures\PrivateProperty;
 use Tests\Liip\Serializer\Fixtures\RecursionModel;
+use Tests\Liip\Serializer\Fixtures\UnitEnum;
 use Tests\Liip\Serializer\Fixtures\UnknownArraySubType;
 use Tests\Liip\Serializer\Fixtures\Versions;
 use Tests\Liip\Serializer\Fixtures\VirtualProperties;
@@ -542,6 +546,33 @@ class SerializerGeneratorTest extends SerializerTestCase
         ];
         $data = $function($model);
         self::assertSame($expected, $data, 'no version');
+    }
+
+    public function testEnum(): void
+    {
+        if (\PHP_VERSION_ID < 80100) {
+            self::markTestSkipped('Enum types are only supported in PHP 8.1 or newer');
+        }
+
+        $functionName = 'serialize_Tests_Liip_Serializer_Fixtures_EnumModel';
+        self::generateSerializers(self::$metadataBuilder, EnumModel::class, [$functionName], ['']);
+
+        $model = new EnumModel();
+        $model->backedString = BackedStringEnum::Hearts;
+        $model->backedStringAsName = BackedStringEnum::Hearts;
+        $model->backedStringWithoutAttribute = BackedStringEnum::Diamonds;
+        $model->backedInt = BackedIntEnum::Low;
+        $model->unit = UnitEnum::North;
+        $model->backedStringArray = [BackedStringEnum::Hearts, BackedStringEnum::Diamonds];
+
+        $data = $functionName($model);
+
+        self::assertSame('H', $data['backed_string']);
+        self::assertSame('Hearts', $data['backed_string_as_name']);
+        self::assertSame('D', $data['backed_string_without_attribute']);
+        self::assertSame(1, $data['backed_int']);
+        self::assertSame('North', $data['unit']);
+        self::assertSame(['H', 'D'], $data['backed_string_array']);
     }
 
     public function testInaccessibleProperty(): void
