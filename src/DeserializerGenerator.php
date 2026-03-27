@@ -242,7 +242,7 @@ final class DeserializerGenerator
                 return $this->generateCodeForArray($type, $arrayPath, $modelPropertyPath, $stack);
 
             case $type instanceof PropertyTypeDateTime:
-                $formats = $type->getDeserializeFormats() ?: (\is_string($type->getFormat()) ? [$type->getFormat()] : $type->getFormat());
+                $formats = $type->getDeserializeFormats() ?: (null !== $type->getFormat() ? [$type->getFormat()] : null);
                 if (null !== $formats) {
                     return $this->templating->renderAssignDateTimeFromFormat($type->isImmutable(), (string) $modelPropertyPath, (string) $arrayPath, $formats, $type->getZone());
                 }

@@ -12,7 +12,7 @@ final class Context
     private ?string $version = null;
 
     /**
-     * @var string[]
+     * @var list<string>
      */
     private array $groups = [];
 
@@ -21,7 +21,7 @@ final class Context
     }
 
     /**
-     * @return string[]
+     * @return list<string>
      */
     public function getGroups(): array
     {
@@ -33,7 +33,7 @@ final class Context
      */
     public function setGroups(array $groups): self
     {
-        $this->groups = array_unique($groups);
+        $this->groups = array_values(array_unique($groups));
         sort($this->groups);
 
         return $this;

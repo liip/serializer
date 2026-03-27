@@ -124,7 +124,7 @@ class GeneratorConfiguration implements \IteratorAggregate
     }
 
     /**
-     * @return string[]
+     * @return list<string>
      */
     public function getDefaultVersions(): array
     {
