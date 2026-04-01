@@ -14,9 +14,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php-version: ['8.0', '8.1', '8.2', '8.3', '8.4', '8.5']
+        php-version: ['8.1', '8.2', '8.3', '8.4', '8.5']
         include:
-          - php-version: '8.0'
+          - php-version: '8.1'
             composer-flags: '--prefer-stable --prefer-lowest'
     steps:
       - name: Check out code into the workspace

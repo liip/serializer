@@ -1,3 +1,5 @@
 parameters:
 	excludePaths:
 		- *serialize_Tests_Liip_Serializer_Fixtures_*
+		# Excluded until the minimum version required from jms/serializer is set to >= 3.31.0
+		- tests/Fixtures/ComplexUnionTyping.php

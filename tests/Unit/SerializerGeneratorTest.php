@@ -6,6 +6,7 @@ namespace Tests\Liip\Serializer\Unit;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Collections\ArrayCollection;
+use JMS\Serializer\Annotation\UnionDiscriminator;
 use Liip\MetadataParser\Builder;
 use Liip\MetadataParser\ModelParser\JMSParser;
 use Liip\MetadataParser\ModelParser\PhpDocParser;
@@ -375,8 +376,8 @@ class SerializerGeneratorTest extends SerializerTestCase
 
     public function testComplexUnionDiscriminator(): void
     {
-        if (\PHP_VERSION_ID < 80100) {
-            self::markTestSkipped('Intersection property types are only supported in PHP 8.1 or newer');
+        if (!class_exists(UnionDiscriminator::class)) {
+            self::markTestSkipped('UnionDiscriminator attribute from JMS missing');
         }
 
         $functionName = 'serialize_Tests_Liip_Serializer_Fixtures_ComplexUnionTyping_2';
@@ -550,10 +551,6 @@ class SerializerGeneratorTest extends SerializerTestCase
 
     public function testEnum(): void
     {
-        if (\PHP_VERSION_ID < 80100) {
-            self::markTestSkipped('Enum types are only supported in PHP 8.1 or newer');
-        }
-
         $functionName = 'serialize_Tests_Liip_Serializer_Fixtures_EnumModel';
         self::generateSerializers(self::$metadataBuilder, EnumModel::class, [$functionName], ['']);
 
