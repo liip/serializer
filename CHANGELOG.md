@@ -2,7 +2,7 @@
 
 # 3.x
 
-# 3.1.0 (unreleased)
+# 3.1.0
 
 * Add enum support
 * Drop support for PHP 8.0
