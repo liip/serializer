@@ -2,6 +2,11 @@
 
 # 3.x
 
+# 3.1.0 (unreleased)
+
+* Add enum support
+* Drop support for PHP 8.0
+
 # 3.0.0
 
 * Update to liip/metadata-parser 2.x. Most notable changes:

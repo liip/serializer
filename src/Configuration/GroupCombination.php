@@ -37,7 +37,7 @@ class GroupCombination
     }
 
     /**
-     * @return string[]
+     * @return list<string>
      */
     public function getGroups(): array
     {

@@ -6,12 +6,15 @@ namespace Tests\Liip\Serializer\Unit;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Collections\ArrayCollection;
+use JMS\Serializer\Annotation\UnionDiscriminator;
 use Liip\MetadataParser\Builder;
 use Liip\MetadataParser\ModelParser\JMSParser;
 use Liip\MetadataParser\ModelParser\PhpDocParser;
 use Liip\MetadataParser\ModelParser\ReflectionParser;
 use Liip\Serializer\DeserializerGenerator;
 use Liip\Serializer\Template\Deserialization;
+use Tests\Liip\Serializer\Fixtures\BackedIntEnum;
+use Tests\Liip\Serializer\Fixtures\BackedStringEnum;
 use Tests\Liip\Serializer\Fixtures\ComplexUnionTyping;
 use Tests\Liip\Serializer\Fixtures\ContainsNonEmptyConstructor;
 use Tests\Liip\Serializer\Fixtures\DiscriminatorAuthor;
@@ -19,6 +22,7 @@ use Tests\Liip\Serializer\Fixtures\DiscriminatorComment;
 use Tests\Liip\Serializer\Fixtures\DiscriminatorDependency;
 use Tests\Liip\Serializer\Fixtures\DiscriminatorFirstChild;
 use Tests\Liip\Serializer\Fixtures\DiscriminatorSecondChild;
+use Tests\Liip\Serializer\Fixtures\EnumModel;
 use Tests\Liip\Serializer\Fixtures\FloatProperty;
 use Tests\Liip\Serializer\Fixtures\Inheritance;
 use Tests\Liip\Serializer\Fixtures\ListModel;
@@ -29,6 +33,7 @@ use Tests\Liip\Serializer\Fixtures\PostDeserialize;
 use Tests\Liip\Serializer\Fixtures\PrimitiveUnionTyping;
 use Tests\Liip\Serializer\Fixtures\PrivateProperty;
 use Tests\Liip\Serializer\Fixtures\RecursionModel;
+use Tests\Liip\Serializer\Fixtures\UnitEnum;
 use Tests\Liip\Serializer\Fixtures\UnknownArraySubType;
 use Tests\Liip\Serializer\Fixtures\VirtualProperties;
 
@@ -308,8 +313,8 @@ class DeserializerGeneratorTest extends SerializerTestCase
 
     public function testComplexUnionDiscriminator(): void
     {
-        if (\PHP_VERSION_ID < 80100) {
-            self::markTestSkipped('Intersection property types are only supported in PHP 8.1 or newer');
+        if (!class_exists(UnionDiscriminator::class)) {
+            self::markTestSkipped('UnionDiscriminator attribute from JMS missing');
         }
 
         $functionName = 'deserialize_Tests_Liip_Serializer_Fixtures_ComplexUnionTyping';
@@ -380,6 +385,55 @@ class DeserializerGeneratorTest extends SerializerTestCase
         self::assertInstanceOf(PostDeserialize::class, $model);
         self::assertSame('apiString', $model->apiString);
         self::assertSame('post has been called', $model->postCalled);
+    }
+
+    public function testEnum(): void
+    {
+        $functionName = 'deserialize_Tests_Liip_Serializer_Fixtures_EnumModel';
+        self::generateDeserializer(self::$metadataBuilder, EnumModel::class, $functionName);
+
+        $input = [
+            'backed_string' => 'H',
+            'backed_string_as_name' => 'Hearts',
+            'backed_string_without_attribute' => 'D',
+            'backed_int' => 1,
+            'unit' => 'North',
+            'backed_string_array' => ['H', 'D'],
+        ];
+
+        /** @var EnumModel $model */
+        $model = $functionName($input);
+
+        self::assertInstanceOf(EnumModel::class, $model);
+        self::assertSame(BackedStringEnum::Hearts, $model->backedString);
+        self::assertSame(BackedStringEnum::Hearts, $model->backedStringAsName);
+        self::assertSame(BackedStringEnum::Diamonds, $model->backedStringWithoutAttribute);
+        self::assertSame(BackedIntEnum::Low, $model->backedInt);
+        self::assertSame(UnitEnum::North, $model->unit);
+        self::assertSame([BackedStringEnum::Hearts, BackedStringEnum::Diamonds], $model->backedStringArray);
+    }
+
+    public function testEnumNullValues(): void
+    {
+        $functionName = 'deserialize_Tests_Liip_Serializer_Fixtures_EnumModel';
+        self::generateDeserializer(self::$metadataBuilder, EnumModel::class, $functionName);
+
+        $input = [
+            'backed_string' => null,
+            'backed_string_as_name' => null,
+            'backed_int' => null,
+            'unit' => null,
+            'backed_string_array' => null,
+        ];
+
+        /** @var EnumModel $model */
+        $model = $functionName($input);
+
+        self::assertInstanceOf(EnumModel::class, $model);
+        self::assertNull($model->backedString);
+        self::assertNull($model->backedInt);
+        self::assertNull($model->unit);
+        self::assertNull($model->backedStringArray);
     }
 
     public function testArraysWithUnknownSubType(): void
