@@ -114,6 +114,69 @@ setting the `allow_generic_arrays` value to `true` via the `options` argument.
 Note: This will only work if the contents of that array are only primitive
 types (string, int, float, boolean and nested arrays with only these types).
 
+### Dynamic Handlers
+
+Handlers let you modify how specific classes are (de-)serialized. This is useful for value objects such as UUIDs or 
+any third-party class where you cannot directly add JMS attributes. 
+
+#### When to use a handler vs. a virtual property
+
+**Use a virtual property** (`#[Serializer\VirtualProperty]`) when you want to use a different value than the class you 
+have at hand, and you have control over that class. Virtual properties are defined on the model itself and only affect 
+that model.
+
+**Use a handler** when a custom type needs to be (de-)serialized the same way wherever it appears. In most cases a 
+virtual property should be preferred. Handlers should mainly be used if you use third-party classes that have 
+to be (de-)serialized in a specific way.
+
+#### Implementing a handler
+
+Implement `SerializerHandlerInterface` for serialization and/or `DeserializerHandlerInterface` for deserialization. 
+Both return **PHP code expressions** (strings) that are embedded directly into the generated code — not values:
+
+```php
+use Liip\Serializer\DeserializerHandlerInterface;
+use Liip\Serializer\SerializerHandlerInterface;
+
+class CustomHandler implements SerializerHandlerInterface, DeserializerHandlerInterface
+{
+    public function generateSerializeExpression(string $className, string $modelPath): string
+    {
+        // $modelPath is a PHP expression for the property value, e.g. "$model->id"
+        return $modelPath . '->toString()';
+    }
+
+    public function generateDeserializeExpression(string $className, string $arrayPath): string
+    {
+        // $arrayPath is a PHP expression for the raw array value, e.g. "$array['id']"
+        return '\\' . \SomeExternalModel::class . '::fromString(' . $arrayPath . ')';
+    }
+
+    public function getSerializationClasses(): array
+    {
+        return [SomeExternalModel::class];
+    }
+
+    public function getDeserializationClasses(): array
+    {
+        return [SomeExternalModel::class];
+    }
+}
+```
+
+#### Registering handlers
+
+You can register one or multiple handlers via the `handlers` key inside `options` when creating a `GeneratorConfiguration`:
+
+```php
+$configuration = GeneratorConfiguration::createFromArray([
+    'options' => [
+        'handlers' => [new CustomHandler()],
+    ],
+    // ...
+]);
+```
+
 ## Serialize using the generated code
 In this example, we serialize an object of class `Product` for version 2:
 

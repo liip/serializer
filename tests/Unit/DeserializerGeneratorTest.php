@@ -17,6 +17,8 @@ use Tests\Liip\Serializer\Fixtures\BackedIntEnum;
 use Tests\Liip\Serializer\Fixtures\BackedStringEnum;
 use Tests\Liip\Serializer\Fixtures\ComplexUnionTyping;
 use Tests\Liip\Serializer\Fixtures\ContainsNonEmptyConstructor;
+use Tests\Liip\Serializer\Fixtures\CustomType;
+use Tests\Liip\Serializer\Fixtures\CustomTypeHandler;
 use Tests\Liip\Serializer\Fixtures\DiscriminatorAuthor;
 use Tests\Liip\Serializer\Fixtures\DiscriminatorComment;
 use Tests\Liip\Serializer\Fixtures\DiscriminatorDependency;
@@ -27,6 +29,7 @@ use Tests\Liip\Serializer\Fixtures\FloatProperty;
 use Tests\Liip\Serializer\Fixtures\Inheritance;
 use Tests\Liip\Serializer\Fixtures\ListModel;
 use Tests\Liip\Serializer\Fixtures\Model;
+use Tests\Liip\Serializer\Fixtures\ModelWithCustomType;
 use Tests\Liip\Serializer\Fixtures\Nested;
 use Tests\Liip\Serializer\Fixtures\NonEmptyConstructor;
 use Tests\Liip\Serializer\Fixtures\PostDeserialize;
@@ -452,5 +455,32 @@ class DeserializerGeneratorTest extends SerializerTestCase
         $model = $functionName($input);
         self::assertInstanceOf(UnknownArraySubType::class, $model);
         self::assertSame($unknownSubtype, $list->unknownSubType);
+    }
+
+    public function testHandler(): void
+    {
+        $functionName = 'deserialize_Tests_Liip_Serializer_Fixtures_ModelWithCustomType';
+        self::generateDeserializer(
+            self::$metadataBuilder,
+            ModelWithCustomType::class,
+            $functionName,
+            ['handlers' => [new CustomTypeHandler()]]
+        );
+
+        $input = [
+            'value' => 'hello',
+            'values' => ['foo', 'bar'],
+        ];
+
+        /** @var ModelWithCustomType $model */
+        $model = $functionName($input);
+
+        self::assertInstanceOf(ModelWithCustomType::class, $model);
+        self::assertInstanceOf(CustomType::class, $model->value);
+        self::assertSame('hello', $model->value->getValue());
+        self::assertCount(2, $model->values);
+        self::assertContainsOnlyInstancesOf(CustomType::class, $model->values);
+        self::assertSame('foo', $model->values[0]->getValue());
+        self::assertSame('bar', $model->values[1]->getValue());
     }
 }

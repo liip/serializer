@@ -2,6 +2,10 @@
 
 # 3.x
 
+# 3.2.0 (unreleased)
+
+* Add support for handlers to modify the way a (third-party) class is (de-)serialized at compile time
+
 # 3.1.0
 
 * Add enum support

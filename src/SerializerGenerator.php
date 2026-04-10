@@ -122,12 +122,19 @@ final class SerializerGenerator
         string $modelPath,
         array $stack = [],
     ): string {
+        /** @var class-string $className */
+        $className = $classMetadata->getClassName();
+        $handler = $this->configuration->findSerializerHandlerForClass($className);
+        if (null !== $handler) {
+            return $this->templating->renderAssign($arrayPath, $handler->generateSerializeExpression($className, $modelPath));
+        }
+
         $discriminatorMetadata = $classMetadata->getDiscriminatorMetadata();
-        if (null !== $discriminatorMetadata && $discriminatorMetadata->baseClass == $classMetadata->getClassName()) {
+        if (null !== $discriminatorMetadata && $discriminatorMetadata->baseClass == $className) {
             return $this->generateCodeForDiscriminatorClass($classMetadata, $apiVersion, $serializerGroups, $arrayPath, $modelPath, $stack);
         }
 
-        $stack[$classMetadata->getClassName()] = ($stack[$classMetadata->getClassName()] ?? 0) + 1;
+        $stack[$className] = ($stack[$className] ?? 0) + 1;
 
         $code = '';
         foreach ($classMetadata->getProperties() as $propertyMetadata) {

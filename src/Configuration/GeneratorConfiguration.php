@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Liip\Serializer\Configuration;
 
+use Liip\Serializer\DeserializerHandlerInterface;
+use Liip\Serializer\SerializerHandlerInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
@@ -151,6 +153,34 @@ class GeneratorConfiguration implements \IteratorAggregate
         return $this->options['allow_generic_arrays'];
     }
 
+    /**
+     * @param class-string $className
+     */
+    public function findSerializerHandlerForClass(string $className): ?SerializerHandlerInterface
+    {
+        foreach ($this->options['handlers'] as $handler) {
+            if ($handler instanceof SerializerHandlerInterface && $this->supportsClass($handler->getSerializationClasses(), $className)) {
+                return $handler;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param class-string $className
+     */
+    public function findDeserializerHandlerForClass(string $className): ?DeserializerHandlerInterface
+    {
+        foreach ($this->options['handlers'] as $handler) {
+            if ($handler instanceof DeserializerHandlerInterface && $this->supportsClass($handler->getDeserializationClasses(), $className)) {
+                return $handler;
+            }
+        }
+
+        return null;
+    }
+
     public function getIterator(): \Traversable
     {
         return new \ArrayIterator($this->classesToGenerate);
@@ -166,10 +196,27 @@ class GeneratorConfiguration implements \IteratorAggregate
         $resolver = new OptionsResolver();
         $resolver->setDefaults([
             'allow_generic_arrays' => false,
+            'handlers' => [],
         ]);
 
         $resolver->setAllowedTypes('allow_generic_arrays', 'boolean');
+        $resolver->setAllowedTypes('handlers', 'array');
 
         return $resolver->resolve($options);
+    }
+
+    /**
+     * @param class-string[] $supportedClasses
+     * @param class-string   $actualClass
+     */
+    private function supportsClass(array $supportedClasses, string $actualClass): bool
+    {
+        foreach ($supportedClasses as $supportedClass) {
+            if (is_a($actualClass, $supportedClass, true)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

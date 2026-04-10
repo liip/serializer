@@ -92,12 +92,19 @@ final class DeserializerGenerator
         ModelPath $modelPath,
         array $stack = [],
     ): string {
+        /** @var class-string $className */
+        $className = $classMetadata->getClassName();
+        $handler = $this->configuration->findDeserializerHandlerForClass($className);
+        if (null !== $handler) {
+            return $this->templating->renderAssignJsonDataToField((string) $modelPath, $handler->generateDeserializeExpression($className, (string) $arrayPath));
+        }
+
         $discriminatorMetadata = $classMetadata->getDiscriminatorMetadata();
-        if (null !== $discriminatorMetadata && $discriminatorMetadata->baseClass == $classMetadata->getClassName()) {
+        if (null !== $discriminatorMetadata && $discriminatorMetadata->baseClass == $className) {
             return $this->generateCodeForDiscriminatorClass($classMetadata, $arrayPath, $modelPath, $stack);
         }
 
-        $stack[$classMetadata->getClassName()] = ($stack[$classMetadata->getClassName()] ?? 0) + 1;
+        $stack[$className] = ($stack[$className] ?? 0) + 1;
 
         $constructorArgumentNames = [];
         $overwrittenNames = [];
@@ -136,7 +143,7 @@ final class DeserializerGenerator
                 continue;
             }
             if ($definition->isRequired()) {
-                $msg = \sprintf('Unknown constructor argument "%s". Class %s only has properties that tell how to handle %s.', $definition->getName(), $classMetadata->getClassName(), implode(', ', array_keys($constructorArgumentNames)));
+                $msg = \sprintf('Unknown constructor argument "%s". Class %s only has properties that tell how to handle %s.', $definition->getName(), $className, implode(', ', array_keys($constructorArgumentNames)));
                 if ($overwrittenNames) {
                     $msg .= \sprintf(' Multiple definitions for fields %s seen - the last one overwrites previous ones.', implode(', ', array_keys($overwrittenNames)));
                 }
@@ -148,7 +155,7 @@ final class DeserializerGenerator
             $code .= $this->templating->renderUnset(array_values($constructorArgumentNames));
         }
 
-        return $this->templating->renderClass((string) $modelPath, $classMetadata->getClassName(), $constructorArguments, $code, $initCode);
+        return $this->templating->renderClass((string) $modelPath, $className, $constructorArguments, $code, $initCode);
     }
 
     /**
