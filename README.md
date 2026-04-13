@@ -114,10 +114,13 @@ setting the `allow_generic_arrays` value to `true` via the `options` argument.
 Note: This will only work if the contents of that array are only primitive
 types (string, int, float, boolean and nested arrays with only these types).
 
-### Dynamic Handlers
+### Handlers
 
 Handlers let you modify how specific classes are (de-)serialized. This is useful for value objects such as UUIDs or 
 any third-party class where you cannot directly add JMS attributes. 
+
+Once registered, a handler is automatically applied to every property of the supported type, regardless of where in the
+(de-)serialized model it appears.
 
 #### When to use a handler vs. a virtual property
 
@@ -132,34 +135,62 @@ to be (de-)serialized in a specific way.
 #### Implementing a handler
 
 Implement `SerializerHandlerInterface` for serialization and/or `DeserializerHandlerInterface` for deserialization. 
-Both return **PHP code expressions** (strings) that are embedded directly into the generated code — not values:
+Both return **PHP code expressions** (strings) that are embedded directly into the generated code — not values.
+
+A common example where such a handler makes sense is, when you want to (de-)serialize UUID objects. The serialized value
+is actually a string (e.g. `dfbd707c-3945-4a90-a6e7-e4e58846ebe7`) while the deserialized value is again the UUID object
+from your preferred library.
+
+In the following example we use the UUID implementation from the [symfony/uid package](https://packagist.org/packages/symfony/uid).
 
 ```php
 use Liip\Serializer\DeserializerHandlerInterface;
 use Liip\Serializer\SerializerHandlerInterface;
+use Symfony\Component\Uid\Uuid;
+use Symfony\Component\Uid\UuidV1;
+use Symfony\Component\Uid\UuidV3;
+use Symfony\Component\Uid\UuidV4;
+use Symfony\Component\Uid\UuidV5;
+use Symfony\Component\Uid\UuidV6;
+use Symfony\Component\Uid\UuidV7;
+use Symfony\Component\Uid\UuidV8;
 
-class CustomHandler implements SerializerHandlerInterface, DeserializerHandlerInterface
+/**
+ * We write a single handler for both serialization and deserialization.
+ */
+class UuidHandler implements SerializerHandlerInterface, DeserializerHandlerInterface
 {
+    private const SUPPORTED_CLASSES = [
+        Uuid::class,
+        UuidV1::class,
+        UuidV3::class,
+        UuidV4::class,
+        UuidV5::class,
+        UuidV6::class,
+        UuidV7::class,
+        UuidV8::class,
+    ];
+
     public function generateSerializeExpression(string $className, string $modelPath): string
     {
         // $modelPath is a PHP expression for the property value, e.g. "$model->id"
-        return $modelPath . '->toString()';
+        return $modelPath.'->toString()';
     }
 
     public function generateDeserializeExpression(string $className, string $arrayPath): string
     {
         // $arrayPath is a PHP expression for the raw array value, e.g. "$array['id']"
-        return '\\' . \SomeExternalModel::class . '::fromString(' . $arrayPath . ')';
+        return '\\'.$className.'::fromString('.$arrayPath.')';
     }
 
-    public function getSerializationClasses(): array
+    public function getSerializationClasses(string $className): array
     {
-        return [SomeExternalModel::class];
+        return self::SUPPORTED_CLASSES;
     }
 
-    public function getDeserializationClasses(): array
+    public function getDeserializationClasses(string $className): array
     {
-        return [SomeExternalModel::class];
+        return self::SUPPORTED_CLASSES;
     }
 }
 ```
@@ -171,7 +202,7 @@ You can register one or multiple handlers via the `handlers` key inside `options
 ```php
 $configuration = GeneratorConfiguration::createFromArray([
     'options' => [
-        'handlers' => [new CustomHandler()],
+        'handlers' => [new UuidHandler()],
     ],
     // ...
 ]);
