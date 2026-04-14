@@ -107,11 +107,10 @@ final class Serializer implements SerializerInterface
             /** @var callable(array<mixed>): object $functionName */
             $functionName = $this->cachedDeserializers[$type];
         } else {
-            /** @var (callable(array<mixed>): object)&string $functionName */
             $functionName = DeserializerGenerator::buildDeserializerFunctionName($type);
             $filename = \sprintf('%s/%s.php', $this->cacheDirectory, $functionName);
 
-            if (!\file_exists($filename)) {
+            if (!file_exists($filename)) {
                 throw UnsupportedTypeException::typeUnsupportedDeserialization($type);
             }
 
@@ -120,6 +119,7 @@ final class Serializer implements SerializerInterface
             if (!\is_callable($functionName)) {
                 throw new Exception(\sprintf('Internal Error: Deserializer for %s in file %s does not have expected function %s', $type, $filename, $functionName));
             }
+            /** @var (callable(array<mixed>): object)&string $functionName */
             $this->cachedDeserializers[$type] = $functionName;
         }
 
@@ -150,16 +150,15 @@ final class Serializer implements SerializerInterface
 
         if (!($version || $groups)) {
             $this->cachedSerializers[$type] ??= SerializerGenerator::buildSerializerFunctionName($type, null, []);
-            /** @var (callable(object): array<mixed>)&string $functionName */
+            /** @var (callable(object, bool=): array<mixed>)&string $functionName */
             $functionName = $this->cachedSerializers[$type];
         } else {
-            /** @var (callable(object): array<mixed>)&string $functionName */
             $functionName = SerializerGenerator::buildSerializerFunctionName($type, $version, $groups);
         }
 
         if (!isset($this->cachedSerializers[$functionName])) {
             $filename = \sprintf('%s/%s.php', $this->cacheDirectory, $functionName);
-            if (!\file_exists($filename)) {
+            if (!file_exists($filename)) {
                 throw UnsupportedTypeException::typeUnsupportedSerialization($type, $version, $groups);
             }
 
@@ -169,10 +168,12 @@ final class Serializer implements SerializerInterface
                 throw new Exception(\sprintf('Internal Error: Serializer for %s in file %s does not have expected function %s', $type, $filename, $functionName));
             }
 
+            /** @var (callable(object, bool=): array<mixed>)&string $functionName */
             $this->cachedSerializers[$functionName] = $functionName;
         }
 
         try {
+            /** @var (callable(object, bool=): array<mixed>)&string $functionName */
             return $functionName($data, $useStdClass);
         } catch (\Throwable $t) {
             throw new Exception('Error during serialization', 0, $t);
