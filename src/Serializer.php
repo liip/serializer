@@ -111,7 +111,7 @@ final class Serializer implements SerializerInterface
             $functionName = DeserializerGenerator::buildDeserializerFunctionName($type);
             $filename = \sprintf('%s/%s.php', $this->cacheDirectory, $functionName);
 
-            if (!\file_exists($filename)) {
+            if (!file_exists($filename)) {
                 throw UnsupportedTypeException::typeUnsupportedDeserialization($type);
             }
 
@@ -159,7 +159,7 @@ final class Serializer implements SerializerInterface
 
         if (!isset($this->cachedSerializers[$functionName])) {
             $filename = \sprintf('%s/%s.php', $this->cacheDirectory, $functionName);
-            if (!\file_exists($filename)) {
+            if (!file_exists($filename)) {
                 throw UnsupportedTypeException::typeUnsupportedSerialization($type, $version, $groups);
             }
 

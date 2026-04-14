@@ -48,7 +48,7 @@ abstract class Recursion
             $type = $type->getLeafType();
         }
 
-        if (!($type instanceof PropertyTypeClass)) {
+        if (!$type instanceof PropertyTypeClass) {
             return null;
         }
 
