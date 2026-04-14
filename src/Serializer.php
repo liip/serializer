@@ -19,11 +19,11 @@ use Pnz\JsonException\Json;
 final class Serializer implements SerializerInterface
 {
     /**
-     * @var array<string, callable(object): array>
+     * @var array<string, (callable(object, bool=): array<mixed>)|string>
      */
     private array $cachedSerializers = [];
     /**
-     * @var array<string, callable(array): object>
+     * @var array<string, (callable(array<mixed>): object)|string>
      */
     private array $cachedDeserializers = [];
 
@@ -104,8 +104,10 @@ final class Serializer implements SerializerInterface
 
         // todo: index cache by function name instead of type when deserializing with groups/versions is supported
         if (isset($this->cachedDeserializers[$type])) {
+            /** @var callable(array<mixed>): object $functionName */
             $functionName = $this->cachedDeserializers[$type];
         } else {
+            /** @var (callable(array<mixed>): object)&string $functionName */
             $functionName = DeserializerGenerator::buildDeserializerFunctionName($type);
             $filename = \sprintf('%s/%s.php', $this->cacheDirectory, $functionName);
 
@@ -147,8 +149,11 @@ final class Serializer implements SerializerInterface
         }
 
         if (!($version || $groups)) {
-            $functionName = $this->cachedSerializers[$type] ??= SerializerGenerator::buildSerializerFunctionName($type, null, []);
+            $this->cachedSerializers[$type] ??= SerializerGenerator::buildSerializerFunctionName($type, null, []);
+            /** @var (callable(object): array<mixed>)&string $functionName */
+            $functionName = $this->cachedSerializers[$type];
         } else {
+            /** @var (callable(object): array<mixed>)&string $functionName */
             $functionName = SerializerGenerator::buildSerializerFunctionName($type, $version, $groups);
         }
 
