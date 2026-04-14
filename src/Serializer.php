@@ -102,7 +102,7 @@ final class Serializer implements SerializerInterface
             throw new Exception('Version and group support is not implemented for deserialization. It is only supported for serialization');
         }
 
-        // todo: index cache by function name when deserializing with groups/versions is supported
+        // todo: index cache by function name instead of type when deserializing with groups/versions is supported
         if (isset($this->cachedDeserializers[$type])) {
             $functionName = $this->cachedDeserializers[$type];
         } else {
@@ -147,7 +147,7 @@ final class Serializer implements SerializerInterface
         }
 
         if (!($version || $groups)) {
-            $functionName = $this->cachedDeserializers[$type] ??= SerializerGenerator::buildSerializerFunctionName($type, null, []);
+            $functionName = $this->cachedSerializers[$type] ??= SerializerGenerator::buildSerializerFunctionName($type, null, []);
         } else {
             $functionName = SerializerGenerator::buildSerializerFunctionName($type, $version, $groups);
         }
@@ -163,6 +163,8 @@ final class Serializer implements SerializerInterface
             if (!\is_callable($functionName)) {
                 throw new Exception(\sprintf('Internal Error: Serializer for %s in file %s does not have expected function %s', $type, $filename, $functionName));
             }
+
+            $this->cachedSerializers[$functionName] = $functionName;
         }
 
         try {
