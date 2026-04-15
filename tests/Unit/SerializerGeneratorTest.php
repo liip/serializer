@@ -17,6 +17,8 @@ use Tests\Liip\Serializer\Fixtures\BackedIntEnum;
 use Tests\Liip\Serializer\Fixtures\BackedStringEnum;
 use Tests\Liip\Serializer\Fixtures\ComplexUnionTyping;
 use Tests\Liip\Serializer\Fixtures\ContainsPrivateProperty;
+use Tests\Liip\Serializer\Fixtures\CustomType;
+use Tests\Liip\Serializer\Fixtures\CustomTypeHandler;
 use Tests\Liip\Serializer\Fixtures\DiscriminatorAuthor;
 use Tests\Liip\Serializer\Fixtures\DiscriminatorComment;
 use Tests\Liip\Serializer\Fixtures\DiscriminatorDependency;
@@ -26,6 +28,7 @@ use Tests\Liip\Serializer\Fixtures\InaccessiblePrivateProperty;
 use Tests\Liip\Serializer\Fixtures\Inheritance;
 use Tests\Liip\Serializer\Fixtures\ListModel;
 use Tests\Liip\Serializer\Fixtures\Model;
+use Tests\Liip\Serializer\Fixtures\ModelWithCustomType;
 use Tests\Liip\Serializer\Fixtures\MultidimensionalArrayForPrimitive;
 use Tests\Liip\Serializer\Fixtures\Nested;
 use Tests\Liip\Serializer\Fixtures\PostDeserialize;
@@ -570,6 +573,28 @@ class SerializerGeneratorTest extends SerializerTestCase
         self::assertSame(1, $data['backed_int']);
         self::assertSame('North', $data['unit']);
         self::assertSame(['H', 'D'], $data['backed_string_array']);
+    }
+
+    public function testHandler(): void
+    {
+        $functionName = 'serialize_Tests_Liip_Serializer_Fixtures_ModelWithCustomType';
+        self::generateSerializers(
+            self::$metadataBuilder,
+            ModelWithCustomType::class,
+            [$functionName],
+            [],
+            [],
+            ['handlers' => [new CustomTypeHandler()]]
+        );
+
+        $model = new ModelWithCustomType();
+        $model->value = new CustomType('hello');
+        $model->values = [new CustomType('foo'), new CustomType('bar')];
+
+        $data = $functionName($model);
+
+        self::assertSame('hello', $data['value']);
+        self::assertSame(['foo', 'bar'], $data['values']);
     }
 
     public function testInaccessibleProperty(): void
