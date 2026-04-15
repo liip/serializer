@@ -122,7 +122,6 @@ final class SerializerGenerator
         string $modelPath,
         array $stack = [],
     ): string {
-        /** @var class-string $className */
         $className = $classMetadata->getClassName();
         $handler = $this->configuration->findSerializerHandlerForClass($className);
         if (null !== $handler) {

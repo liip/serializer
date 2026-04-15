@@ -92,7 +92,6 @@ final class DeserializerGenerator
         ModelPath $modelPath,
         array $stack = [],
     ): string {
-        /** @var class-string $className */
         $className = $classMetadata->getClassName();
         $handler = $this->configuration->findDeserializerHandlerForClass($className);
         if (null !== $handler) {
