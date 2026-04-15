@@ -2,7 +2,7 @@
 
 # 3.x
 
-# 3.2.0 (unreleased)
+# 3.2.0
 
 * Add support for handlers to modify the way a (third-party) class is (de-)serialized at compile time
 
