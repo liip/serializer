@@ -2,6 +2,11 @@
 
 # 3.x
 
+# 3.3.0
+
+* Significant performance improvement when working with many objects of the same class.
+  See [#52](https://github.com/liip/serializer/pull/52)
+
 # 3.2.0
 
 * Add support for handlers to modify the way a (third-party) class is (de-)serialized at compile time
