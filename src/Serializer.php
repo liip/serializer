@@ -94,14 +94,19 @@ final class Serializer implements SerializerInterface
         }
 
         $functionName = DeserializerGenerator::buildDeserializerFunctionName($type);
-        $filename = \sprintf('%s/%s.php', $this->cacheDirectory, $functionName);
-        if (!file_exists($filename)) {
-            throw UnsupportedTypeException::typeUnsupportedDeserialization($type);
-        }
-        require_once $filename;
 
-        if (!\is_callable($functionName)) {
-            throw new Exception(\sprintf('Internal Error: Deserializer for %s in file %s does not have expected function %s', $type, $filename, $functionName));
+        if (!\function_exists($functionName)) {
+            $filename = \sprintf('%s/%s.php', $this->cacheDirectory, $functionName);
+            if (!file_exists($filename)) {
+                throw UnsupportedTypeException::typeUnsupportedDeserialization($type);
+            }
+
+            require_once $filename;
+
+            /* @phpstan-ignore booleanNot.alwaysTrue */
+            if (!\function_exists($functionName)) {
+                throw new Exception(\sprintf('Internal Error: Deserializer for %s in file %s does not have expected function %s', $type, $filename, $functionName));
+            }
         }
 
         try {
@@ -128,16 +133,21 @@ final class Serializer implements SerializerInterface
                 $version = $context->getVersion();
             }
         }
-        $functionName = SerializerGenerator::buildSerializerFunctionName($type, $version ?: null, $groups);
-        $filename = \sprintf('%s/%s.php', $this->cacheDirectory, $functionName);
-        if (!file_exists($filename)) {
-            throw UnsupportedTypeException::typeUnsupportedSerialization($type, $version, $groups);
-        }
 
-        require_once $filename;
+        $functionName = SerializerGenerator::buildSerializerFunctionName($type, $version, $groups);
 
-        if (!\is_callable($functionName)) {
-            throw new Exception(\sprintf('Internal Error: Serializer for %s in file %s does not have expected function %s', $type, $filename, $functionName));
+        if (!\function_exists($functionName)) {
+            $filename = \sprintf('%s/%s.php', $this->cacheDirectory, $functionName);
+            if (!file_exists($filename)) {
+                throw UnsupportedTypeException::typeUnsupportedSerialization($type, $version, $groups);
+            }
+
+            require_once $filename;
+
+            /* @phpstan-ignore booleanNot.alwaysTrue */
+            if (!\function_exists($functionName)) {
+                throw new Exception(\sprintf('Internal Error: Serializer for %s in file %s does not have expected function %s', $type, $filename, $functionName));
+            }
         }
 
         try {

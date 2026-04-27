@@ -2,6 +2,11 @@
 
 # 3.x
 
+# 3.3.0
+
+* Significant performance improvement when working with many objects of the same class.
+  See [#52](https://github.com/liip/serializer/pull/52)
+
 # 3.2.0
 
 * Add support for handlers to modify the way a (third-party) class is (de-)serialized at compile time
@@ -25,6 +30,11 @@
 
 # 2.x
 
+# 2.7.0
+
+* Significant performance improvement when working with many objects of the same class.
+  See [#52](https://github.com/liip/serializer/pull/52)
+
 # 2.6.2
 
 * Add support for Symfony 8.
@@ -33,7 +43,7 @@
 # 2.6.1
 
 * Fixed: Dates with a getter/setter where incorrectly handled in the refactoring for 2.6.0.
-  See (#44)[https://github.com/liip/serializer/pull/44]
+  See [#44](https://github.com/liip/serializer/pull/44)
 * Add support for symfony `7.x`
 * Also test against PHP `8.3`
 * Update rector to `1.2.1`
