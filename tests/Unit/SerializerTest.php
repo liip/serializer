@@ -15,6 +15,8 @@ use Tests\Liip\Serializer\Fixtures\SerializerModel;
 
 /**
  * @small
+ *
+ * @runTestsInSeparateProcesses
  */
 class SerializerTest extends TestCase
 {
