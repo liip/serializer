@@ -18,15 +18,6 @@ use Pnz\JsonException\Json;
  */
 final class Serializer implements SerializerInterface
 {
-    /**
-     * @var array<string, (callable(object, bool=): array<mixed>)|string>
-     */
-    private array $cachedSerializers = [];
-    /**
-     * @var array<string, (callable(array<mixed>): object)|string>
-     */
-    private array $cachedDeserializers = [];
-
     public function __construct(private string $cacheDirectory)
     {
     }
@@ -102,25 +93,20 @@ final class Serializer implements SerializerInterface
             throw new Exception('Version and group support is not implemented for deserialization. It is only supported for serialization');
         }
 
-        // todo: index cache by function name instead of type when deserializing with groups/versions is supported
-        if (isset($this->cachedDeserializers[$type])) {
-            /** @var callable(array<mixed>): object $functionName */
-            $functionName = $this->cachedDeserializers[$type];
-        } else {
-            /** @var (callable(array<mixed>): object)&string $functionName */
-            $functionName = DeserializerGenerator::buildDeserializerFunctionName($type);
-            $filename = \sprintf('%s/%s.php', $this->cacheDirectory, $functionName);
+        /** @var (callable(array<mixed>): object)&string $functionName */
+        $functionName = DeserializerGenerator::buildDeserializerFunctionName($type);
 
+        if (!\function_exists($functionName)) {
+            $filename = \sprintf('%s/%s.php', $this->cacheDirectory, $functionName);
             if (!file_exists($filename)) {
                 throw UnsupportedTypeException::typeUnsupportedDeserialization($type);
             }
 
             require_once $filename;
 
-            if (!\is_callable($functionName)) {
+            if (!\function_exists($functionName)) {
                 throw new Exception(\sprintf('Internal Error: Deserializer for %s in file %s does not have expected function %s', $type, $filename, $functionName));
             }
-            $this->cachedDeserializers[$type] = $functionName;
         }
 
         try {
@@ -139,37 +125,33 @@ final class Serializer implements SerializerInterface
             throw new UnsupportedTypeException('The Liip Serializer only works for objects');
         }
         $type = $data::class;
-        $groups = [];
-        $version = null;
+
         if ($context) {
+            $groups = [];
+            $version = null;
             $groups = $context->getGroups();
             if ($context->getVersion()) {
                 $version = $context->getVersion();
             }
-        }
-
-        if (!($version || $groups)) {
-            $this->cachedSerializers[$type] ??= SerializerGenerator::buildSerializerFunctionName($type, null, []);
-            /** @var (callable(object): array<mixed>)&string $functionName */
-            $functionName = $this->cachedSerializers[$type];
-        } else {
-            /** @var (callable(object): array<mixed>)&string $functionName */
             $functionName = SerializerGenerator::buildSerializerFunctionName($type, $version, $groups);
+        } else {
+            $functionName = SerializerGenerator::buildSerializerFunctionName($type, null, []);
         }
 
-        if (!isset($this->cachedSerializers[$functionName])) {
+        if (!\function_exists($functionName)) {
             $filename = \sprintf('%s/%s.php', $this->cacheDirectory, $functionName);
             if (!file_exists($filename)) {
-                throw UnsupportedTypeException::typeUnsupportedSerialization($type, $version, $groups);
+                throw $context
+                    ? UnsupportedTypeException::typeUnsupportedSerialization($type, $version, $groups)
+                    : UnsupportedTypeException::typeUnsupportedSerialization($type, null, [])
+                ;
             }
 
             require_once $filename;
 
-            if (!\is_callable($functionName)) {
+            if (!\function_exists($functionName)) {
                 throw new Exception(\sprintf('Internal Error: Serializer for %s in file %s does not have expected function %s', $type, $filename, $functionName));
             }
-
-            $this->cachedSerializers[$functionName] = $functionName;
         }
 
         try {
