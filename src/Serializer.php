@@ -93,7 +93,6 @@ final class Serializer implements SerializerInterface
             throw new Exception('Version and group support is not implemented for deserialization. It is only supported for serialization');
         }
 
-        /** @var (callable(array<mixed>): object)&string $functionName */
         $functionName = DeserializerGenerator::buildDeserializerFunctionName($type);
 
         if (!\function_exists($functionName)) {
@@ -104,6 +103,7 @@ final class Serializer implements SerializerInterface
 
             require_once $filename;
 
+            /* @phpstan-ignore booleanNot.alwaysTrue */
             if (!\function_exists($functionName)) {
                 throw new Exception(\sprintf('Internal Error: Deserializer for %s in file %s does not have expected function %s', $type, $filename, $functionName));
             }
@@ -125,30 +125,26 @@ final class Serializer implements SerializerInterface
             throw new UnsupportedTypeException('The Liip Serializer only works for objects');
         }
         $type = $data::class;
-
+        $groups = [];
+        $version = null;
         if ($context) {
-            $groups = [];
-            $version = null;
             $groups = $context->getGroups();
             if ($context->getVersion()) {
                 $version = $context->getVersion();
             }
-            $functionName = SerializerGenerator::buildSerializerFunctionName($type, $version, $groups);
-        } else {
-            $functionName = SerializerGenerator::buildSerializerFunctionName($type, null, []);
         }
+
+        $functionName = SerializerGenerator::buildSerializerFunctionName($type, $version, $groups);
 
         if (!\function_exists($functionName)) {
             $filename = \sprintf('%s/%s.php', $this->cacheDirectory, $functionName);
             if (!file_exists($filename)) {
-                throw $context
-                    ? UnsupportedTypeException::typeUnsupportedSerialization($type, $version, $groups)
-                    : UnsupportedTypeException::typeUnsupportedSerialization($type, null, [])
-                ;
+                throw UnsupportedTypeException::typeUnsupportedSerialization($type, $version, $groups);
             }
 
             require_once $filename;
 
+            /* @phpstan-ignore booleanNot.alwaysTrue */
             if (!\function_exists($functionName)) {
                 throw new Exception(\sprintf('Internal Error: Serializer for %s in file %s does not have expected function %s', $type, $filename, $functionName));
             }
